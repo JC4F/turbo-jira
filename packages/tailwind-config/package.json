@@ -1,0 +1,12 @@
+{
+  "name": "@repo/tailwind-config",
+  "version": "0.0.0",
+  "private": true,
+  "files": [
+    "tailwind.config.js",
+    "postcss.config.js"
+  ],
+  "devDependencies": {
+    "tailwindcss-animate": "^1.0.7"
+  }
+}
