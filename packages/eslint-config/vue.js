@@ -31,6 +31,14 @@ module.exports = {
   rules: {
     "import/no-default-export": "off",
     "vue/multi-word-component-names": "off",
+    "unicorn/filename-case": [
+      "error",
+      {
+        cases: {
+          pascalCase: true,
+        },
+      },
+    ],
     // add specific rules configurations here
   },
 };
