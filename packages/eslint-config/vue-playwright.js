@@ -12,18 +12,12 @@ const project = resolve(process.cwd(), "tsconfig.json");
  */
 
 module.exports = {
-  extends: [
-    "plugin:vue/vue3-essential",
-    "eslint:recommended",
-    ...[
-      "@vercel/style-guide/eslint/browser",
-      "@vue/eslint-config-typescript",
-      "@vue/eslint-config-prettier/skip-formatting",
-    ].map(require.resolve),
+  overrides: [
+    {
+      files: ["e2e/**/*.{test,spec}.{js,ts,jsx,tsx}"],
+      extends: ["plugin:playwright/recommended"],
+    },
   ],
-  env: {
-    node: true,
-  },
   parserOptions: {
     ecmaVersion: "latest",
   },
@@ -36,17 +30,6 @@ module.exports = {
   },
   ignorePatterns: ["node_modules/", "dist/", ".eslintrc.js"],
   rules: {
-    "import/no-default-export": "off",
-    "vue/multi-word-component-names": "off",
-    "unicorn/filename-case": [
-      "error",
-      {
-        cases: {
-          camelCase: true,
-          pascalCase: true,
-        },
-      },
-    ],
     // add specific rules configurations here
   },
 };
