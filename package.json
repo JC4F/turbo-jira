@@ -8,7 +8,8 @@
     "dev:be": "turbo dev --filter=be",
     "lint": "turbo lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "cleandep": "rm -rf node_modules && pnpm -r exec rm -rf node_modules"
+    "cleandep": "rm -rf node_modules && pnpm -r exec rm -rf node_modules",
+    "check-types": "turbo check-types"
   },
   "devDependencies": {
     "prettier": "^3.2.5",
