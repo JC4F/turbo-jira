@@ -5,12 +5,17 @@ import {
 } from '@nestjs/platform-fastify';
 
 import { AppModule } from './app.module';
+import { ApiConfigService } from '@/shared/services';
+import { SharedModule } from '@/shared/shared.module';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     new FastifyAdapter({ logger: true }),
   );
-  await app.listen(3000);
+
+  const apiConfigService = app.select(SharedModule).get(ApiConfigService);
+
+  await app.listen(apiConfigService.port || 3000);
 }
 bootstrap();
