@@ -1,4 +1,4 @@
-import { validationSchema } from '@/schema';
+import { validationSchema } from '@/common';
 import { SharedModule } from '@/shared/shared.module';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { Module } from '@nestjs/common';
