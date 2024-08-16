@@ -44,5 +44,6 @@ module.exports = {
         endOfLine: "auto",
       },
     ],
+    "@typescript-eslint/ban-ts-comment": "off",
   },
 };
