@@ -1,26 +1,31 @@
 import { Injectable } from '@nestjs/common';
 import { CreateProjectInput } from './dto/create-project.input';
 import { UpdateProjectInput } from './dto/update-project.input';
+import { findEntityOrThrow, updateEntity } from '@/common';
+import { Project } from '@/project/entities/project.entity';
 
 @Injectable()
 export class ProjectService {
-  create(createProjectInput: CreateProjectInput) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async create(createProjectInput: CreateProjectInput) {
     return 'This action adds a new project';
   }
 
-  findAll() {
+  async findAll() {
     return `This action returns all project`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} project`;
+  async findOne(id: number) {
+    return await findEntityOrThrow(Project, id, {
+      relations: ['issues', 'users'],
+    });
   }
 
-  update(id: number, updateProjectInput: UpdateProjectInput) {
-    return `This action updates a #${id} project`;
+  async update(id: number, updateProjectInput: UpdateProjectInput) {
+    return await updateEntity(Project, id, updateProjectInput);
   }
 
-  remove(id: number) {
+  async remove(id: number) {
     return `This action removes a #${id} project`;
   }
 }

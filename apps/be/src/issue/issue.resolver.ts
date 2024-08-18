@@ -3,14 +3,36 @@ import { IssueService } from './issue.service';
 import { Issue } from './entities/issue.entity';
 import { CreateIssueInput } from './dto/create-issue.input';
 import { UpdateIssueInput } from './dto/update-issue.input';
+import { AuthUser } from '@/common/decorators';
+import { User } from '@/user/entities/user.entity';
 
 @Resolver(() => Issue)
 export class IssueResolver {
   constructor(private readonly issueService: IssueService) {}
 
+  @Query(() => [Issue])
+  async getProjectIssues(
+    @AuthUser() user: User,
+    @Args('searchTerm', { type: () => String, nullable: true })
+    searchTerm: string | null,
+  ): Promise<Issue[]> {
+    const { projectId } = user;
+
+    return this.issueService.getProjectIssues(projectId, searchTerm);
+  }
+
+  @Query(() => Issue)
+  async getIssueWithUsersAndComments(
+    @Args('issueId', { type: () => Int }) issueId: number,
+  ): Promise<Issue> {
+    return await this.issueService.getIssueWithUsersAndComments(issueId);
+  }
+
   @Mutation(() => Issue)
-  createIssue(@Args('createIssueInput') createIssueInput: CreateIssueInput) {
-    return this.issueService.create(createIssueInput);
+  async createIssue(
+    @Args('createIssueInput') createIssueInput: CreateIssueInput,
+  ) {
+    return await this.issueService.create(createIssueInput);
   }
 
   @Query(() => [Issue], { name: 'issue' })
@@ -24,12 +46,15 @@ export class IssueResolver {
   }
 
   @Mutation(() => Issue)
-  updateIssue(@Args('updateIssueInput') updateIssueInput: UpdateIssueInput) {
-    return this.issueService.update(updateIssueInput.id, updateIssueInput);
+  async updateIssue(
+    @Args('updateIssueInput') updateIssueInput: UpdateIssueInput,
+    @Args('id') issueId: number,
+  ) {
+    return await this.issueService.update(issueId, updateIssueInput);
   }
 
   @Mutation(() => Issue)
-  removeIssue(@Args('id', { type: () => Int }) id: number) {
-    return this.issueService.remove(id);
+  async removeIssue(@Args('id', { type: () => Int }) id: number) {
+    return await this.issueService.remove(id);
   }
 }
