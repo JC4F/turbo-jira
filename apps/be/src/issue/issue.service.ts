@@ -9,23 +9,23 @@ import {
   updateEntity,
 } from '@/common';
 
-const calculateListPosition = async ({
-  projectId,
-  status,
-}: Partial<Issue>): Promise<number> => {
-  const issues = await Issue.find({ where: { projectId, status } });
-
-  const listPositions = issues.map(({ listPosition }) => listPosition);
-
-  if (listPositions.length > 0) {
-    return Math.min(...listPositions) - 1;
-  }
-  return 1;
-};
-
 @Injectable()
 export class IssueService {
-  async getProjectIssues(projectId: string, searchTerm: string) {
+  async calculateListPosition({
+    projectId,
+    status,
+  }: Partial<Issue>): Promise<number> {
+    const issues = await Issue.find({ where: { projectId, status } });
+
+    const listPositions = issues.map(({ listPosition }) => listPosition);
+
+    if (listPositions.length > 0) {
+      return Math.min(...listPositions) - 1;
+    }
+    return 1;
+  }
+
+  async getProjectIssues(projectId: number, searchTerm: string) {
     let whereSQL = 'issue.projectId = :projectId';
 
     if (searchTerm) {
@@ -50,7 +50,7 @@ export class IssueService {
   }
 
   async create(createIssueInput: CreateIssueInput) {
-    const listPosition = await calculateListPosition(createIssueInput);
+    const listPosition = await this.calculateListPosition(createIssueInput);
     const issue = await createEntity(Issue, {
       ...createIssueInput,
       listPosition,

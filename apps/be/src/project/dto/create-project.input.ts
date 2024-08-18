@@ -1,7 +1,7 @@
 import { InputType, Field } from '@nestjs/graphql';
 
 import { ProjectCategory } from '@/constant';
-import Project from '@/project/entities/project.entity';
+import { Project } from '@/project/entities/project.entity';
 
 @InputType()
 export class CreateProjectInput implements Partial<Project> {
