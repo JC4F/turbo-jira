@@ -1,4 +1,9 @@
-import { validationSchema } from '@/common';
+import {
+  ErrorInterceptor,
+  IsAuth,
+  formatError,
+  validationSchema,
+} from '@/common';
 import { SharedModule } from '@/shared/shared.module';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { Module } from '@nestjs/common';
@@ -10,10 +15,23 @@ import { UserModule } from './user/user.module';
 import { IssueModule } from './issue/issue.module';
 import { ProjectModule } from './project/project.module';
 import { CommentModule } from './comment/comment.module';
-import { AuthModule } from './auth/auth.module';
+import { join } from 'path';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { ApiConfigService } from '@/shared/services';
 
 @Module({
   imports: [
+    SharedModule,
+    TypeOrmModule.forRootAsync({
+      imports: [SharedModule],
+      useFactory: (apiConfigService: ApiConfigService) => ({
+        type: 'postgres',
+        url: apiConfigService.dbUrl,
+        autoLoadEntities: true,
+        synchronize: false,
+      }),
+      inject: [ApiConfigService],
+    }),
     ConfigModule.forRoot({
       isGlobal: true,
       cache: true,
@@ -23,15 +41,18 @@ import { AuthModule } from './auth/auth.module';
       //   abortEarly: false,
       // },
     }),
-    GraphQLModule.forRoot<ApolloDriverConfig>({
-      driver: ApolloDriver,
-    }),
-    SharedModule,
     UserModule,
     IssueModule,
     ProjectModule,
     CommentModule,
-    AuthModule,
+    GraphQLModule.forRoot<ApolloDriverConfig>({
+      driver: ApolloDriver,
+      autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
+      formatError,
+      buildSchemaOptions: {
+        fieldMiddleware: [IsAuth, ErrorInterceptor],
+      },
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],

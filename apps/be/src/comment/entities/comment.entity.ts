@@ -7,6 +7,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
+  Relation,
 } from 'typeorm';
 
 import is from '@/common/utils/validations';
@@ -50,5 +51,5 @@ export class Comment extends BaseEntity {
 
   @Field(() => Issue)
   @ManyToOne(() => Issue, (issue) => issue.comments, { onDelete: 'CASCADE' })
-  issue: Issue;
+  issue: Relation<Issue>;
 }

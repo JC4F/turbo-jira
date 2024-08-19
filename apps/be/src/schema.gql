@@ -1,0 +1,136 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Project {
+  id: ID!
+  name: String!
+  url: String
+  description: String
+  category: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  issues: [Issue!]!
+  users: [User!]!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type User {
+  id: ID!
+  name: String!
+  email: String!
+  avatarUrl: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  comments: [Comment!]!
+  issues: [Issue!]!
+  project: Project!
+  projectId: Float!
+}
+
+type Comment {
+  id: ID!
+  body: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  userId: String!
+  issueId: Float!
+  user: User!
+  issue: Issue!
+}
+
+type Issue {
+  id: ID!
+  title: String!
+  type: String!
+  status: String!
+  priority: String!
+  listPosition: Float!
+  description: String
+  descriptionText: String
+  estimate: Int
+  timeSpent: Int
+  timeRemaining: Int
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  reporterId: String!
+  project: Project!
+  projectId: Float!
+  comments: [Comment!]!
+  users: [User!]!
+  userIds: [ID!]!
+}
+
+type Query {
+  createGuestAccount: String!
+  currentUser: User!
+  getProjectIssues(searchTerm: String): [Issue!]!
+  getIssueWithUsersAndComments(issueId: Int!): Issue!
+  getProjectWithUsersAndIssues: Project!
+}
+
+type Mutation {
+  createUser(createUserInput: CreateUserInput!): User!
+  createIssue(createIssueInput: CreateIssueInput!): Issue!
+  updateIssue(updateIssueInput: UpdateIssueInput!, id: Float!): Issue!
+  removeIssue(id: Int!): Issue!
+  updateProject(updateProjectInput: UpdateProjectInput!): Project!
+  createComment(createCommentInput: CreateCommentInput!): Comment!
+  updateComment(updateCommentInput: UpdateCommentInput!): Comment!
+  removeComment(id: Int!): Comment!
+}
+
+input CreateUserInput {
+  name: String
+  avatarUrl: String
+  projectId: Float
+}
+
+input CreateIssueInput {
+  title: String!
+  type: String!
+  status: String!
+  priority: String!
+  reporterId: ID!
+  projectId: ID!
+  users: [CreateUserInput!]!
+  userIds: [ID!]!
+  description: String
+}
+
+input UpdateIssueInput {
+  title: String
+  type: String
+  status: String
+  priority: String
+  reporterId: ID
+  projectId: ID
+  users: [CreateUserInput!]
+  userIds: [ID!]
+  description: String
+}
+
+input UpdateProjectInput {
+  name: String
+  url: String
+  description: String
+  category: String
+  id: Int!
+}
+
+input CreateCommentInput {
+  body: String
+  issueId: ID
+  userId: ID
+}
+
+input UpdateCommentInput {
+  body: String
+  issueId: ID
+  userId: ID
+  id: Int!
+}

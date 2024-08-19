@@ -35,15 +35,15 @@ export class IssueResolver {
     return await this.issueService.create(createIssueInput);
   }
 
-  @Query(() => [Issue], { name: 'issue' })
-  findAll() {
-    return this.issueService.findAll();
-  }
+  // @Query(() => [Issue], { name: 'issue' })
+  // findAll() {
+  //   return this.issueService.findAll();
+  // }
 
-  @Query(() => Issue, { name: 'issue' })
-  findOne(@Args('id', { type: () => Int }) id: number) {
-    return this.issueService.findOne(id);
-  }
+  // @Query(() => Issue, { name: 'issue' })
+  // findOne(@Args('id', { type: () => Int }) id: number) {
+  //   return this.issueService.findOne(id);
+  // }
 
   @Mutation(() => Issue)
   async updateIssue(

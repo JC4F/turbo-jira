@@ -1,20 +1,28 @@
-import { unwrapResolverError } from '@apollo/server/errors';
+// import { unwrapResolverError } from '@apollo/server/errors';
 import type { ValidationError as ClassValidatorValidationError } from 'class-validator';
 import { GraphQLError, GraphQLFormattedError } from 'graphql';
 // import { ArgumentValidationError } from 'type-graphql';
 
 export function formatError(
   formattedError: GraphQLFormattedError,
-  error: unknown,
 ): GraphQLFormattedError {
-  const originalError = unwrapResolverError(error);
+  // const originalError = unwrapResolverError(error);
+  const errorCode = formattedError.extensions.code;
+
+  if (errorCode) {
+    return {
+      message: formattedError.message,
+      // @ts-ignore
+      code: errorCode,
+    };
+  }
 
   // Log
-  console.log(
-    `Server error: ${
-      originalError instanceof Error ? originalError.message : originalError
-    }`,
-  );
+  // console.log(
+  //   `Server error: ${
+  //     originalError instanceof Error ? originalError.message : originalError
+  //   }`,
+  // );
 
   // // Validation
   // if (originalError instanceof ArgumentValidationError) {
