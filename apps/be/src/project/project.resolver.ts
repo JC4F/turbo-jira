@@ -1,7 +1,6 @@
-import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
 import { ProjectService } from './project.service';
 import { Project } from './entities/project.entity';
-import { CreateProjectInput } from './dto/create-project.input';
 import { UpdateProjectInput } from './dto/update-project.input';
 import { AuthUser } from '@/common/decorators';
 import { User } from '@/user/entities/user.entity';
@@ -10,19 +9,14 @@ import { User } from '@/user/entities/user.entity';
 export class ProjectResolver {
   constructor(private readonly projectService: ProjectService) {}
 
-  @Mutation(() => Project)
-  async createProject(
-    @Args('createProjectInput') createProjectInput: CreateProjectInput,
-  ) {
-    return await this.projectService.create(createProjectInput);
-  }
+  // @Mutation(() => Project)
+  // async createProject(
+  //   @Args('createProjectInput') createProjectInput: CreateProjectInput,
+  // ) {
+  //   return await this.projectService.create(createProjectInput);
+  // }
 
-  @Query(() => [Project], { name: 'project' })
-  async findAll() {
-    return await this.projectService.findAll();
-  }
-
-  @Query(() => Project, { name: 'project' })
+  @Query(() => Project)
   async getProjectWithUsersAndIssues(@AuthUser() authUser: User) {
     return await this.projectService.findOne(authUser.projectId);
   }
@@ -38,8 +32,8 @@ export class ProjectResolver {
     );
   }
 
-  @Mutation(() => Project)
-  async removeProject(@Args('id', { type: () => Int }) id: number) {
-    return await this.projectService.remove(id);
-  }
+  // @Mutation(() => Project)
+  // async removeProject(@Args('id', { type: () => Int }) id: number) {
+  //   return await this.projectService.remove(id);
+  // }
 }

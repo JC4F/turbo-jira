@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
+import { Resolver, Mutation, Args, Int } from '@nestjs/graphql';
 import { CommentService } from './comment.service';
 import { Comment } from './entities/comment.entity';
 import { CreateCommentInput } from './dto/create-comment.input';
@@ -15,15 +15,15 @@ export class CommentResolver {
     return await this.commentService.create(createCommentInput);
   }
 
-  @Query(() => [Comment], { name: 'comment' })
-  findAll() {
-    return this.commentService.findAll();
-  }
+  // @Query(() => [Comment], { name: 'comment' })
+  // findAll() {
+  //   return this.commentService.findAll();
+  // }
 
-  @Query(() => Comment, { name: 'comment' })
-  findOne(@Args('id', { type: () => Int }) id: number) {
-    return this.commentService.findOne(id);
-  }
+  // @Query(() => Comment, { name: 'comment' })
+  // findOne(@Args('id', { type: () => Int }) id: number) {
+  //   return this.commentService.findOne(id);
+  // }
 
   @Mutation(() => Comment)
   updateComment(
