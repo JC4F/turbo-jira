@@ -1,6 +1,6 @@
 import {
-  ErrorInterceptor,
-  IsAuth,
+  // ErrorInterceptor,
+  // IsAuth,
   formatError,
   validationSchema,
 } from '@/common';
@@ -49,9 +49,9 @@ import { ApiConfigService } from '@/shared/services';
       driver: ApolloDriver,
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
       formatError,
-      buildSchemaOptions: {
-        fieldMiddleware: [IsAuth, ErrorInterceptor],
-      },
+      // buildSchemaOptions: {
+      //   fieldMiddleware: [IsAuth, ErrorInterceptor],
+      // },
     }),
   ],
   controllers: [AppController],

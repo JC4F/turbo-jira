@@ -3,8 +3,9 @@ import { IssueService } from './issue.service';
 import { Issue } from './entities/issue.entity';
 import { CreateIssueInput } from './dto/create-issue.input';
 import { UpdateIssueInput } from './dto/update-issue.input';
-import { AuthUser } from '@/common/decorators';
+import { Auth, AuthUser } from '@/common';
 import { User } from '@/user/entities/user.entity';
+import { Role } from '@/constant';
 
 @Resolver(() => Issue)
 export class IssueResolver {
@@ -21,6 +22,7 @@ export class IssueResolver {
     return this.issueService.getProjectIssues(projectId, searchTerm);
   }
 
+  @Auth([Role.ADMIN])
   @Query(() => Issue)
   async getIssueWithUsersAndComments(
     @Args('issueId', { type: () => Int }) issueId: number,
