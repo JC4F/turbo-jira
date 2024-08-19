@@ -9,9 +9,11 @@
     "lint": "turbo lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "cleandep": "rm -rf node_modules && pnpm -r exec rm -rf node_modules",
-    "check-types": "turbo check-types"
+    "check-types": "turbo check-types",
+    "prepare": "husky"
   },
   "devDependencies": {
+    "husky": "^9.1.4",
     "prettier": "^3.2.5",
     "turbo": "^2.0.12",
     "typescript": "^5.4.5"
