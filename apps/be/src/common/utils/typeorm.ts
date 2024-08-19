@@ -1,10 +1,10 @@
 import { FindOneOptions } from 'typeorm';
 import { BadUserInputError, EntityNotFoundError } from '@/common/errors';
 import { generateErrors } from '@/common/utils/validations';
-import Issue from '@/issue/entities/issue.entity';
-import Comment from '@/comment/entities/comment.entity';
-import Project from '@/project/entities/project.entity';
-import User from '@/user/entities/user.entity';
+import { Issue } from '@/issue/entities/issue.entity';
+import { Comment } from '@/comment/entities/comment.entity';
+import { Project } from '@/project/entities/project.entity';
+import { User } from '@/user/entities/user.entity';
 
 type EntityConstructor =
   | typeof Project
