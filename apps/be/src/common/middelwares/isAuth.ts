@@ -22,6 +22,6 @@ export const IsAuth: FieldMiddleware = async (
       'Authentication token is invalid: User not found.',
     );
   }
-  context.req.currentUser = user;
+  context.req.user = user;
   return next();
 };
