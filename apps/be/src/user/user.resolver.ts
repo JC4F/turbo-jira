@@ -2,8 +2,9 @@ import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
 import { UserService } from './user.service';
 import { User } from './entities/user.entity';
 import { CreateUserInput } from './dto/create-user.input';
-import { AuthUser } from '@/common/decorators';
+import { Auth, AuthUser } from '@/common/decorators';
 import { createGuestAccount, signToken } from '@/common';
+import { Role } from '@/constant';
 // import { UpdateUserInput } from './dto/update-user.input';
 
 @Resolver(() => User)
@@ -16,6 +17,7 @@ export class UserResolver {
     return signToken({ sub: user.id });
   }
 
+  @Auth([Role.ADMIN])
   @Query(() => User)
   currentUser(@AuthUser() authUser: User): User {
     return authUser;
