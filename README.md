@@ -1,14 +1,22 @@
-# Turborepo starter
+# Turborepo (Vue + Shadcn Vue + NestJS ) Starter
 
-This is an official starter Turborepo.
+This is fullstack turborepo starter. It comes with the following features.
 
-## Using this example
-
-Run the following command:
-
-```sh
-npx create-turbo@latest
-```
+- ✅ Turborepo
+- ✅ Nestjs
+  - ✅ Env Config with Validation
+  - ✅ Prisma
+  - ✅ Drizzle
+  - ✅ Kysle
+- ✅ Vue
+  - ✅ Tailwind
+  - ✅ Shadcn Vue
+- ✅ Testing using PLayright
+- ✅ Github Actions
+- ✅ Reverse Proxy using Nginx
+- ✅ Docker Integration
+- ✅ Postgres Database
+- ✅ Package scripts using NPS
 
 ## What's inside?
 

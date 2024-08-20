@@ -1,6 +1,6 @@
 {
   "extends": "@repo/typescript-config/vue.json",
-  "include": ["env.d.ts", "src/**/*", "src/**/*.vue"],
+  "include": ["."],
   "exclude": ["dist", "build", "node_modules"],
   "compilerOptions": {
     "baseUrl": ".",
