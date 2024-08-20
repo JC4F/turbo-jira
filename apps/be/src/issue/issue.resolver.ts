@@ -11,6 +11,7 @@ import { Role } from '@/constant';
 export class IssueResolver {
   constructor(private readonly issueService: IssueService) {}
 
+  @Auth([Role.ADMIN, Role.USER])
   @Query(() => [Issue])
   async getProjectIssues(
     @AuthUser() user: User,
@@ -30,6 +31,7 @@ export class IssueResolver {
     return await this.issueService.getIssueWithUsersAndComments(issueId);
   }
 
+  @Auth([Role.ADMIN, Role.USER])
   @Mutation(() => Issue)
   async createIssue(
     @Args('createIssueInput') createIssueInput: CreateIssueInput,
@@ -37,16 +39,7 @@ export class IssueResolver {
     return await this.issueService.create(createIssueInput);
   }
 
-  // @Query(() => [Issue], { name: 'issue' })
-  // findAll() {
-  //   return this.issueService.findAll();
-  // }
-
-  // @Query(() => Issue, { name: 'issue' })
-  // findOne(@Args('id', { type: () => Int }) id: number) {
-  //   return this.issueService.findOne(id);
-  // }
-
+  @Auth([Role.ADMIN, Role.USER])
   @Mutation(() => Issue)
   async updateIssue(
     @Args('updateIssueInput') updateIssueInput: UpdateIssueInput,
@@ -55,6 +48,7 @@ export class IssueResolver {
     return await this.issueService.update(issueId, updateIssueInput);
   }
 
+  @Auth([Role.ADMIN, Role.USER])
   @Mutation(() => Issue)
   async removeIssue(@Args('id', { type: () => Int }) id: number) {
     return await this.issueService.remove(id);
