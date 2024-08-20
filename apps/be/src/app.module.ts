@@ -19,6 +19,7 @@ import { CommentModule } from './comment/comment.module';
 import { join } from 'path';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ApiConfigService } from '@/shared/services';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -29,7 +30,7 @@ import { ApiConfigService } from '@/shared/services';
         type: 'postgres',
         url: apiConfigService.dbUrl,
         autoLoadEntities: true,
-        synchronize: false,
+        synchronize: true,
       }),
       inject: [ApiConfigService],
     }),
@@ -56,6 +57,7 @@ import { ApiConfigService } from '@/shared/services';
       //   fieldMiddleware: [IsAuth, ErrorInterceptor],
       // },
     }),
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
