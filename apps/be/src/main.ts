@@ -41,6 +41,6 @@ async function bootstrap() {
 
   const apiConfigService = app.select(SharedModule).get(ApiConfigService);
 
-  await app.listen(apiConfigService.port || 3000);
+  await app.listen(apiConfigService.port || 3000, '0.0.0.0');
 }
 bootstrap();
