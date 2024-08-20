@@ -3,11 +3,14 @@ import { CommentService } from './comment.service';
 import { Comment } from './entities/comment.entity';
 import { CreateCommentInput } from './dto/create-comment.input';
 import { UpdateCommentInput } from './dto/update-comment.input';
+import { Auth } from '@/common';
+import { Role } from '@/constant';
 
 @Resolver(() => Comment)
 export class CommentResolver {
   constructor(private readonly commentService: CommentService) {}
 
+  @Auth([Role.ADMIN, Role.USER])
   @Mutation(() => Comment)
   async createComment(
     @Args('createCommentInput') createCommentInput: CreateCommentInput,
@@ -15,16 +18,7 @@ export class CommentResolver {
     return await this.commentService.create(createCommentInput);
   }
 
-  // @Query(() => [Comment], { name: 'comment' })
-  // findAll() {
-  //   return this.commentService.findAll();
-  // }
-
-  // @Query(() => Comment, { name: 'comment' })
-  // findOne(@Args('id', { type: () => Int }) id: number) {
-  //   return this.commentService.findOne(id);
-  // }
-
+  @Auth([Role.ADMIN, Role.USER])
   @Mutation(() => Comment)
   updateComment(
     @Args('updateCommentInput') updateCommentInput: UpdateCommentInput,
@@ -35,6 +29,7 @@ export class CommentResolver {
     );
   }
 
+  @Auth([Role.ADMIN, Role.USER])
   @Mutation(() => Comment)
   removeComment(@Args('id', { type: () => Int }) id: number) {
     return this.commentService.remove(id);
