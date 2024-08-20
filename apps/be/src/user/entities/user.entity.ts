@@ -1,4 +1,4 @@
-import { Field, ID, ObjectType } from '@nestjs/graphql';
+import { Field, ID, ObjectType, registerEnumType } from '@nestjs/graphql';
 import {
   BaseEntity,
   Column,
@@ -16,6 +16,13 @@ import is from '@/common/utils/validations';
 import { Issue } from '@/issue/entities/issue.entity';
 import { Comment } from '@/comment/entities/comment.entity';
 import { Project } from '@/project/entities/project.entity';
+import { Role } from '@/constant';
+
+// Register the Role enum with GraphQL
+registerEnumType(Role, {
+  name: 'Role', // This will be the name of the enum in the GraphQL schema
+  description: 'The role of a user', // Optional description
+});
 
 @ObjectType()
 @Entity()
@@ -36,6 +43,14 @@ export class User extends BaseEntity {
   @Field()
   @Column('varchar')
   email: string;
+
+  @Field(() => Role)
+  @Column('enum', {
+    enum: Role,
+    enumName: 'Role',
+    default: Role.USER,
+  })
+  role: Role;
 
   @Field()
   @Column('varchar', { length: 2000 })

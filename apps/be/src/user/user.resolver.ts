@@ -17,7 +17,7 @@ export class UserResolver {
     return signToken({ sub: user.id });
   }
 
-  @Auth([Role.ADMIN])
+  @Auth([Role.ADMIN, Role.USER])
   @Query(() => User)
   currentUser(@AuthUser() authUser: User): User {
     return authUser;

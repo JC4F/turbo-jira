@@ -5,6 +5,7 @@ import {
   IssueType,
   IssueStatus,
   IssuePriority,
+  Role,
 } from '@/constant';
 import { Issue } from '@/issue/entities/issue.entity';
 import { Project } from '@/project/entities/project.entity';
@@ -17,12 +18,14 @@ const seedUsers = (): Promise<User[]> => {
       name: 'Berlin',
       avatarUrl:
         'https://res.cloudinary.com/datlyfe/image/upload/v1583949061/casa%20del%20papel/berlin_tjeb95.jpg',
+      role: Role.ADMIN,
     }),
     createEntity(User, {
       email: 'profesor@jira.guest',
       name: 'El Profesor',
       avatarUrl:
         'https://res.cloudinary.com/datlyfe/image/upload/v1583949197/casa%20del%20papel/profesor_dcwdlt.jpg',
+      role: Role.USER,
     }),
     createEntity(User, {
       email: 'tokyo@jira.guest',
@@ -35,6 +38,7 @@ const seedUsers = (): Promise<User[]> => {
       name: 'Denver',
       avatarUrl:
         'https://res.cloudinary.com/datlyfe/image/upload/v1583949061/casa%20del%20papel/denver_wntrkk.jpg',
+      role: Role.USER,
     }),
   ];
   return Promise.all(users);

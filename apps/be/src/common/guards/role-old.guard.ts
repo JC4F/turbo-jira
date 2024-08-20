@@ -9,7 +9,7 @@ import { GqlExecutionContext } from '@nestjs/graphql';
 import * as _ from 'lodash';
 
 @Injectable()
-export class RolesGuard implements CanActivate {
+export class RolesGuardOld implements CanActivate {
   constructor(private readonly reflector: Reflector) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {

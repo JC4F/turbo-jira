@@ -22,7 +22,7 @@ export class IssueResolver {
     return this.issueService.getProjectIssues(projectId, searchTerm);
   }
 
-  @Auth([Role.ADMIN])
+  @Auth([Role.ADMIN, Role.USER])
   @Query(() => Issue)
   async getIssueWithUsersAndComments(
     @Args('issueId', { type: () => Int }) issueId: number,
