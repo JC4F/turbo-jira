@@ -1,1 +1,4 @@
 @import './base.css';
+@import 'tippy.js/dist/tippy.css';
+@import 'toastify-js/src/toastify.css';
+@import 'quill/dist/quill.snow.css';
