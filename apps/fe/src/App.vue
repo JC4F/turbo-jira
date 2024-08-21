@@ -6,7 +6,7 @@ import { onMounted } from 'vue'
 
 onMounted(() => {
   // eslint-disable-next-line no-console
-  console.log(import.meta.env.VITE_BASE_URL)
+  console.log(import.meta.env.VITE_BASE_BE_URL)
 })
 </script>
 
