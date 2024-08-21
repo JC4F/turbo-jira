@@ -24,6 +24,7 @@
     "lodash.omit": "^4.5.0",
     "lodash.pick": "^4.4.0",
     "lodash.xor": "^4.5.0",
+    "mitt": "^3.0.1",
     "pinia": "^2.1.7",
     "quill": "^2.0.2",
     "throttle-debounce": "^5.0.2",
