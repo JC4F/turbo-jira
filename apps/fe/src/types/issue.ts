@@ -37,7 +37,7 @@ export interface Issue {
   reporterId: string
   userIds: string[]
   comments: Comment[]
-  projectId: number | string
+  projectId: string
 }
 
 export interface IssueCreateDTO {
@@ -48,7 +48,7 @@ export interface IssueCreateDTO {
   userIds: string[]
   priority: IssuePriority
   status?: IssueStatus
-  projectId?: number | string
+  projectId?: string
   users?: Partial<User>[]
 }
 

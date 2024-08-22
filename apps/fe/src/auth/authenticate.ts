@@ -18,7 +18,7 @@ export const authenticate = async () => {
       mutation: login,
       variables: {
         loginAuthInput: {
-          userId: '1d5732be-1dea-447e-b389-cc9b7e08a359'
+          email: import.meta.env.VITE_TEST_ACCOUNT_IN_DB
         }
       }
     })

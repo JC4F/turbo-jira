@@ -7,7 +7,7 @@ export interface Comment {
   createdAt: Date
   updatedAt: Date
   userId: string
-  issueId: number
+  issueId: string
   user: User
   issue: Issue
 }

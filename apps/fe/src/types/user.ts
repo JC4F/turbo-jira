@@ -17,5 +17,5 @@ export interface User {
   comments: Comment[]
   issues: Issue[]
   project: Project
-  projectId: number
+  projectId: string
 }

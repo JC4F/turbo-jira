@@ -8,6 +8,7 @@ declare module 'autosize' {
 
 interface ImportMetaEnv {
   readonly VITE_BASE_BE_URL: string
+  readonly VITE_TEST_ACCOUNT_IN_DB: string
   // more env variables...
 }
 
