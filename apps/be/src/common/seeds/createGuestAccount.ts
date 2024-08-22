@@ -14,8 +14,8 @@ import { User } from '@/user/entities/user.entity';
 const seedUsers = (): Promise<User[]> => {
   const users = [
     createEntity(User, {
-      email: 'berlin@jira.guest',
-      name: 'Berlin',
+      email: 'jc4f@jira.admin',
+      name: 'JC4F',
       avatarUrl:
         'https://res.cloudinary.com/datlyfe/image/upload/v1583949061/casa%20del%20papel/berlin_tjeb95.jpg',
       role: Role.ADMIN,

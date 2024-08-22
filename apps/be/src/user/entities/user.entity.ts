@@ -76,7 +76,7 @@ export class User extends BaseEntity {
   @ManyToOne(() => Project, (project) => project.users)
   project: Project;
 
-  @Field()
+  @Field(() => ID)
   @RelationId((user: User) => user.project)
-  projectId: number;
+  projectId: string;
 }

@@ -35,8 +35,8 @@ export class Issue extends BaseEntity {
   };
 
   @Field(() => ID)
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Field()
   @Column('varchar')
@@ -86,7 +86,7 @@ export class Issue extends BaseEntity {
   @UpdateDateColumn({ type: 'timestamp' })
   updatedAt: Date;
 
-  @Field()
+  @Field(() => ID)
   @Column('uuid')
   reporterId: string;
 
@@ -94,9 +94,9 @@ export class Issue extends BaseEntity {
   @ManyToOne(() => Project, (project) => project.issues)
   project: Project;
 
-  @Field()
-  @Column('integer')
-  projectId: number;
+  @Field(() => ID)
+  @Column('uuid')
+  projectId: string;
 
   @Field(() => [Comment], { defaultValue: [] })
   @OneToMany(() => Comment, (comment) => comment.issue)

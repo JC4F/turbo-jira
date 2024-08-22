@@ -34,3 +34,9 @@ export class InvalidTokenError extends CustomError {
     super(message, 'INVALID_TOKEN', 401);
   }
 }
+
+export class UserNotFound extends CustomError {
+  constructor(message = 'Authentication fail.') {
+    super(message, 'Invalid email', 401);
+  }
+}

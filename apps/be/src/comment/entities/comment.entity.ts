@@ -22,8 +22,8 @@ export class Comment extends BaseEntity {
   };
 
   @Field(() => ID)
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Field()
   @Column('text')
@@ -37,13 +37,13 @@ export class Comment extends BaseEntity {
   @UpdateDateColumn({ type: 'timestamp' })
   updatedAt: Date;
 
-  @Field()
+  @Field(() => ID)
   @Column('uuid')
   userId: string;
 
-  @Field()
-  @Column('integer')
-  issueId: number;
+  @Field(() => ID)
+  @Column('uuid')
+  issueId: string;
 
   @Field(() => User)
   @ManyToOne(() => User, (user) => user.comments)

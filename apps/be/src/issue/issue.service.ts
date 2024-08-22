@@ -25,7 +25,7 @@ export class IssueService {
     return 1;
   }
 
-  async getProjectIssues(projectId: number, searchTerm: string) {
+  async getProjectIssues(projectId: string, searchTerm: string) {
     let whereSQL = 'issue.projectId = :projectId';
 
     if (searchTerm) {
@@ -41,7 +41,7 @@ export class IssueService {
     return issues;
   }
 
-  async getIssueWithUsersAndComments(issueId: number) {
+  async getIssueWithUsersAndComments(issueId: string) {
     const issue = await findEntityOrThrow(Issue, issueId, {
       relations: ['users', 'comments', 'comments.user'],
     });
@@ -58,20 +58,12 @@ export class IssueService {
     return issue;
   }
 
-  findAll() {
-    return `This action returns all issue`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} issue`;
-  }
-
-  async update(id: number, updateIssueInput: UpdateIssueInput) {
+  async update(id: string, updateIssueInput: UpdateIssueInput) {
     const issue = await updateEntity(Issue, id, updateIssueInput);
     return issue;
   }
 
-  async remove(id: number) {
+  async remove(id: string) {
     await deleteEntity(Issue, id);
     return true;
   }

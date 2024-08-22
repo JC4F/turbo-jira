@@ -10,19 +10,11 @@ export class CommentService {
     return await createEntity(Comment, createCommentInput);
   }
 
-  findAll() {
-    return `This action returns all comment`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} comment`;
-  }
-
-  async update(id: number, updateCommentInput: UpdateCommentInput) {
+  async update(id: string, updateCommentInput: UpdateCommentInput) {
     return await updateEntity(Comment, id, updateCommentInput);
   }
 
-  async remove(id: number) {
+  async remove(id: string) {
     return await deleteEntity(Comment, id);
   }
 }
