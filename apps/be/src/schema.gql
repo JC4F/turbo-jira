@@ -30,7 +30,7 @@ type User {
   comments: [Comment!]!
   issues: [Issue!]!
   project: Project!
-  projectId: Float!
+  projectId: ID!
 }
 
 """The role of a user"""
@@ -44,8 +44,8 @@ type Comment {
   body: String!
   createdAt: DateTime!
   updatedAt: DateTime!
-  userId: String!
-  issueId: Float!
+  userId: ID!
+  issueId: ID!
   user: User!
   issue: Issue!
 }
@@ -64,9 +64,9 @@ type Issue {
   timeRemaining: Int
   createdAt: DateTime!
   updatedAt: DateTime!
-  reporterId: String!
+  reporterId: ID!
   project: Project!
-  projectId: Float!
+  projectId: ID!
   comments: [Comment!]!
   users: [User!]!
   userIds: [ID!]!
@@ -83,7 +83,7 @@ type Auth {
   comments: [Comment!]!
   issues: [Issue!]!
   project: Project!
-  projectId: Float!
+  projectId: ID!
   access_token: String!
 }
 
@@ -91,26 +91,26 @@ type Query {
   createGuestAccount: String!
   currentUser: User!
   getProjectIssues(searchTerm: String): [Issue!]!
-  getIssueWithUsersAndComments(issueId: Int!): Issue!
+  getIssueWithUsersAndComments(issueId: String!): Issue!
   getProjectWithUsersAndIssues: Project!
 }
 
 type Mutation {
   createUser(createUserInput: CreateUserInput!): User!
   createIssue(createIssueInput: CreateIssueInput!): Issue!
-  updateIssue(updateIssueInput: UpdateIssueInput!, id: Float!): Issue!
-  removeIssue(id: Int!): Issue!
+  updateIssue(updateIssueInput: UpdateIssueInput!, id: String!): Issue!
+  removeIssue(id: String!): Issue!
   updateProject(updateProjectInput: UpdateProjectInput!): Project!
   createComment(createCommentInput: CreateCommentInput!): Comment!
   updateComment(updateCommentInput: UpdateCommentInput!): Comment!
-  removeComment(id: Int!): Comment!
+  removeComment(id: ID!): Comment!
   login(LoginAuthInput: LoginAuthInput!): Auth!
 }
 
 input CreateUserInput {
   name: String
   avatarUrl: String
-  projectId: Float
+  projectId: ID
 }
 
 input CreateIssueInput {
@@ -142,7 +142,7 @@ input UpdateProjectInput {
   url: String
   description: String
   category: String
-  id: Int!
+  id: ID!
 }
 
 input CreateCommentInput {
@@ -155,9 +155,9 @@ input UpdateCommentInput {
   body: String
   issueId: ID
   userId: ID
-  id: Int!
+  id: ID!
 }
 
 input LoginAuthInput {
-  userId: String!
+  email: String!
 }

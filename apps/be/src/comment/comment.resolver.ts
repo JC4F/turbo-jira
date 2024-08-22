@@ -1,4 +1,4 @@
-import { Resolver, Mutation, Args, Int } from '@nestjs/graphql';
+import { Resolver, Mutation, Args, ID } from '@nestjs/graphql';
 import { CommentService } from './comment.service';
 import { Comment } from './entities/comment.entity';
 import { CreateCommentInput } from './dto/create-comment.input';
@@ -31,7 +31,7 @@ export class CommentResolver {
 
   @Auth([Role.ADMIN, Role.USER])
   @Mutation(() => Comment)
-  removeComment(@Args('id', { type: () => Int }) id: number) {
+  removeComment(@Args('id', { type: () => ID }) id: string) {
     return this.commentService.remove(id);
   }
 }

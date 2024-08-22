@@ -6,7 +6,7 @@ export class CreateCommentInput implements Partial<Comment> {
   @Field({ nullable: true })
   body: string;
   @Field(() => ID, { nullable: true })
-  issueId: number;
+  issueId: string;
   @Field(() => ID, { nullable: true })
   userId: string;
 }

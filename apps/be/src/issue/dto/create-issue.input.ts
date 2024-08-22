@@ -18,7 +18,7 @@ export class CreateIssueInput implements Partial<Issue> {
   @Field(() => ID)
   reporterId: string;
   @Field(() => ID)
-  projectId: number;
+  projectId: string;
   @Field(() => [CreateUserInput])
   users: User[];
   @Field(() => [ID])

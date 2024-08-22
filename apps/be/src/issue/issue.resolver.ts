@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
 import { IssueService } from './issue.service';
 import { Issue } from './entities/issue.entity';
 import { CreateIssueInput } from './dto/create-issue.input';
@@ -26,7 +26,7 @@ export class IssueResolver {
   @Auth([Role.ADMIN, Role.USER])
   @Query(() => Issue)
   async getIssueWithUsersAndComments(
-    @Args('issueId', { type: () => Int }) issueId: number,
+    @Args('issueId', { type: () => String }) issueId: string,
   ): Promise<Issue> {
     return await this.issueService.getIssueWithUsersAndComments(issueId);
   }
@@ -43,14 +43,14 @@ export class IssueResolver {
   @Mutation(() => Issue)
   async updateIssue(
     @Args('updateIssueInput') updateIssueInput: UpdateIssueInput,
-    @Args('id') issueId: number,
+    @Args('id') issueId: string,
   ) {
     return await this.issueService.update(issueId, updateIssueInput);
   }
 
   @Auth([Role.ADMIN, Role.USER])
   @Mutation(() => Issue)
-  async removeIssue(@Args('id', { type: () => Int }) id: number) {
+  async removeIssue(@Args('id', { type: () => String }) id: string) {
     return await this.issueService.remove(id);
   }
 }

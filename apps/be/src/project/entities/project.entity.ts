@@ -24,8 +24,8 @@ export class Project extends BaseEntity {
   };
 
   @Field(() => ID)
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Field()
   @Column('varchar')
