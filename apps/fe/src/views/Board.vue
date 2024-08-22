@@ -17,7 +17,7 @@ const handleFiltersChange = (f: Filters) => {
 <template>
   <div class="pr-6 py-8 pl-10 h-full w-full flex flex-col">
     <j-breadcrumbs :items="['Projects', project.name, 'Kanban Board']" />
-    <header class="mt-3 flex justify-between text-textDarkest">
+    <header class="mt-3 flex justify-between text-foreground">
       <div class="text-2xl font-medium">Kanban board</div>
       <a href="https://github.com/Datlyfe/jira_clone" target="_blank" rel="noreferrer noopener">
         <j-button variant="secondary" icon="github">Github Repo</j-button>

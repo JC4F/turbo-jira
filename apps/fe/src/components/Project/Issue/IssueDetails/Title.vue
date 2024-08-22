@@ -24,7 +24,7 @@ const updateIssueDescription = async () => {
   <div class="w-full inline-block mt-4 -ml-2 h-10">
     <j-textarea
       placeholder="Short summary"
-      class="title h-auto font-medium text-2xl text-textDarkest;"
+      class="title h-auto font-medium text-2xl text-foreground;"
       @input="(e: any) => (title = e)"
       @blur="updateIssueDescription"
       :value="value"

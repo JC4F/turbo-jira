@@ -109,7 +109,7 @@ const iconStyles = computed(() => ({
       background: #fff;
 
       &::placeholder {
-        @apply text-textLight;
+        @apply text-background;
         font-size: 21px;
       }
       &:focus,

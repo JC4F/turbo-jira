@@ -69,24 +69,6 @@ const confirmCommentDelete = () => {
 </script>
 
 <template>
-  <Modal v-if="isIssueCreateOpen">
-    <IssueCreate />
-  </Modal>
-  <Modal v-if="isIssueSearchOpen">
-    <IssueSearch />
-  </Modal>
-  <Modal v-if="isIssueDetailsOpen">
-    <IssueDetails :issue-id="issueId" />
-  </Modal>
-  <Modal v-if="isIssueDeleteOpen">
-    <Confirm v-bind="issueDeleteProps" @confirm="confirmIssueDelete" />
-  </Modal>
-  <Modal v-if="isCommentDeleteOpen">
-    <Confirm v-bind="commentDeleteProps" @confirm="confirmCommentDelete" />
-  </Modal>
-</template>
-
-<template>
   <div>
     <Modal
       v-if="isIssueCreateOpen"

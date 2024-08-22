@@ -109,7 +109,7 @@ const handleSubmit = async () => {
 
 <template>
   <div class="w-full h-full px-8 py-5">
-    <div class="flex items-center py-3 text-textDarkest">
+    <div class="flex items-center py-3 text-foreground">
       <div class="text-xl">Create issue</div>
       <div class="flex-auto"></div>
       <j-button @click="$emit('close')" icon="x" :iconSize="24" variant="empty" />
@@ -185,7 +185,7 @@ const handleSubmit = async () => {
               <j-icon
                 v-if="remove"
                 @click="remove(optionValue)"
-                class="text-textLight"
+                class="text-background"
                 :size="20"
                 name="times"
               ></j-icon>
@@ -213,7 +213,7 @@ const handleSubmit = async () => {
               <j-icon
                 v-if="remove"
                 @click="remove(optionValue)"
-                class="text-textLight"
+                class="text-background"
                 :size="20"
                 name="times"
               ></j-icon>

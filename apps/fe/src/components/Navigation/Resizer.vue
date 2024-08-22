@@ -28,7 +28,7 @@ const handleResize = () => {
           <j-icon
             :name="expanded ? 'chevron-left' : 'chevron-right'"
             :size="24"
-            class="icon text-textMedium"
+            class="icon text-foreground"
           ></j-icon>
         </span>
       </button>

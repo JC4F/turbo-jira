@@ -59,7 +59,7 @@ const handleUpdateProject = async () => {
 <template>
   <div class="flex flex-col w-full h-full py-8 pl-10 pr-6">
     <j-breadcrumbs :items="['Projects', project.name, 'Project Details']" />
-    <header class="flex justify-between mt-3 text-textDarkest">
+    <header class="flex justify-between mt-3 text-foreground">
       <div class="text-2xl font-medium">Project Details</div>
     </header>
     <form @submit.prevent style="max-width: 640px" autocomplete="off" novalidate>
@@ -85,7 +85,7 @@ const handleUpdateProject = async () => {
         <label class="label" for="desc">Description</label>
         <j-textarea
           placeholder="No description"
-          class="text-15 bg-backgroundLightest"
+          class="text-15 bg-background"
           :value="projectUpdateDTO.description"
           @input="(v: string) => (projectUpdateDTO.description = v)"
         />
@@ -115,9 +115,9 @@ const handleUpdateProject = async () => {
 
 <style lang="scss" scoped>
 .label {
-  @apply pb-2 font-medium text-[13px] text-textMedium block;
+  @apply pb-2 font-medium text-[13px] text-foreground block;
 }
 .tip {
-  @apply pt-1-5 text-textMedium text-[13px];
+  @apply pt-[0.375rem] text-foreground text-[13px];
 }
 </style>

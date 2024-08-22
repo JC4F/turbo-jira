@@ -39,7 +39,7 @@ onUnmounted(() => {
 
 <template>
   <div class="px-10 py-8">
-    <div class="pb-4 text-2xl font-medium leading-normal text-textDarkest">
+    <div class="pb-4 text-2xl font-medium leading-normal text-foreground">
       {{ title }}
     </div>
     <p class="pb-4 whitespace-pre-wrap text-15">{{ message }}</p>

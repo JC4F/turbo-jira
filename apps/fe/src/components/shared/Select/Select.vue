@@ -116,7 +116,7 @@ useOutsideClick(ref(document.body), selectRef, deactivateDropdown)
 <template>
   <div class="select" ref="selectRef" :class="[variant]" @keydown="handleFocusedSelectKeydown">
     <div
-      class="valueContainer text-textDarkest"
+      class="valueContainer text-foreground"
       :data-testid="name ? `select:${name}` : 'select'"
       @click="activateDropdown"
     >
@@ -127,7 +127,7 @@ useOutsideClick(ref(document.body), selectRef, deactivateDropdown)
         {{ getOptionLabel(localValue) }}
       </template>
 
-      <div v-if="!isValueEmpty && isMulti" class="valueMulti text-textDarkest">
+      <div v-if="!isValueEmpty && isMulti" class="valueMulti text-foreground">
         <div
           class="flex items-center mx-1 my-1"
           v-for="optionValue in localValue"
@@ -141,7 +141,7 @@ useOutsideClick(ref(document.body), selectRef, deactivateDropdown)
               remove: removeOptionValue
             }"
           />
-          <div v-else class="valueMultiItem text-textDarkest">
+          <div v-else class="valueMultiItem text-foreground">
             <div class="valueMultiItemLabel">
               {{ getOptionLabel(optionValue) }}
             </div>
@@ -285,13 +285,13 @@ useOutsideClick(ref(document.body), selectRef, deactivateDropdown)
 
 <style lang="scss" scoped>
 .select.normal {
-  @apply w-full px-2 border-borderLightest bg-backgroundLightest;
+  @apply w-full px-2 border-border bg-background;
 }
 .select.normal:hover {
-  @apply bg-backgroundLight;
+  @apply bg-secondary;
 }
 .select.normal:focus {
-  @apply border-default border-borderInputFocus bg-white text-borderInputFocus;
+  @apply border border-border bg-white text-border;
   box-shadow: 0 0 0 1px currentColor;
 }
 

@@ -1,8 +1,8 @@
-import { gql } from '@apollo/client'
+import { gql } from '@apollo/client/core'
 
 export const createComment = gql`
-  mutation createComment($comment: CommentInput!) {
-    createComment(comment: $comment) {
+  mutation CreateComment($createCommentInput: CreateCommentInput!) {
+    createComment(createCommentInput: $createCommentInput) {
       id
       body
       issueId
@@ -14,15 +14,15 @@ export const createComment = gql`
 `
 
 export const deleteComment = gql`
-  mutation deleteComment($commentId: String!) {
-    deleteComment(id: $commentId) {
+  mutation RemoveComment($removeCommentId: Int!) {
+    removeComment(id: $removeCommentId) {
       body
     }
   }
 `
 export const updateComment = gql`
-  mutation updateComment($commentId: String!, $comment: CommentInput!) {
-    updateComment(comment: $comment, id: $commentId) {
+  mutation UpdateComment($updateCommentInput: UpdateCommentInput!) {
+    updateComment(updateCommentInput: $updateCommentInput) {
       body
     }
   }

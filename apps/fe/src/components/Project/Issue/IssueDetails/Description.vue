@@ -39,7 +39,7 @@ const updateIssueDescription = async () => {
 
 <template>
   <div>
-    <div class="pt-5 pb-2 text-15 text-textDarkest">Description</div>
+    <div class="pt-5 pb-2 text-15 text-foreground">Description</div>
     <j-text-editor
       @changeMode="handleModeChange"
       :mode="mode"

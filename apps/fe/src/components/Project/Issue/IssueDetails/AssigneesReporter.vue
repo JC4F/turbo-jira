@@ -60,7 +60,7 @@ const updateIssueAssignees = async (userIds: string[]) => {
 
 <template>
   <div>
-    <div class="mt-6 mb-1 uppercase text-textMedium text-[13px] font-bold">Reporter</div>
+    <div class="mt-6 mb-1 uppercase text-foreground text-[13px] font-bold">Reporter</div>
     <j-select
       searchable
       variant="empty"
@@ -76,7 +76,7 @@ const updateIssueAssignees = async (userIds: string[]) => {
         <j-button variant="secondary">
           <div class="flex items-center">
             <j-avatar :size="20" :avatarUrl="user.avatarUrl" :name="user.name" />
-            <div class="ml-1-5 mr-1">
+            <div class="ml-[0.375rem] mr-1">
               {{ user.name }}
             </div>
           </div>
@@ -85,14 +85,14 @@ const updateIssueAssignees = async (userIds: string[]) => {
       <template v-slot:option="{ user }">
         <div class="my-px mr-4 flex items-center">
           <j-avatar :size="20" :avatarUrl="user.avatarUrl" :name="user.name" />
-          <div class="ml-1-5 mr-1">
+          <div class="ml-[0.375rem] mr-1">
             {{ user.name }}
           </div>
         </div>
       </template>
     </j-select>
     <!-- ASSIGNEES -->
-    <div class="mt-6 mb-1 uppercase text-textMedium text-[13px] font-bold">Assignees</div>
+    <div class="mt-6 mb-1 uppercase text-foreground text-[13px] font-bold">Assignees</div>
     <j-select
       searchable
       variant="empty"
@@ -109,13 +109,13 @@ const updateIssueAssignees = async (userIds: string[]) => {
         <j-button variant="secondary">
           <div class="flex items-center">
             <j-avatar :size="20" :avatarUrl="user.avatarUrl" :name="user.name" />
-            <div class="ml-1-5 mr-1.5">
+            <div class="ml-[0.375rem] mr-1.5">
               {{ user.name }}
             </div>
             <j-icon
               v-if="remove"
               @click="remove(optionValue)"
-              class="text-textLight"
+              class="text-background"
               :size="20"
               name="times"
             ></j-icon>
@@ -125,7 +125,7 @@ const updateIssueAssignees = async (userIds: string[]) => {
       <template v-slot:option="{ user }">
         <div class="my-px mr-4 flex items-center">
           <j-avatar :size="20" :avatarUrl="user.avatarUrl" :name="user.name" />
-          <div class="ml-1-5 mr-1">
+          <div class="ml-[0.375rem] mr-1">
             {{ user.name }}
           </div>
         </div>

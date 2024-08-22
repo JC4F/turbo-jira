@@ -7,6 +7,8 @@ const props = defineProps<{
   autoFocus?: boolean
 }>()
 
+const model = defineModel({ default: '' })
+
 const emit = defineEmits<{
   (e: 'input', value: string): void
   (e: 'keydown', event: KeyboardEvent): void
@@ -30,32 +32,28 @@ onMounted(() => {
 </script>
 
 <template>
-  <textarea ref="elementRef" :value="props.value" @input="handleInput" />
-</template>
-
-<template>
   <textarea
     @input="handleInput"
     @keydown="$emit('keydown', $event)"
     @blur="$emit('blur', $event)"
-    :value="value"
     v-bind="$attrs"
     ref="elementRef"
     rows="1"
     class="textarea"
+    v-model="model"
   />
 </template>
 
 <style lang="scss" scoped>
 .textarea {
   border: 1px solid transparent;
-  @apply border-borderLightest;
+  @apply border-border;
 }
 .textarea:hover:not(:focus) {
-  @apply bg-backgroundLight;
+  @apply bg-background;
 }
 .textarea:focus {
-  @apply bg-white border-default border-borderInputFocus;
+  @apply bg-white border border-border;
   box-shadow: 0 0 0 1px #4c9aff;
 }
 </style>

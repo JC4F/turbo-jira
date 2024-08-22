@@ -25,7 +25,7 @@ const updateIssuePriority = async (priority: IssuePriority) => {
 
 <template>
   <div>
-    <div class="mt-6 mb-1 uppercase text-textMedium text-[13px] font-bold">Priority</div>
+    <div class="mt-6 mb-1 uppercase text-foreground text-[13px] font-bold">Priority</div>
     <j-select
       searchable
       variant="empty"

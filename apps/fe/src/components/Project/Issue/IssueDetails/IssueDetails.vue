@@ -195,7 +195,7 @@ onUnmounted(() => {
 <template>
   <IssueLoader v-if="!issueCopy" />
   <div class="w-full h-full" v-else>
-    <div class="flex items-center px-3 pt-4 text-textDarkest">
+    <div class="flex items-center px-3 pt-4 text-foreground">
       <!-- Type -->
       <IssueType :updateIssue="handleUpdateIssue" :issueId="issueCopy.id" :value="issueCopy.type" />
       <div class="flex-auto"></div>
@@ -263,9 +263,7 @@ onUnmounted(() => {
         <!-- PRIORITY -->
         <IssuePriority :value="issueCopy.priority" :updateIssue="handleUpdateIssue" />
         <!-- DATES -->
-        <div
-          class="mt-3 pt-3 leading-loose border-t border-borderLightest text-textMedium text-[13px]"
-        >
+        <div class="mt-3 pt-3 leading-loose border-t border-border text-foreground text-[13px]">
           <div>Created - {{ formatDateTimeConversational(issueCopy.createdAt) }}</div>
           <div>Updated - {{ formatDateTimeConversational(issueCopy.updatedAt) }}</div>
         </div>
@@ -279,13 +277,13 @@ onUnmounted(() => {
   @apply mt-5;
 }
 .sep {
-  @apply mt-5 border border-backgroundLightest;
+  @apply mt-5 border border-background;
 }
 .formFieldLabel {
-  @apply block pb-1-25 text-textMedium text-[13px] font-medium;
+  @apply block pb-[0.3125rem] text-foreground text-[13px] font-medium;
 }
 .formFieldTip {
-  @apply pt-1-5 text-textMedium text-[13px];
+  @apply pt-[0.375rem] text-foreground text-[13px];
 }
 </style>
 

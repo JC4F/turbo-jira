@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client'
+import { gql } from '@apollo/client/core'
 
 export const getIssueWithUsersAndComments = gql`
   query getIssue($id: Int!) {
@@ -50,8 +50,8 @@ export const getProjectIssues = gql`
 `
 
 export const createIssue = gql`
-  mutation createIssue($issue: IssueCreateInput!) {
-    createIssue(issue: $issue) {
+  mutation CreateIssue($createIssueInput: CreateIssueInput!) {
+    createIssue(createIssueInput: $createIssueInput) {
       id
       title
       type

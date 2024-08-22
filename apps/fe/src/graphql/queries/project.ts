@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client'
+import { gql } from '@apollo/client/core'
 
 export const getProjectWithUsersAndIssues = gql`
   {
@@ -33,8 +33,8 @@ export const getProjectWithUsersAndIssues = gql`
 `
 
 export const updateProject = gql`
-  mutation updateProject($project: ProjectInput!) {
-    updateProject(project: $project) {
+  mutation CreateIssue($updateProjectInput: UpdateProjectInput!) {
+    updateProject(updateProjectInput: $updateProjectInput) {
       id
     }
   }

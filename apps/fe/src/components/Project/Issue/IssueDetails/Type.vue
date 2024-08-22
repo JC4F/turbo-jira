@@ -36,7 +36,7 @@ const updateIssueType = async (type: IssueType) => {
   >
     <template v-slot:default="{ label, icon }">
       <j-button
-        class="uppercase text-textMedium text-[13px]"
+        class="uppercase text-foreground text-[13px]"
         :iconSize="20"
         variant="empty"
         :icon="icon"

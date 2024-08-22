@@ -18,7 +18,7 @@ export const authenticate = async () => {
       mutation: login,
       variables: {
         loginAuthInput: {
-          userId: '055af3c9-c487-42b9-af8d-8890ede546ed'
+          userId: '1d5732be-1dea-447e-b389-cc9b7e08a359'
         }
       }
     })

@@ -188,7 +188,7 @@ onMounted(() => {
 
     <div class="options" ref="optionsRef">
       <div
-        class="option text-textDarkest"
+        class="option text-foreground"
         v-for="option in filteredOptions"
         :key="option.value"
         :data-select-option-value="option.value"
@@ -201,7 +201,7 @@ onMounted(() => {
 
       <div
         v-if="isOptionCreatable"
-        class="option text-textDarkest"
+        class="option text-foreground"
         :data-create-option-label="{ searchValue }"
         @mouseenter="handleOptionMouseEnter"
         @click="createOption(searchValue)"

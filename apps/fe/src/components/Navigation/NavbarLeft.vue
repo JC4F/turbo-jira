@@ -32,7 +32,7 @@ const items = [
     <div class="h-screen w-navbarLeft pt-6 pb-5 flex flex-col bg-primary flex-shrink-0">
       <div class="relative pb-2 flex items-center justify-center">
         <svg
-          class="h-8 w-8 text-textLogo"
+          class="h-8 w-8 text-background"
           viewBox="0 0 32 32"
           xmlns="http://www.w3.org/2000/svg"
           aria-hidden="true"

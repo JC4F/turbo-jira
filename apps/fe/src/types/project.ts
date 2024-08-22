@@ -8,7 +8,7 @@ export enum ProjectCategory {
 }
 
 export interface Project {
-  id: number
+  id: string
   name: string
   url: string | null
   description: string | null

@@ -35,18 +35,6 @@ const getLetterStyle = computed(() => ({
 </script>
 
 <template>
-  <div :style="getImageStyle">
-    <span v-if="!props.avatarUrl" :style="getLetterStyle">
-      {{ props.name.charAt(0).toUpperCase() }}
-    </span>
-  </div>
-</template>
-
-<style scoped>
-/* Your styles here */
-</style>
-
-<template>
   <div :style="getImageStyle" v-if="avatarUrl" />
   <div v-else :style="getLetterStyle" class="letter"></div>
 </template>

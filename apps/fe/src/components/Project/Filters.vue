@@ -86,7 +86,7 @@ const areFiltersCleared = computed(() => {
       >Recently Updated</j-button
     >
     <div class="flex items-center ml-3" v-if="!areFiltersCleared">
-      <div class="self-stretch w-px mr-3 bg-backgroundMedium"></div>
+      <div class="self-stretch w-px mr-3 bg-foreground"></div>
       <j-button variant="secondary" @click="handleReset">Clear all</j-button>
     </div>
   </div>

@@ -19,14 +19,14 @@ const sidebarWidth = computed(() => (props.expanded ? 240 : 20))
 
 <template>
   <div :style="{ width: `${sidebarWidth}px` }" class="sidebar h-full relative">
-    <div class="sidebar-content px-4 bg-backgroundLightest">
+    <div class="sidebar-content px-4 bg-background">
       <div class="flex py-6 px-1">
         <j-icon name="project-avatar" :size="40"></j-icon>
         <div class="pt-1 pl-2">
-          <div class="mb-1 text-textDark text-15 font-medium">
+          <div class="mb-1 text-foreground text-15 font-medium">
             {{ project.name }}
           </div>
-          <div class="text-textMedium text-[13px]">
+          <div class="text-foreground text-[13px]">
             {{ ProjectCategoryCopy[project.category] }} project
           </div>
         </div>
@@ -39,7 +39,7 @@ const sidebarWidth = computed(() => (props.expanded ? 240 : 20))
           exact
           exact-active-class="active"
           tag="a"
-          class="link flex items-center relative py-2 px-3 rounded-sm text-textDarkest"
+          class="link flex items-center relative py-2 px-3 rounded-sm text-foreground"
           :class="`${!link.to ? 'not-allowed' : 'allowed'}`"
         >
           <j-icon :name="link.icon" :size="24" class="mr-4"></j-icon>
@@ -47,12 +47,12 @@ const sidebarWidth = computed(() => (props.expanded ? 240 : 20))
           <div class="text-15 pt-px">{{ link.name }}</div>
           <div
             v-if="!link.to"
-            class="not-implemented bg-backgroundMedium text-textDark inline-block absolute rounded-sm uppercase opacity-0 text-xs font-bold"
+            class="not-implemented bg-foreground text-foreground inline-block absolute rounded-sm uppercase opacity-0 text-xs font-bold"
           >
             Not implemented
           </div>
         </component>
-        <div v-if="index == 1" class="mt-4 pt-4 border-t border-borderLight"></div>
+        <div v-if="index == 1" class="mt-4 pt-4 border-t border-border"></div>
       </div>
     </div>
   </div>
@@ -84,10 +84,10 @@ const sidebarWidth = computed(() => (props.expanded ? 240 : 20))
   @apply opacity-100;
 }
 .active {
-  @apply text-textLink bg-backgroundLight;
+  @apply text-foreground bg-background;
 }
 .allowed:hover {
-  @apply bg-backgroundLight;
+  @apply bg-background;
 }
 .not-allowed {
   cursor: not-allowed;

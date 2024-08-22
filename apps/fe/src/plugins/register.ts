@@ -44,5 +44,5 @@ const sharedComponents = [
 ]
 
 export const registerSharedComponents = (app: App) => {
-  sharedComponents.forEach((c: any) => app.component(c.name, c))
+  sharedComponents.forEach((c) => app.component(c.name, c.component))
 }

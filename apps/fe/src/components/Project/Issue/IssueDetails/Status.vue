@@ -23,7 +23,7 @@ const updateIssueStatus = async (status: IssueStatus) => {
 
 <template>
   <div>
-    <div class="mt-6 mb-1 uppercase text-textMedium text-[13px] font-bold">status</div>
+    <div class="mt-6 mb-1 uppercase text-foreground text-[13px] font-bold">status</div>
     <j-select
       searchable
       variant="empty"
@@ -37,7 +37,7 @@ const updateIssueStatus = async (status: IssueStatus) => {
     >
       <template v-slot:default="{ label }">
         <j-button
-          class="uppercase text-textMedium text-[13px]"
+          class="uppercase text-foreground text-[13px]"
           :variant="issueStatusVariants[value]"
         >
           {{ label }}

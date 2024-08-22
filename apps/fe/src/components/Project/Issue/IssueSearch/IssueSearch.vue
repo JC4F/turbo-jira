@@ -7,6 +7,7 @@ import Spinner from '@/components/Loader.vue'
 import { getProjectIssues } from '@/graphql/queries/issue'
 import type { Issue } from '@/types/issue'
 import { getters } from '@/stores'
+import Input from '@/components/shared/Input/Input.vue'
 
 // Utility function to sort items by the newest
 const sortByNewest = <T extends { [key: string]: any }>(items: T[], sortField: string): T[] =>
@@ -15,7 +16,7 @@ const sortByNewest = <T extends { [key: string]: any }>(items: T[], sortField: s
 // Reactive state
 const isSearchTermEmpty = ref(true)
 const searchTerm = ref('')
-const searchInputRef = ref<HTMLInputElement | null>(null)
+const searchInputRef = ref<InstanceType<typeof Input> | null>(null)
 
 // Apollo Query to fetch project issues
 const { result, refetch, loading } = useQuery<{ getProjectIssues: Issue[] }>(getProjectIssues, {
@@ -40,7 +41,12 @@ const handleSearchChange = debounce(500, (value: string) => {
 
 // Focus on search input when the component is mounted
 onMounted(() => {
-  searchInputRef.value?.focus()
+  if (searchInputRef.value) {
+    const inputEl = searchInputRef.value.$el.querySelector('input')
+    if (inputEl) {
+      inputEl.focus()
+    }
+  }
 })
 </script>
 
@@ -49,7 +55,7 @@ onMounted(() => {
     <div class="relative pr-7 mb-10">
       <j-input
         ref="searchInputRef"
-        class="flat text-textMedium"
+        class="flat text-foreground"
         icon="search"
         @input="handleSearchChange"
         :value="searchTerm"
@@ -65,11 +71,11 @@ onMounted(() => {
     </div>
     <div class="fadeIn" v-else>
       <div v-if="isSearchTermEmpty && recentIssues.length > 0">
-        <div class="text-textMedium font-bold text-xs uppercase pb-3">Recent Issues</div>
+        <div class="text-foreground font-bold text-xs uppercase pb-3">Recent Issues</div>
         <SearchResult v-for="issue in recentIssues" :key="issue.id" :issue="issue" />
       </div>
       <div v-if="!isSearchTermEmpty && matchingIssues.length > 0">
-        <div class="text-textMedium font-bold text-xs uppercase pb-3">Matching Issues</div>
+        <div class="text-foreground font-bold text-xs uppercase pb-3">Matching Issues</div>
         <SearchResult v-for="issue in matchingIssues" :key="issue.id" :issue="issue" />
       </div>
       <div

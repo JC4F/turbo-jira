@@ -39,7 +39,7 @@ const handleCommentCreate = async () => {
       issueId: props.comment.issueId,
       userId: props.comment.user.id
     }
-    await createMutation({ comment } as any)
+    await createMutation({ createCommentInput: comment } as any)
     await props.refetchIssue()
     newComment.value = ''
     isFormOpen.value = false
@@ -59,7 +59,7 @@ const handleCommentUpdate = async () => {
       issueId: props.comment.issueId,
       userId: props.comment.user.id
     }
-    await updateMutation({ comment, commentId: props.comment.id } as any)
+    await updateMutation({ updateCommentInput: { ...comment, id: props.comment.id } } as any)
     await props.refetchIssue()
     isFormOpen.value = false
     isWorking.value = false
@@ -109,10 +109,10 @@ const handleCancel = () => {
       <div
         v-if="!isCreate"
         v-text="comment.user.name"
-        class="inline-block mb-2 mr-3 font-medium text-textDark"
+        class="inline-block mb-2 mr-3 font-medium text-foreground"
       />
       <!-- createdAt -->
-      <div v-if="!isCreate" v-text="createdAt" class="inline-block pb-2 text-sm text-textDark" />
+      <div v-if="!isCreate" v-text="createdAt" class="inline-block pb-2 text-sm text-foreground" />
       <!-- body-form -->
       <div v-if="isFormOpen">
         <j-textarea
@@ -145,13 +145,13 @@ const handleCancel = () => {
         <div v-if="!isCreate && !readOnly">
           <div
             @click="isFormOpen = true"
-            class="inline-block py-1 mr-3 text-sm cursor-pointer select-none text-textMedium hover:underline"
+            class="inline-block py-1 mr-3 text-sm cursor-pointer select-none text-foreground hover:underline"
           >
             Edit
           </div>
           <div
             @click="triggerCommentDelete"
-            class="inline-block py-1 mr-3 text-sm cursor-pointer select-none text-textMedium hover:underline"
+            class="inline-block py-1 mr-3 text-sm cursor-pointer select-none text-foreground hover:underline"
           >
             Delete
           </div>

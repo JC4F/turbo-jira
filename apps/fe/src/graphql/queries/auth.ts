@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client'
+import { gql } from '@apollo/client/core'
 import { apolloClient } from '../client'
 import type { User } from '@/types'
 

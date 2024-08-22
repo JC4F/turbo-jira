@@ -37,14 +37,14 @@ const openIssueDetails = () => {
   <div class="issue-wrap">
     <div
       @click="openIssueDetails"
-      class="issue rounded-sm bg-white transition-all duration-100 select-none hover:bg-backgroundLight"
+      class="issue rounded-sm bg-white transition-all duration-100 select-none hover:bg-background"
     >
-      <p class="pb-3 text-15 text-textDarkest">
+      <p class="pb-3 text-15 text-foreground">
         {{ issue.title }}
       </p>
       <div class="flex items-center justify-between">
         <div class="flex items-center">
-          <j-icon :name="issue.type" :size="20" class="mr-1 text-textMedium"></j-icon>
+          <j-icon :name="issue.type" :size="20" class="mr-1 text-foreground"></j-icon>
 
           <j-icon
             :style="{ color: issuePriorityStyles.color }"

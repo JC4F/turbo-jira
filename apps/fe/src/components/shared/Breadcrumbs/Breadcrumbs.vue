@@ -7,7 +7,7 @@ defineProps<{
 </script>
 
 <template>
-  <div class="text-textMedium text-15">
+  <div class="text-foreground text-15">
     <span v-for="(item, index) in items" :key="item">
       <span class="relative mx-2 font-lg" v-if="index !== 0">/</span>
       {{ item }}

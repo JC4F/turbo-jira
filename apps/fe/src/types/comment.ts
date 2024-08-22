@@ -2,7 +2,7 @@ import type { User } from './user'
 import type { Issue } from './issue'
 
 export interface Comment {
-  id: number
+  id: string
   body: string
   createdAt: Date
   updatedAt: Date
