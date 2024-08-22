@@ -1,3 +1,38 @@
+<script lang="ts" setup>
+import { ref, onMounted, defineProps, defineEmits } from 'vue'
+import autosize from 'autosize'
+
+const props = defineProps<{
+  value?: string
+  autoFocus?: boolean
+}>()
+
+const emit = defineEmits<{
+  (e: 'input', value: string): void
+  (e: 'keydown', event: KeyboardEvent): void
+  (e: 'blur', event: FocusEvent): void
+}>()
+
+const elementRef = ref<HTMLTextAreaElement | null>(null)
+
+const handleInput = (e: Event) => {
+  emit('input', (e.target as HTMLTextAreaElement).value)
+}
+
+onMounted(() => {
+  if (elementRef.value) {
+    autosize(elementRef.value)
+    if (props.autoFocus) {
+      elementRef.value.focus()
+    }
+  }
+})
+</script>
+
+<template>
+  <textarea ref="elementRef" :value="props.value" @input="handleInput" />
+</template>
+
 <template>
   <textarea
     @input="handleInput"
@@ -10,41 +45,6 @@
     class="textarea"
   />
 </template>
-
-<script lang="ts">
-import { defineComponent, onMounted, ref } from 'vue'
-import autosize from 'autosize'
-
-export default defineComponent({
-  name: 'j-textarea',
-  props: {
-    value: {
-      default: undefined
-    },
-    autoFocus: {
-      type: Boolean,
-      default: false
-    }
-  },
-  setup(props, { emit }) {
-    const elementRef = ref<HTMLTextAreaElement>()
-    const handleInput = (e: Event) =>
-      emit('input', (e.target as HTMLTextAreaElement).value)
-    onMounted(() => {
-      autosize(elementRef.value as HTMLElement)
-      if (props.autoFocus) {
-        if (elementRef.value) {
-          elementRef.value.focus()
-        }
-      }
-    })
-    return {
-      elementRef,
-      handleInput
-    }
-  }
-})
-</script>
 
 <style lang="scss" scoped>
 .textarea {

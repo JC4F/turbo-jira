@@ -4,8 +4,7 @@ import NavbarLeft from './NavbarLeft.vue'
 import Sidebar from './Sidebar.vue'
 import Resizer from './Resizer.vue'
 
-// Define props
-const props = defineProps<{
+defineProps<{
   expanded: boolean
 }>()
 
@@ -17,12 +16,6 @@ const handleResize = (isExpanded: boolean) => {
   emit('onResize', isExpanded)
 }
 </script>
-
-<template>
-  <NavbarLeft />
-  <Sidebar />
-  <Resizer @resize="handleResize" :expanded="props.expanded" />
-</template>
 
 <template>
   <div class="navigation">

@@ -1,3 +1,30 @@
+<script lang="ts" setup>
+import { computed } from 'vue'
+import { buttonVariants, tuneColor } from '@/utils'
+
+// Define props
+const props = defineProps<{
+  className?: string
+  variant?: 'primary' | 'secondary' | 'success' | 'danger' | 'warning'
+  icon?: string
+  iconSize?: number
+  disabled?: boolean
+  isWorking?: boolean
+  isActive?: boolean
+}>()
+
+// Computed properties
+const getButtonStyles = computed(() => {
+  const color = buttonVariants[props.variant || 'primary']
+  return {
+    '--bg-variant': color,
+    '--bg-variant-dark': tuneColor.darken(color, 0.1),
+    '--bg-variant-light': tuneColor.lighten(color, 0.15),
+    '--primary': buttonVariants['primary']
+  }
+})
+</script>
+
 <template>
   <button
     type="button"
@@ -7,12 +34,7 @@
     :disabled="disabled"
     :style="getButtonStyles"
   >
-    <j-icon
-      v-if="isWorking"
-      :size="iconSize"
-      name="spin"
-      class="spinner"
-    ></j-icon>
+    <j-icon v-if="isWorking" :size="iconSize" name="spin" class="spinner"></j-icon>
     <j-icon v-if="!isWorking && icon" :size="iconSize" :name="icon"></j-icon>
 
     <div v-if="$slots.default" :class="{ withPadding: isWorking || icon }">
@@ -20,62 +42,6 @@
     </div>
   </button>
 </template>
-
-<script lang="ts">
-import { defineComponent, computed } from 'vue'
-import { buttonVariants, tuneColor } from '@/utils/colors'
-
-type variantType = 'primary' | 'secondary' | 'success' | 'danger' | 'warning'
-
-export default defineComponent({
-  name: 'j-button',
-  props: {
-    className: {
-      type: String,
-      default: undefined
-    },
-    variant: {
-      type: String as () => variantType,
-      default: 'primary'
-    },
-    icon: {
-      type: String,
-      default: undefined
-    },
-    iconSize: {
-      type: Number,
-      default: 18
-    },
-    disabled: {
-      tpye: Boolean,
-      default: false
-    },
-    isWorking: {
-      tpye: Boolean,
-      default: false
-    },
-    isActive: {
-      type: Boolean,
-      default: false
-    }
-  },
-  setup(props) {
-    const getButtonStyles = computed(() => {
-      const color = buttonVariants[props.variant as variantType]
-      return {
-        '--bg-variant': color,
-        '--bg-variant-dark': tuneColor.darken(color, 0.1),
-        '--bg-variant-light': tuneColor.lighten(color, 0.15),
-        '--primary': buttonVariants['primary']
-      }
-    })
-
-    return {
-      getButtonStyles
-    }
-  }
-})
-</script>
 
 <style lang="scss" scoped>
 .button {

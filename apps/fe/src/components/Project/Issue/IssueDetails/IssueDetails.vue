@@ -1,18 +1,206 @@
+<script lang="ts" setup>
+import { ref, computed, onUnmounted, defineComponent } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { useQuery, useMutation } from '@vue/apollo-composable'
+import Comment from './Comment.vue'
+import IssueDescription from './Description.vue'
+import IssueTitle from './Title.vue'
+import IssueType from './Type.vue'
+import IssueStatus from './Status.vue'
+import IssueAssigneesReporter from './AssigneesReporter.vue'
+import IssuePriority from './Priority.vue'
+import IssueLoader from '@/components/Project/IssueLoader.vue'
+import {
+  getIssueWithUsersAndComments,
+  deleteIssue,
+  getProjectIssues,
+  updateIssueMutation
+} from '@/graphql/queries/issue'
+import type { Issue } from '@/types/issue'
+import { useClipboard } from '@/hooks/useClipboard'
+import { formatDateTimeConversational } from '@/utils/date'
+import { getters, mutations } from '@/stores'
+import { eventBus, updateArrayItemById } from '@/utils'
+import { deleteComment } from '@/graphql/queries/comment'
+
+const sortByNewest = (items: any[] = [], sortField: string) =>
+  [...items].sort((a, b) => -a[sortField].localeCompare(b[sortField]))
+
+const emit = defineEmits(['close'])
+
+// Define props
+const props = defineProps<{
+  issueId: string | number
+  withCloseButton?: boolean
+  withFullScreenButton?: boolean
+}>()
+
+// Component imports
+defineComponent({
+  components: {
+    IssueLoader,
+    Comment,
+    IssueDescription,
+    IssueTitle,
+    IssueType,
+    IssueStatus,
+    IssueAssigneesReporter,
+    IssuePriority
+  }
+})
+
+// Reactive references
+const issueCopy = ref<Issue>()
+// const isDeleteConfirmOpen = ref<boolean>(false)
+
+// Computed properties
+const project = computed(getters.project)
+const currentUser = computed(getters.currentUser)
+const commentsSorted = computed(() => {
+  if (!issueCopy.value) {
+    return []
+  }
+  return sortByNewest(issueCopy.value.comments, 'createdAt')
+})
+
+// Vue Router
+const router = useRouter()
+const route = useRoute()
+
+// Apollo queries and mutations
+const {
+  onResult,
+  // loading,
+  refetch: refetchIssue
+} = useQuery<{
+  getIssueWithUsersAndComments: Issue
+}>(getIssueWithUsersAndComments, {
+  id: Number(props.issueId)
+})
+
+onResult((res) => {
+  if (res && res?.data && !res?.loading) {
+    issueCopy.value = res.data.getIssueWithUsersAndComments
+  }
+})
+
+const { mutate: mutateIssue } = useMutation<{
+  updateIssue: Issue
+}>(updateIssueMutation)
+
+const { mutate } = useMutation<{ deleteIssue: boolean }>(deleteIssue)
+const { refetch: fetchProjectIssues } = useQuery<{
+  getProjectIssues: Issue[]
+}>(getProjectIssues)
+
+const { mutate: deleteMutation } = useMutation(deleteComment)
+
+// Clipboard handling
+const [, setClipboard] = useClipboard()
+
+const copyIssueLink = async () => {
+  const path =
+    window.location.origin +
+    router.resolve({
+      name: 'issue',
+      params: { issueId: `${props.issueId}` }
+    }).href
+
+  await setClipboard(path)
+}
+
+// Event handlers
+const goFullScreen = () => {
+  router.push({
+    name: 'issue',
+    params: { issueId: `${props.issueId}` }
+  })
+  emit('close')
+}
+
+const handleUpdateIssue = async (fields: Partial<Issue>) => {
+  issueCopy.value = { ...issueCopy.value, ...fields } as Issue
+
+  mutations.setProject({
+    ...project.value,
+    issues: updateArrayItemById(project.value.issues, props.issueId as string, fields)
+  })
+  await mutateIssue({
+    issueId: Number(props.issueId),
+    issue: { ...fields }
+  } as any)
+  await refetchIssue()
+}
+
+// Issue and Comment Deletion
+const triggerIssueDelete = () => {
+  eventBus.emit('toggle-issue-delete', {
+    isOpen: true,
+    id: props.issueId
+  })
+}
+
+const deleteIssueHandler = async () => {
+  await mutate({ issueId: Number(props.issueId) } as any)
+  const res = await fetchProjectIssues()
+  if (res?.data) {
+    mutations.setProject({
+      ...project.value,
+      issues: res?.data.getProjectIssues
+    })
+  }
+  eventBus.emit('toggle-issue-delete', {
+    isOpen: false,
+    id: props.issueId
+  })
+  eventBus.emit('toggle-issue-details', {
+    isOpen: false,
+    id: props.issueId
+  })
+  eventBus.emit('toggle-issue-search', {
+    isOpen: false,
+    id: props.issueId
+  })
+  if (route.name !== 'board') {
+    router.replace({ name: 'board' })
+  }
+}
+
+const triggeCommentDelete = (id: string | number) => {
+  eventBus.emit('toggle-comment-delete', {
+    isOpen: true,
+    id
+  })
+}
+
+const deleteCommentHandler = async (id: string | number) => {
+  await deleteMutation({ commentId: `${id}` } as any)
+  await refetchIssue()
+  eventBus.emit('toggle-comment-delete', {
+    isOpen: false,
+    id
+  })
+}
+
+// Event listeners
+eventBus.on('confirm-issue-delete', deleteIssueHandler)
+eventBus.on('confirm-comment-delete', deleteCommentHandler)
+
+onUnmounted(() => {
+  eventBus.off('confirm-issue-delete', deleteIssueHandler)
+  eventBus.off('confirm-comment-delete', deleteCommentHandler)
+})
+</script>
+
 <template>
   <IssueLoader v-if="!issueCopy" />
   <div class="w-full h-full" v-else>
     <div class="flex items-center px-3 pt-4 text-textDarkest">
       <!-- Type -->
-      <IssueType
-        :updateIssue="handleUpdateIssue"
-        :issueId="issueCopy.id"
-        :value="issueCopy.type"
-      />
+      <IssueType :updateIssue="handleUpdateIssue" :issueId="issueCopy.id" :value="issueCopy.type" />
       <div class="flex-auto"></div>
       <j-button icon="feedback" variant="empty">Give Feedback</j-button>
-      <j-button @click="copyIssueLink" icon="link" variant="empty"
-        >Copy Link</j-button
-      >
+      <j-button @click="copyIssueLink" icon="link" variant="empty">Copy Link</j-button>
       <j-button @click="triggerIssueDelete" icon="trash" variant="empty" />
       <j-button
         v-if="withFullScreenButton"
@@ -45,11 +233,13 @@
           <Comment
             :refetchIssue="refetchIssue"
             isCreate
-            :comment="{
-              user: currentUser,
-              body: 'Add a comment...',
-              issueId:issueId as any
-            } as any"
+            :comment="
+              {
+                user: currentUser,
+                body: 'Add a comment...',
+                issueId: issueId as any
+              } as any
+            "
           />
           <Comment
             @delete="triggeCommentDelete"
@@ -63,10 +253,7 @@
       <!-- RIGHT SECTION -->
       <div class="sm:w-full md:w-5/12 lg:w-2/6 pt-1">
         <!-- STATUS -->
-        <IssueStatus
-          :updateIssue="handleUpdateIssue"
-          :value="issueCopy.status"
-        />
+        <IssueStatus :updateIssue="handleUpdateIssue" :value="issueCopy.status" />
         <!-- AssigneesReporter -->
         <IssueAssigneesReporter
           :reporterId="issueCopy.reporterId"
@@ -74,241 +261,18 @@
           :updateIssue="handleUpdateIssue"
         />
         <!-- PRIORITY -->
-        <IssuePriority
-          :value="issueCopy.priority"
-          :updateIssue="handleUpdateIssue"
-        />
+        <IssuePriority :value="issueCopy.priority" :updateIssue="handleUpdateIssue" />
         <!-- DATES -->
         <div
           class="mt-3 pt-3 leading-loose border-t border-borderLightest text-textMedium text-[13px]"
         >
-          <div>
-            Created - {{ formatDateTimeConversational(issueCopy.createdAt) }}
-          </div>
-          <div>
-            Updated - {{ formatDateTimeConversational(issueCopy.updatedAt) }}
-          </div>
+          <div>Created - {{ formatDateTimeConversational(issueCopy.createdAt) }}</div>
+          <div>Updated - {{ formatDateTimeConversational(issueCopy.updatedAt) }}</div>
         </div>
       </div>
     </div>
   </div>
 </template>
-
-<script lang="ts">
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { defineComponent, ref, computed, onUnmounted } from 'vue'
-import { useClipboard } from '@/hooks/useClipboard'
-import { Issue } from '@/types/issue'
-import { useQuery, useMutation } from '@vue/apollo-composable'
-import {
-  getIssueWithUsersAndComments,
-  deleteIssue,
-  getProjectIssues,
-  updateIssueMutation
-} from '@/graphql/queries/issue'
-import IssueLoader from '@/components/Project/IssueLoader.vue'
-import Comment from './Comment.vue'
-import IssueDescription from './Description.vue'
-import IssueTitle from './Title.vue'
-import IssueType from './Type.vue'
-import IssueStatus from './Status.vue'
-import IssueAssigneesReporter from './AssigneesReporter.vue'
-import IssuePriority from './Priority.vue'
-import { formatDateTimeConversational } from '@/utils/date'
-import { getters, mutations } from '@/store'
-import eventBus from '@/utils/eventBus'
-import { deleteComment } from '@/graphql/queries/comment'
-import { updateArrayItemById } from '../../../../utils/dnd'
-import { useRoute, useRouter } from 'vue-router'
-
-const sortByNewest = (items: any[] = [], sortField: string) =>
-  [...items].sort((a, b) => -a[sortField].localeCompare(b[sortField]))
-
-export default defineComponent({
-  components: {
-    IssueLoader,
-    Comment,
-    IssueDescription,
-    IssueTitle,
-    IssueType,
-    IssueStatus,
-    IssueAssigneesReporter,
-    IssuePriority
-  },
-  props: {
-    issueId: {
-      type: [String, Number],
-      required: true
-    },
-    withCloseButton: {
-      type: Boolean,
-      default: true
-    },
-    withFullScreenButton: {
-      type: Boolean,
-      default: true
-    }
-  },
-  setup(props, { emit }) {
-    const issueCopy = ref<Issue>()
-    const project = computed(getters.project)
-    const currentUser = computed(getters.currentUser)
-
-    const router = useRouter()
-    const route = useRoute()
-
-    const { onResult, loading, refetch: refetchIssue } = useQuery<{
-      getIssueWithUsersAndComments: Issue
-    }>(getIssueWithUsersAndComments, {
-      id: Number(props.issueId)
-    })
-
-    onResult(res => {
-      if (res && res?.data && !res?.loading) {
-        issueCopy.value = res.data.getIssueWithUsersAndComments
-      }
-    })
-
-    const commentsSorted = computed(() => {
-      if (!issueCopy.value) {
-        return []
-      }
-      return sortByNewest(issueCopy.value.comments, 'createdAt')
-    })
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [_, setClipboard] = useClipboard()
-
-    const copyIssueLink = async () => {
-      const path =
-        window.location.origin +
-        router.resolve({
-          name: 'issue',
-          params: { issueId: `${props.issueId}` }
-        }).href
-
-      await setClipboard(path)
-    }
-
-    const goFullScreen = () => {
-      router.push({
-        name: 'issue',
-        params: { issueId: `${props.issueId}` }
-      })
-      emit('close')
-    }
-
-    const { mutate: mutateIssue } = useMutation<{
-      updateIssue: Issue
-    }>(updateIssueMutation)
-
-    const handleUpdateIssue = async (fields: Partial<Issue>) => {
-      issueCopy.value = { ...issueCopy.value, ...fields } as Issue
-
-      mutations.setProject({
-        ...project.value,
-        issues: updateArrayItemById(
-          project.value.issues,
-          props.issueId as string,
-          fields
-        )
-      })
-      await mutateIssue({
-        issueId: Number(props.issueId),
-        issue: { ...fields }
-      } as any)
-      await refetchIssue()
-    }
-
-    const { mutate } = useMutation<{ deleteIssue: boolean }>(deleteIssue)
-    const { refetch: fetchProjectIssues } = useQuery<{
-      getProjectIssues: Issue[]
-    }>(getProjectIssues)
-
-    /* -------- Delete Issue -------- */
-
-    const isDeleteConfirmOpen = ref<boolean>(false)
-    const triggerIssueDelete = () => {
-      eventBus.emit('toggle-issue-delete', {
-        isOpen: true,
-        id: props.issueId
-      })
-    }
-
-    const deleteIssueHandler = async () => {
-      await mutate({ issueId: Number(props.issueId) } as any)
-      const res = await fetchProjectIssues()
-      if (res?.data) {
-        mutations.setProject({
-          ...project.value,
-          issues: res?.data.getProjectIssues
-        })
-      }
-      eventBus.emit('toggle-issue-delete', {
-        isOpen: false,
-        id: props.issueId
-      })
-      eventBus.emit('toggle-issue-details', {
-        isOpen: false,
-        id: props.issueId
-      })
-      eventBus.emit('toggle-issue-search', {
-        isOpen: false,
-        id: props.issueId
-      })
-      if (route.name != 'board') {
-        router.replace({ name: 'board' })
-      }
-    }
-
-    /* -------- Delete Comment -------- */
-
-    const { mutate: deleteMutation } = useMutation(deleteComment)
-
-    const triggeCommentDelete = (id: string | number) => {
-      eventBus.emit('toggle-comment-delete', {
-        isOpen: true,
-        id
-      })
-    }
-
-    const deleteCommentHandler = async (id: string | number) => {
-      await deleteMutation({ commentId: `${id}` } as any)
-      await refetchIssue()
-      eventBus.emit('toggle-comment-delete', {
-        isOpen: false,
-        id
-      })
-    }
-
-    eventBus.on('confirm-issue-delete', deleteIssueHandler)
-
-    eventBus.on('confirm-comment-delete', deleteCommentHandler)
-
-    onUnmounted(() => {
-      eventBus.off('confirm-issue-delete', deleteIssueHandler)
-      eventBus.off('confirm-comment-delete', deleteCommentHandler)
-    })
-
-    return {
-      currentUser,
-      project,
-      loading,
-      refetchIssue,
-      IssueStatus,
-      issueCopy,
-      handleUpdateIssue,
-      copyIssueLink,
-      goFullScreen,
-      triggerIssueDelete,
-      triggeCommentDelete,
-      commentsSorted,
-      isDeleteConfirmOpen,
-      formatDateTimeConversational
-    }
-  }
-})
-</script>
 
 <style lang="scss" scoped>
 .formField {

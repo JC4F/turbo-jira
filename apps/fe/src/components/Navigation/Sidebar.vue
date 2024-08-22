@@ -1,3 +1,22 @@
+<script lang="ts" setup>
+import { computed } from 'vue'
+import { navLinks } from './Sidebar'
+import { ProjectCategoryCopy } from '@/types'
+import { getters } from '@/stores'
+
+const props = defineProps({
+  expanded: {
+    type: Boolean,
+    required: true
+  }
+})
+
+const project = computed(getters.project)
+const sidebarWidth = computed(() => (props.expanded ? 240 : 20))
+
+// You can now return or use the variables as needed directly
+</script>
+
 <template>
   <div :style="{ width: `${sidebarWidth}px` }" class="sidebar h-full relative">
     <div class="sidebar-content px-4 bg-backgroundLightest">
@@ -33,41 +52,11 @@
             Not implemented
           </div>
         </component>
-        <div
-          v-if="index == 1"
-          class="mt-4 pt-4 border-t border-borderLight"
-        ></div>
+        <div v-if="index == 1" class="mt-4 pt-4 border-t border-borderLight"></div>
       </div>
     </div>
   </div>
 </template>
-
-<script lang="ts">
-import { defineComponent, computed } from 'vue'
-import { navLinks } from '@/components/Navigation/Sidebar.ts'
-import { getters } from '../../store'
-import { ProjectCategoryCopy } from '@/types/project'
-
-export default defineComponent({
-  props: {
-    expanded: {
-      type: Boolean,
-      required: true
-    }
-  },
-  setup(props) {
-    const project = computed(getters.project)
-    const sidebarWidth = computed(() => (props.expanded ? 240 : 20))
-
-    return {
-      ProjectCategoryCopy,
-      project,
-      navLinks,
-      sidebarWidth
-    }
-  }
-})
-</script>
 
 <style lang="scss" scoped>
 .sidebar {

@@ -1,6 +1,6 @@
-import { QuillOptionsStatic } from 'quill'
+import type { QuillOptions } from 'quill'
 
-export const quillConfig: QuillOptionsStatic = {
+export const quillConfig: QuillOptions = {
   theme: 'snow',
   modules: {
     toolbar: [

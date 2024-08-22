@@ -1,3 +1,51 @@
+<script lang="ts" setup>
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useOutsideClick } from '@/hooks'
+
+type ModalVariant = 'center' | 'aside'
+
+const props = defineProps({
+  variant: {
+    type: String as () => ModalVariant,
+    default: 'center'
+  },
+  width: {
+    type: Number,
+    default: 600
+  },
+  component: {
+    type: [Object, String],
+    required: true
+  },
+  componentProps: {
+    type: Object,
+    default: () => ({})
+  }
+})
+
+const emit = defineEmits(['close', 'confirm'])
+
+const modalRef = ref<HTMLDivElement | null>(null)
+const rootRef = ref<HTMLDivElement | null>(null)
+
+const modalStyles = computed(() => ({
+  '--width': `${props.width}px`
+}))
+
+const handleModalClose = (e: string) => emit('close', e)
+// const handleConfirm = () => emit('confirm')
+
+useOutsideClick(rootRef, modalRef, handleModalClose)
+
+onMounted(() => {
+  document.body.style.overflow = 'hidden'
+})
+
+onUnmounted(() => {
+  document.body.style.overflow = 'visible'
+})
+</script>
+
 <template>
   <div ref="rootRef" class="scrollOverlay">
     <div :class="['clickableOverlay', variant]">
@@ -12,57 +60,6 @@
     </div>
   </div>
 </template>
-
-<script lang="ts">
-import { defineComponent, onMounted, onUnmounted, ref, computed } from 'vue'
-import { useOutsideClick } from '../../hooks/useOutsideClick'
-type ModalVariant = 'center' | 'aside'
-export default defineComponent({
-  props: {
-    variant: {
-      type: String as () => ModalVariant,
-      default: 'center'
-    },
-    width: {
-      type: Number,
-      default: 600
-    },
-    component: {
-      type: [Object, String],
-      required: true
-    },
-    componentProps: {
-      type: Object,
-      default: () => ({})
-    }
-  },
-  setup(props, { emit }) {
-    const modalRef = ref<HTMLDivElement>()
-    const rootRef = ref<HTMLDivElement>()
-    const modalStyles = computed(() => ({
-      '--width': `${props.width}px`
-    }))
-    const handleModalClose = (e: string) => emit('close', e)
-    const handleConfirm = () => emit('confirm')
-
-    useOutsideClick(rootRef, modalRef, handleModalClose)
-    onMounted(() => {
-      document.body.style.overflow = 'hidden'
-    })
-    onUnmounted(() => {
-      document.body.style.overflow = 'visible'
-    })
-
-    return {
-      modalRef,
-      rootRef,
-      modalStyles,
-      handleConfirm,
-      handleModalClose
-    }
-  }
-})
-</script>
 
 <style lang="scss">
 .scrollOverlay {

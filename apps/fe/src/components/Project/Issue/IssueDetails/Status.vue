@@ -1,8 +1,29 @@
+<script setup lang="ts">
+import { IssueStatusCopy, IssueStatus } from '@/types/issue'
+import { issueStatusVariants } from '@/utils/colors'
+
+const props = defineProps<{
+  value: IssueStatus
+  updateIssue: (data: { status: IssueStatus }) => Promise<void>
+}>()
+
+const issueStatusOptions = Object.values(IssueStatus).map((status) => ({
+  value: status,
+  label: IssueStatusCopy[status]
+}))
+
+const updateIssueStatus = async (status: IssueStatus) => {
+  try {
+    await props.updateIssue({ status })
+  } catch (error) {
+    console.error(error)
+  }
+}
+</script>
+
 <template>
   <div>
-    <div class="mt-6 mb-1 uppercase text-textMedium text-[13px] font-bold">
-      status
-    </div>
+    <div class="mt-6 mb-1 uppercase text-textMedium text-[13px] font-bold">status</div>
     <j-select
       searchable
       variant="empty"
@@ -32,42 +53,5 @@
     </j-select>
   </div>
 </template>
-
-<script lang="ts">
-import { defineComponent } from 'vue'
-import { IssueStatusCopy, IssueStatus } from '@/types/issue'
-import { issueStatusVariants } from '@/utils/colors'
-export default defineComponent({
-  props: {
-    value: {
-      type: String as () => IssueStatus,
-      required: true
-    },
-    updateIssue: {
-      type: Function,
-      required: true
-    }
-  },
-  setup(props) {
-    const issueStatusOptions = Object.values(IssueStatus).map(status => ({
-      value: status,
-      label: IssueStatusCopy[status]
-    }))
-    const updateIssueStatus = async (status: IssueStatus) => {
-      try {
-        await props.updateIssue({ status })
-      } catch (error) {
-        console.error(error)
-      }
-    }
-
-    return {
-      issueStatusOptions,
-      issueStatusVariants,
-      updateIssueStatus
-    }
-  }
-})
-</script>
 
 <style></style>

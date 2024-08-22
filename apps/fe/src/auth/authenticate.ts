@@ -1,18 +1,34 @@
-import { createGuestAccount, fetchMe } from '../graphql/queries/auth'
+import { fetchMe, login } from '../graphql/queries/auth'
 import { apolloClient } from '../graphql/client'
 import { storeAuthToken } from '../utils/authToken'
-import store from '@/stores/store'
+import { mutations } from '@/stores'
+import type { Role } from '@/types'
+
+type LoginResponse = {
+  login: {
+    access_token: string
+    email: string
+    role: Role
+  }
+}
 
 export const authenticate = async () => {
   try {
-    const result = await apolloClient.query<{ createGuestAccount: string }>({
-      query: createGuestAccount
+    const result = await apolloClient.mutate<LoginResponse>({
+      mutation: login,
+      variables: {
+        loginAuthInput: {
+          userId: '055af3c9-c487-42b9-af8d-8890ede546ed'
+        }
+      }
     })
-    const { createGuestAccount: authToken } = result.data
+    const {
+      login: { access_token: authToken }
+    } = result.data!
     storeAuthToken(authToken)
-    store.mutations.setIsAuthenticated(true)
+    mutations.setIsAuthenticated(true)
     const currentUser = await fetchMe()
-    store.mutations.setCurrentUser(currentUser)
+    mutations.setCurrentUser(currentUser)
   } catch (error) {
     // toast.error(error);
     console.error(error)

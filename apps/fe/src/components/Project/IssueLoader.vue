@@ -1,11 +1,10 @@
+<script setup lang="ts">
+import { ContentLoader } from 'vue-content-loader'
+</script>
+
 <template>
   <div class="p-10">
-    <ContentLoader
-      :height="260"
-      :width="940"
-      primaryColor="#f3f3f3"
-      secondaryColor="#ecebeb"
-    >
+    <ContentLoader :height="260" :width="940" primaryColor="#f3f3f3" secondaryColor="#ecebeb">
       <rect x="0" y="0" rx="3" ry="3" width="627" height="24" />
       <rect x="0" y="29" rx="3" ry="3" width="506" height="24" />
       <rect x="0" y="77" rx="3" ry="3" width="590" height="16" />
@@ -23,12 +22,3 @@
     </ContentLoader>
   </div>
 </template>
-
-<script lang="ts">
-import { ContentLoader } from 'vue-content-loader'
-export default {
-  components: {
-    ContentLoader
-  }
-}
-</script>

@@ -1,3 +1,11 @@
+<script lang="ts" setup>
+import { defineProps } from 'vue'
+
+defineProps<{
+  items: string[]
+}>()
+</script>
+
 <template>
   <div class="text-textMedium text-15">
     <span v-for="(item, index) in items" :key="item">
@@ -6,16 +14,3 @@
     </span>
   </div>
 </template>
-
-<script lang="ts">
-import { defineComponent } from 'vue'
-export default defineComponent({
-  name: 'j-breadcrumbs',
-  props: {
-    items: {
-      type: Array as () => string[],
-      default: []
-    }
-  }
-})
-</script>

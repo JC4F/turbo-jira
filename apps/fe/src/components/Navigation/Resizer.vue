@@ -1,3 +1,20 @@
+<script lang="ts" setup>
+import { defineProps, defineEmits } from 'vue'
+
+const props = defineProps({
+  expanded: {
+    type: Boolean,
+    required: true
+  }
+})
+
+const emit = defineEmits(['onResize'])
+
+const handleResize = () => {
+  emit('onResize', !props.expanded)
+}
+</script>
+
 <template>
   <div @click="handleResize" class="sizer-wrap">
     <div class="strip"></div>
@@ -7,40 +24,17 @@
     <div>
       <button aria-label="toggle" class="btn">
         <div class="overlay"></div>
-        <span
-          class="cursor-pointer fill-current text-white flex-shrink-0 leading-none"
-        >
+        <span class="cursor-pointer fill-current text-white flex-shrink-0 leading-none">
           <j-icon
             :name="expanded ? 'chevron-left' : 'chevron-right'"
             :size="24"
-            class="icon text-textMedium "
+            class="icon text-textMedium"
           ></j-icon>
         </span>
       </button>
     </div>
   </div>
 </template>
-
-<script lang="ts">
-import { defineComponent } from 'vue'
-export default defineComponent({
-  props: {
-    expanded: {
-      type: Boolean,
-      required: true
-    }
-  },
-  setup(props, { emit }) {
-    const handleResize = () => {
-      emit('onResize', !props.expanded)
-    }
-
-    return {
-      handleResize
-    }
-  }
-})
-</script>
 
 <style lang="scss" scoped>
 .sizer-wrap {
@@ -98,7 +92,8 @@ export default defineComponent({
 }
 
 .btn {
-  box-shadow: rgba(9, 30, 66, 0.08) 0px 0px 0px 1px,
+  box-shadow:
+    rgba(9, 30, 66, 0.08) 0px 0px 0px 1px,
     rgba(9, 30, 66, 0.08) 0px 2px 4px 1px;
   color: rgb(107, 119, 140);
   cursor: pointer;
@@ -116,7 +111,9 @@ export default defineComponent({
   border-radius: 50%;
   outline: 0px;
   padding: 0px;
-  transition: background-color 100ms linear 0s, color 100ms linear 0s,
+  transition:
+    background-color 100ms linear 0s,
+    color 100ms linear 0s,
     opacity 300ms cubic-bezier(0.2, 0, 0, 1) 0s,
     transform 300ms cubic-bezier(0.2, 0, 0, 1) 0s;
   &:hover {

@@ -1,3 +1,42 @@
+<script lang="ts" setup>
+import { ref, onUnmounted, defineProps, defineEmits } from 'vue'
+
+defineProps({
+  title: {
+    type: String,
+    required: true
+  },
+  message: {
+    type: String,
+    default: undefined
+  },
+  confirmText: {
+    type: String,
+    default: 'Confirm'
+  },
+  variant: {
+    type: String,
+    default: 'primary'
+  }
+})
+
+const emit = defineEmits(['confirm', 'close'])
+
+const isWorking = ref<boolean>(false)
+
+const handleConfirmed = () => {
+  if (isWorking.value) return
+  isWorking.value = true
+  emit('confirm')
+}
+
+const handleClose = () => emit('close')
+
+onUnmounted(() => {
+  isWorking.value = false
+})
+</script>
+
 <template>
   <div class="px-10 py-8">
     <div class="pb-4 text-2xl font-medium leading-normal text-textDarkest">
@@ -12,47 +51,3 @@
     </div>
   </div>
 </template>
-
-<script lang="ts">
-import { ref, defineComponent, onUnmounted } from 'vue'
-
-export default defineComponent({
-  props: {
-    title: {
-      type: String,
-      required: true
-    },
-    message: {
-      type: String,
-      default: undefined
-    },
-    confirmText: {
-      type: String,
-      default: 'Confirm'
-    },
-    variant: {
-      type: String,
-      default: 'primary'
-    }
-  },
-  setup(_, { emit }) {
-    const isWorking = ref<boolean>(false)
-    const handleConfirmed = () => {
-      if (isWorking.value) return
-      isWorking.value = true
-      emit('confirm')
-    }
-    const handleClose = () => emit('close')
-
-    onUnmounted(() => {
-      isWorking.value = false
-    })
-
-    return {
-      isWorking,
-      handleClose,
-      handleConfirmed
-    }
-  }
-})
-</script>

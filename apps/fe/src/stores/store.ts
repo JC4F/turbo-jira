@@ -2,7 +2,7 @@ import { reactive } from 'vue'
 import { getStoredAuthToken } from '@/utils/authToken'
 import type { User, Project, Filters } from '@/types'
 
-const store = reactive({
+export const store = reactive({
   currentUser: {} as User,
   project: {} as Project,
   isAuthenticated: Boolean(getStoredAuthToken()),
@@ -26,10 +26,4 @@ export const mutations = {
   setCurrentUser: (user: User) => (store.currentUser = user),
   setProject: (project: Project) => (store.project = project),
   setIsAuthenticated: (isAuth: boolean) => (store.isAuthenticated = isAuth)
-}
-
-export default {
-  store,
-  getters,
-  mutations
 }

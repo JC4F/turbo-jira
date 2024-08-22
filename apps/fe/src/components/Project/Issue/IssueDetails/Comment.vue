@@ -1,3 +1,100 @@
+<script lang="ts" setup>
+import { computed, ref } from 'vue'
+import { useMutation } from '@vue/apollo-composable'
+import type { Comment } from '@/types'
+import { formatDateTimeConversational } from '@/utils/date'
+import { createComment, updateComment } from '@/graphql/queries/comment'
+import { getters } from '@/stores'
+
+// Define props
+const props = defineProps<{
+  comment: Comment
+  isCreate?: boolean
+  refetchIssue: Function
+}>()
+
+// Emit events
+const emit = defineEmits(['delete'])
+
+// Computed properties
+const currentUser = computed(getters.currentUser)
+const newComment = ref<string>(props.isCreate ? '' : props.comment.body)
+const isWorking = ref<boolean>(false)
+const isFormOpen = ref<boolean>(false)
+// const isCommentDeleteConfirmOpen = ref<boolean>(false)
+const readOnly = computed(() => currentUser.value.id !== props.comment.userId)
+const createdAt = computed(() => formatDateTimeConversational(props.comment.createdAt))
+
+// GraphQL mutations
+const { mutate: createMutation } = useMutation(createComment)
+const { mutate: updateMutation } = useMutation(updateComment)
+
+// Handlers
+const handleCommentCreate = async () => {
+  if (isWorking.value) return
+  try {
+    isWorking.value = true
+    const comment = {
+      body: newComment.value,
+      issueId: props.comment.issueId,
+      userId: props.comment.user.id
+    }
+    await createMutation({ comment } as any)
+    await props.refetchIssue()
+    newComment.value = ''
+    isFormOpen.value = false
+    isWorking.value = false
+  } catch (error) {
+    console.error(error)
+    // Handle error notification
+  }
+}
+
+const handleCommentUpdate = async () => {
+  if (isWorking.value) return
+  try {
+    isWorking.value = true
+    const comment = {
+      body: newComment.value,
+      issueId: props.comment.issueId,
+      userId: props.comment.user.id
+    }
+    await updateMutation({ comment, commentId: props.comment.id } as any)
+    await props.refetchIssue()
+    isFormOpen.value = false
+    isWorking.value = false
+  } catch (error) {
+    console.error(error)
+    // Handle error notification
+  }
+}
+
+const triggerCommentDelete = () => {
+  emit('delete', props.comment.id)
+}
+
+const handleSubmit = () => {
+  props.isCreate ? handleCommentCreate() : handleCommentUpdate()
+}
+
+const handleKeyDown = (e: KeyboardEvent) => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault()
+    handleSubmit()
+  }
+}
+
+const handleCancel = () => {
+  isFormOpen.value = false
+}
+
+// const handleFakeTextareaClicked = () => {
+//   if (props.isCreate) {
+//     isFormOpen.value = true
+//   }
+// }
+</script>
+
 <template>
   <div class="relative mt-6 text-15">
     <!-- user-avatar -->
@@ -15,11 +112,7 @@
         class="inline-block mb-2 mr-3 font-medium text-textDark"
       />
       <!-- createdAt -->
-      <div
-        v-if="!isCreate"
-        v-text="createdAt"
-        class="inline-block pb-2 text-sm text-textDark"
-      />
+      <div v-if="!isCreate" v-text="createdAt" class="inline-block pb-2 text-sm text-textDark" />
       <!-- body-form -->
       <div v-if="isFormOpen">
         <j-textarea
@@ -39,18 +132,12 @@
           >
             Save
           </j-button>
-          <j-button variant="empty" @click="handleCancel">
-            Cancel
-          </j-button>
+          <j-button variant="empty" @click="handleCancel"> Cancel </j-button>
         </div>
       </div>
       <div v-else>
         <!-- comment-body -->
-        <p
-          v-if="isCreate"
-          @click="isFormOpen = true"
-          class="pb-2 whitespace-pre-wrap fakeTa"
-        >
+        <p v-if="isCreate" @click="isFormOpen = true" class="pb-2 whitespace-pre-wrap fakeTa">
           Add a comment...
         </p>
         <p v-else v-text="comment.body" class="pb-2 whitespace-pre-wrap"></p>
@@ -73,135 +160,6 @@
     </div>
   </div>
 </template>
-
-<script lang="ts">
-import { defineComponent, computed, ref } from 'vue'
-
-import { Comment } from '@/types/comment'
-import { formatDateTimeConversational } from '@/utils/date'
-import { useMutation } from '@vue/apollo-composable'
-import { createComment, updateComment } from '@/graphql/queries/comment'
-import { getters } from '@/store'
-
-export default defineComponent({
-  props: {
-    comment: {
-      type: Object as () => Comment,
-      required: true
-    },
-    isCreate: {
-      type: Boolean,
-      default: false
-    },
-    refetchIssue: {
-      type: Function,
-      required: true
-    }
-  },
-  setup(props, { emit }) {
-    const currentUser = computed(getters.currentUser)
-    const newComment = ref<string>(props.isCreate ? '' : props.comment.body)
-    const isWorking = ref<boolean>(false)
-    const isFormOpen = ref<boolean>(false)
-    const isCommentDeleteConfirmOpen = ref<boolean>(false)
-    const readOnly = computed(
-      () => currentUser.value.id != props.comment.userId
-    )
-
-    const { mutate: createMutation } = useMutation(createComment)
-    const { mutate: updateMutation } = useMutation(updateComment)
-
-    const handleCommentCreate = async () => {
-      if (isWorking.value) return
-      try {
-        isWorking.value = true
-        const comment = {
-          body: newComment.value,
-          issueId: props.comment.issueId,
-          userId: props.comment.user.id
-        }
-        // eslint-disable-next-line
-        await createMutation({ comment } as any)
-        await props.refetchIssue()
-        newComment.value = ''
-        isFormOpen.value = false
-        isWorking.value = false
-      } catch (error) {
-        console.error(error)
-        // root.$vToastify('Error', {
-        //   type: 'error',
-        //   timeout: 2500
-        // })
-      }
-    }
-
-    const handleCommentUpdate = async () => {
-      if (isWorking.value) return
-      try {
-        isWorking.value = true
-        const comment = {
-          body: newComment.value,
-          issueId: props.comment.issueId,
-          userId: props.comment.user.id
-        }
-        // eslint-disable-next-line
-        await updateMutation({ comment, commentId: props.comment.id } as any)
-        await props.refetchIssue()
-        isFormOpen.value = false
-        isWorking.value = false
-      } catch (error) {
-        console.error(error)
-        // root.$toast('Error', {
-        //   type: 'error',
-        //   timeout: 2500
-        // })
-      }
-    }
-
-    const triggerCommentDelete = () => {
-      emit('delete', props.comment.id)
-    }
-
-    const handleSubmit = () => {
-      props.isCreate ? handleCommentCreate() : handleCommentUpdate()
-    }
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.keyCode == 13 && !e.shiftKey) {
-        e.preventDefault()
-        handleSubmit()
-      }
-    }
-    const handleCancel = () => {
-      isFormOpen.value = false
-    }
-
-    const createdAt = computed(() =>
-      formatDateTimeConversational(props.comment.createdAt)
-    )
-
-    const handleFakeTextareaClicked = () => {
-      if (props.isCreate) {
-        isFormOpen.value = true
-      }
-    }
-
-    return {
-      createdAt,
-      readOnly,
-      newComment,
-      isWorking,
-      isCommentDeleteConfirmOpen,
-      isFormOpen,
-      triggerCommentDelete,
-      handleSubmit,
-      handleKeyDown,
-      handleCancel,
-      handleFakeTextareaClicked,
-      handleCommentUpdate
-    }
-  }
-})
-</script>
 
 <style lang="scss" scoped>
 .fakeTa {

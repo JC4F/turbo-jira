@@ -18,6 +18,16 @@ export const currentUser = gql`
   }
 `
 
+export const login = gql`
+  mutation Login($loginAuthInput: LoginAuthInput!) {
+    login(LoginAuthInput: $loginAuthInput) {
+      access_token
+      email
+      role
+    }
+  }
+`
+
 export const fetchMe = async (): Promise<User> => {
   try {
     const res = await apolloClient.query<{ currentUser: User }>({

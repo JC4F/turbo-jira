@@ -1,14 +1,118 @@
+<script lang="ts" setup>
+import { computed, reactive, ref } from 'vue'
+import Omit from 'lodash.omit'
+import { useMutation, useQuery } from '@vue/apollo-composable'
+import { getters, mutations } from '@/stores'
+import {
+  IssueType,
+  IssuePriority,
+  IssuePriorityCopy,
+  IssueTypeCopy,
+  IssueStatus,
+  type IssueCreateDTO,
+  type Issue
+} from '@/types/issue'
+import { issuePriorityColors } from '@/utils/colors'
+import { createIssue, getProjectIssues } from '@/graphql/queries/issue'
+import { successToast } from '@/plugins'
+
+const emit = defineEmits(['close'])
+
+// Computed values for project and current user
+const project = computed(getters.project)
+const currentUser = computed(getters.currentUser)
+
+// Computed value for project users
+const projectUsers = computed(() => {
+  if (!project.value) return []
+  return project.value.users.map((user) => ({
+    value: user.id,
+    label: user.name,
+    user
+  }))
+})
+
+// Default values for a new issue
+const defaultIssueValues = {
+  type: IssueType.TASK,
+  title: '',
+  description: '',
+  reporterId: currentUser.value.id,
+  userIds: [],
+  priority: IssuePriority.MEDIUM
+}
+
+// Reactive object for creating a new issue
+const issueCreateObject = reactive<IssueCreateDTO>(defaultIssueValues)
+
+// Validation functions
+const isRequired = (value: string) => ['', null, undefined].indexOf(value) === -1
+
+const isValidDTO = computed(
+  () =>
+    isRequired(issueCreateObject.type) &&
+    isRequired(issueCreateObject.title) &&
+    isRequired(issueCreateObject.reporterId) &&
+    isRequired(issueCreateObject.priority)
+)
+
+// Function to set the value of a specific field in the issue object
+const setFieldValue = (field: keyof IssueCreateDTO, value: any) => {
+  issueCreateObject[field] = value as never
+}
+
+// Loading states
+const loading = ref<boolean>(false)
+
+const { mutate, loading: isMutationLoading } = useMutation(createIssue)
+const { refetch: fetchProjectIssues, loading: isFetchIssuesLoading } = useQuery<{
+  getProjectIssues: Issue[]
+}>(getProjectIssues)
+
+// Computed property to check if the component is currently working
+const isWorking = computed(() => loading.value && isFetchIssuesLoading && isMutationLoading)
+
+// Helper function to get user by ID, omitting certain fields
+const getUserById = (userId: string) =>
+  Omit(
+    project.value.users.find((user) => user.id === userId),
+    ['__typename', 'name', 'avatarUrl', 'projectId']
+  )
+
+// Function to handle the submission of a new issue
+const handleSubmit = async () => {
+  loading.value = true
+  const issue: IssueCreateDTO = {
+    ...issueCreateObject,
+    status: IssueStatus.BACKLOG,
+    projectId: project.value.id,
+    users: issueCreateObject.userIds.map(getUserById)
+  }
+  try {
+    await mutate({ issue } as any)
+    const res = await fetchProjectIssues()
+    if (res?.data) {
+      mutations.setProject({
+        ...project.value,
+        issues: res.data.getProjectIssues
+      })
+    }
+    loading.value = false
+    emit('close')
+    successToast('Issue has been successfully created').showToast()
+  } catch (error) {
+    console.error(error)
+    emit('close')
+  }
+}
+</script>
+
 <template>
   <div class="w-full h-full px-8 py-5">
     <div class="flex items-center py-3 text-textDarkest">
       <div class="text-xl">Create issue</div>
       <div class="flex-auto"></div>
-      <j-button
-        @click="$emit('close')"
-        icon="x"
-        :iconSize="24"
-        variant="empty"
-      />
+      <j-button @click="$emit('close')" icon="x" :iconSize="24" variant="empty" />
     </div>
     <form novalidate autocomplete="off">
       <div class="formField">
@@ -18,7 +122,7 @@
           :value="issueCreateObject.type"
           searchable
           :options="
-            Object.values(IssueType).map(type => ({
+            Object.values(IssueType).map((type) => ({
               value: type,
               label: IssueTypeCopy[type],
               icon: IssueTypeCopy[type].toLowerCase()
@@ -36,9 +140,7 @@
             </div>
           </template>
         </j-select>
-        <div class="formFieldTip">
-          Start typing to get a list of possible matches.
-        </div>
+        <div class="formFieldTip">Start typing to get a list of possible matches.</div>
       </div>
       <div class="sep"></div>
       <div class="formField">
@@ -51,9 +153,7 @@
           />
         </div>
 
-        <div class="formFieldTip">
-          Concisely summarize the issue in one or two sentences.
-        </div>
+        <div class="formFieldTip">Concisely summarize the issue in one or two sentences.</div>
       </div>
 
       <div class="formField">
@@ -64,9 +164,7 @@
           class="descriptionEditor"
           id="description"
         />
-        <div class="formFieldTip">
-          Describe the issue in as much detail as you'd like.
-        </div>
+        <div class="formFieldTip">Describe the issue in as much detail as you'd like.</div>
       </div>
       <div class="formField">
         <label class="formFieldLabel" for="reporter">Reporter</label>
@@ -80,11 +178,7 @@
         >
           <template v-slot:default="{ label, user, remove, optionValue }">
             <div class="flex items-center my-px mr-4">
-              <j-avatar
-                :size="20"
-                :avatarUrl="user.avatarUrl"
-                :name="user.name"
-              />
+              <j-avatar :size="20" :avatarUrl="user.avatarUrl" :name="user.name" />
               <div class="pl-2 pr-1">
                 {{ label }}
               </div>
@@ -112,11 +206,7 @@
         >
           <template v-slot:default="{ label, user, remove, optionValue }">
             <div class="flex items-center my-px mr-4">
-              <j-avatar
-                :size="20"
-                :avatarUrl="user.avatarUrl"
-                :name="user.name"
-              />
+              <j-avatar :size="20" :avatarUrl="user.avatarUrl" :name="user.name" />
               <div class="pl-2 pr-1">
                 {{ label }}
               </div>
@@ -138,7 +228,7 @@
           :value="issueCreateObject.priority"
           searchable
           :options="
-            Object.values(IssuePriority).map(p => ({
+            Object.values(IssuePriority).map((p) => ({
               value: p,
               label: IssuePriorityCopy[p],
               icon: parseInt(p) < 3 ? 'arrow-down' : 'arrow-up',
@@ -169,144 +259,11 @@
           variant="primary"
           >Create</j-button
         >
-        <j-button
-          @click.prevent="$emit('close')"
-          class="ml-3"
-          variant="secondary"
-          >Cancel</j-button
-        >
+        <j-button @click.prevent="$emit('close')" class="ml-3" variant="secondary">Cancel</j-button>
       </div>
     </form>
   </div>
 </template>
-
-<script lang="ts">
-import { defineComponent, computed, reactive, ref } from 'vue'
-import { getters, mutations } from '@/store'
-import {
-  Issue,
-  IssueType,
-  IssuePriority,
-  IssuePriorityCopy,
-  IssueTypeCopy,
-  IssueStatus,
-  IssueCreateDTO
-} from '@/types/issue'
-import { issuePriorityColors } from '@/utils/colors'
-import { useMutation, useQuery } from '@vue/apollo-composable'
-import { createIssue, getProjectIssues } from '@/graphql/queries/issue'
-import Omit from 'lodash.omit'
-import { successToast } from '../../../../plugins/toast'
-type fieldType =
-  | 'type'
-  | 'title'
-  | 'description'
-  | 'reporterId'
-  | 'userIds'
-  | 'priority'
-  | 'status'
-export default defineComponent({
-  setup(_, { emit }) {
-    const project = computed(getters.project)
-    const currentUser = computed(getters.currentUser)
-    const projectUsers = computed(() => {
-      if (!project.value) return []
-      return project.value.users.map(user => ({
-        value: user.id,
-        label: user.name,
-        user
-      }))
-    })
-
-    const defaultIssueValues = {
-      type: IssueType.TASK,
-      title: '',
-      description: '',
-      reporterId: currentUser.value.id,
-      userIds: [],
-      priority: IssuePriority.MEDIUM
-    }
-
-    const issueCreateObject = reactive<IssueCreateDTO>(defaultIssueValues)
-    const isRequired = (value: string) =>
-      ['', null, undefined].indexOf(value) === -1
-
-    const isValidDTO = computed(
-      () =>
-        isRequired(issueCreateObject.type) &&
-        isRequired(issueCreateObject.title) &&
-        isRequired(issueCreateObject.reporterId) &&
-        isRequired(issueCreateObject.priority)
-    )
-
-    // eslint-disable-next-line
-    const setFieldValue = (field: fieldType, value: any) => {
-      issueCreateObject[field] = (value as unknown) as never
-    }
-
-    const loading = ref<boolean>(false)
-
-    const { mutate, loading: isMutationLoading } = useMutation(createIssue)
-    const {
-      refetch: fetchProjectIssues,
-      loading: isFetchIssuesLoading
-    } = useQuery<{
-      getProjectIssues: Issue[]
-    }>(getProjectIssues)
-
-    const isWorking = computed(
-      () => loading.value && isFetchIssuesLoading && isMutationLoading
-    )
-
-    const getUserById = (userId: string) =>
-      Omit(
-        project.value.users.find(user => user.id === userId),
-        ['__typename', 'name', 'avatarUrl', 'projectId']
-      )
-
-    const handleSubmit = async () => {
-      loading.value = true
-      const issue: IssueCreateDTO = {
-        ...issueCreateObject,
-        status: IssueStatus.BACKLOG,
-        projectId: project.value.id,
-        users: issueCreateObject.userIds.map(getUserById)
-      }
-      try {
-        // eslint-disable-next-line
-        await mutate({ issue } as any)
-        const res = await fetchProjectIssues()
-        if (res?.data) {
-          mutations.setProject({
-            ...project.value,
-            issues: res.data.getProjectIssues
-          })
-        }
-        loading.value = false
-        emit('close')
-        successToast('Issue has been successfully created').showToast()
-      } catch (error) {
-        console.error(error)
-        emit('close')
-      }
-    }
-
-    return {
-      issueCreateObject,
-      projectUsers,
-      IssueType,
-      isValidDTO,
-      IssueTypeCopy,
-      IssuePriority,
-      IssuePriorityCopy,
-      issuePriorityColors,
-      setFieldValue,
-      handleSubmit,
-      isWorking
-    }
-  }
-})
-</script>
 
 <style lang="scss" scoped>
 .formField {

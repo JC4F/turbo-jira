@@ -1,7 +1,88 @@
+<script lang="ts" setup>
+import dayjs from 'dayjs'
+import { computed, defineProps, defineEmits } from 'vue'
+import { Container, Draggable } from 'vue3-smooth-dnd'
+import { type DropResult, getSortedListIssues } from '@/utils'
+import IssueComponent from '@/components/Project/Issue/Issue.vue'
+import type { Filters } from '@/types/filters'
+import { type Issue, IssueStatusCopy, IssueStatus } from '@/types'
+import { getters } from '@/stores'
+
+// Props
+const props = defineProps<{
+  status: IssueStatus
+}>()
+
+// Emits
+const emit = defineEmits<{
+  (e: 'drop', payload: DropResult): void
+}>()
+
+// Computed properties
+const project = computed(getters.project)
+const filters = computed(getters.filters)
+const currentUserId = computed(() => getters.currentUser().id)
+
+const filterIssues = (projectIssues: Array<Issue>, filters: Filters, currentUserId: string) => {
+  const { searchTerm, userIds, myOnly, recent } = filters
+
+  let issues = [...(projectIssues || [])]
+
+  if (searchTerm) {
+    issues = issues.filter((issue) => issue.title.toLowerCase().includes(searchTerm.toLowerCase()))
+  }
+  if (userIds.length > 0) {
+    issues = issues.filter(
+      (issue) =>
+        [issue.userIds, userIds].reduce((a, b) => a.filter((c) => b.includes(c))).length > 0
+    )
+  }
+  if (myOnly && currentUserId) {
+    issues = issues.filter((issue) => issue.userIds.includes(currentUserId))
+  }
+  if (recent) {
+    issues = issues.filter((issue) => dayjs(issue.updatedAt).isAfter(dayjs().subtract(3, 'day')))
+  }
+  return issues
+}
+
+const filteredIssues = computed(() =>
+  filterIssues(project.value.issues, filters.value, currentUserId.value)
+)
+const filteredListIssues = computed(() => getSortedListIssues(filteredIssues.value, props.status))
+
+const allListIssues = computed(() => getSortedListIssues(project.value.issues, props.status))
+
+const formattedIssuesCount = computed(() => {
+  if (allListIssues.value.length !== filteredListIssues.value.length) {
+    return `${filteredListIssues.value.length} of ${allListIssues.value.length}`
+  }
+  return allListIssues.value.length
+})
+
+const dropPlaceholderOptions = {
+  className: 'drop-preview',
+  animationDuration: '150',
+  showOnTop: true
+}
+
+const onDrop = (dropResult: DropResult) => {
+  const arr = Object.values(IssueStatus)
+  const to = arr.indexOf(props.status as IssueStatus)
+  emit('drop', { ...dropResult, to })
+}
+
+const getCardPayload = (index: number) => {
+  const issuesByStatus = getSortedListIssues(filteredListIssues.value, props.status)
+  return issuesByStatus[index]
+}
+
+// Exported variables and methods
+// const Issue = issueComponent
+</script>
+
 <template>
-  <div
-    class="list mr-2 flex flex-col  rounded-sm bg-backgroundLightest flex-shrink-0"
-  >
+  <div class="list mr-2 flex flex-col rounded-sm bg-backgroundLightest flex-shrink-0">
     <div class="px-3 pt-3 pb-4 uppercase truncate text-textMedium text-[13px]">
       {{ IssueStatusCopy[status] }}
       <span class="lowercase text-[13px]">{{ formattedIssuesCount }}</span>
@@ -17,121 +98,12 @@
         :drop-placeholder="dropPlaceholderOptions"
       >
         <Draggable v-for="(issue, index) in filteredListIssues" :key="issue.id">
-          <Issue :issue="issue" :index="index" />
+          <IssueComponent :issue="issue" :index="index" />
         </Draggable>
       </Container>
     </div>
   </div>
 </template>
-
-<script lang="ts">
-import dayjs from 'dayjs'
-import { defineComponent, computed } from 'vue'
-import { Container, Draggable } from 'vue3-smooth-dnd'
-
-import issueComponent from '@/components/Project/Issue/Issue.vue'
-import { Filters } from '@/types/filters'
-import { Issue, IssueStatusCopy, IssueStatus } from '@/types/issue'
-import { getters } from '@/store'
-import { DropResult, getSortedListIssues } from '../../../utils/dnd'
-
-const filterIssues = (
-  projectIssues: Array<Issue>,
-  filters: Filters,
-  currentUserId: string
-) => {
-  const { searchTerm, userIds, myOnly, recent } = filters
-
-  let issues = [...(projectIssues || [])]
-
-  if (searchTerm) {
-    issues = issues.filter(issue =>
-      issue.title.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-  }
-  if (userIds.length > 0) {
-    issues = issues.filter(
-      issue =>
-        [issue.userIds, userIds].reduce((a, b) => a.filter(c => b.includes(c)))
-          .length > 0
-    )
-  }
-  if (myOnly && currentUserId) {
-    issues = issues.filter(issue => issue.userIds.includes(currentUserId))
-  }
-  if (recent) {
-    issues = issues.filter(issue =>
-      dayjs(issue.updatedAt).isAfter(dayjs().subtract(3, 'day'))
-    )
-  }
-  return issues
-}
-
-export default defineComponent({
-  props: {
-    status: {
-      type: String as () => IssueStatus,
-      required: true
-    }
-  },
-  components: {
-    Issue: issueComponent,
-    Container,
-    Draggable
-  },
-  setup(props, { emit }) {
-    const project = computed(getters.project)
-    const filters = computed(getters.filters)
-    const currentUserId = computed(() => getters.currentUser().id)
-
-    const filteredIssues = computed(() =>
-      filterIssues(project.value.issues, filters.value, currentUserId.value)
-    )
-    const filteredListIssues = computed(() =>
-      getSortedListIssues(filteredIssues.value, props.status)
-    )
-
-    const allListIssues = computed(() =>
-      getSortedListIssues(project.value.issues, props.status)
-    )
-
-    const formattedIssuesCount = computed(() => {
-      if (allListIssues.value.length !== filteredListIssues.value.length) {
-        return `${filteredListIssues.value.length} of ${allListIssues.value.length}`
-      }
-      return allListIssues.value.length
-    })
-
-    const dropPlaceholderOptions = {
-      className: 'drop-preview',
-      animationDuration: '150',
-      showOnTop: true
-    }
-
-    // eslint-disable-next-line
-    const onDrop = (dropResult: any) => {
-      const arr = Object.values(IssueStatus)
-      const to = arr.indexOf(props.status as IssueStatus)
-      emit('drop', { ...dropResult, to } as DropResult)
-    }
-    const getCardPayload = (index: number) => {
-      const issuesByStatus = getSortedListIssues(
-        filteredListIssues.value,
-        props.status
-      )
-      return issuesByStatus[index]
-    }
-    return {
-      onDrop,
-      getCardPayload,
-      dropPlaceholderOptions,
-      filteredListIssues,
-      formattedIssuesCount,
-      IssueStatusCopy
-    }
-  }
-})
-</script>
 
 <style lang="scss" scoped>
 .list {

@@ -1,3 +1,179 @@
+<script lang="ts" setup>
+import { ref, computed, onMounted, nextTick } from 'vue'
+
+const activeOptionClass = 'select-option-is-active'
+
+interface Option {
+  label: string
+  value: number | string
+}
+
+// Define props
+const props = defineProps<{
+  dropdownWidth?: number
+  value?: Array<number | string> | string | number
+  isValueEmpty: boolean
+  searchable?: boolean
+  searchValue: string
+  deactivateDropdown: () => void
+  options: Option[]
+  onCreate?: (
+    label: string,
+    callback: (value: string | Array<number | string> | number) => void
+  ) => void
+  isMulti: boolean
+  withClearValue: boolean
+}>()
+
+// Define emits
+const emit = defineEmits<{
+  (e: 'searchValueChange', value: string): void
+  (e: 'change', value: string | number | Array<number | string>): void
+}>()
+
+const isCreatingOption = ref<boolean>(false)
+const optionsRef = ref<HTMLDivElement | null>(null)
+
+const optionsFilteredBySearchValue = computed(() =>
+  props.options.filter((option) =>
+    option.label.toLowerCase().includes(props.searchValue.toLowerCase())
+  )
+)
+
+const filteredOptions = computed(() =>
+  props.isMulti
+    ? optionsFilteredBySearchValue.value.filter(
+        (option) => !(props.value as Array<string | number>).includes(option.value)
+      )
+    : optionsFilteredBySearchValue.value.filter((option) => props.value !== option.value)
+)
+
+const isOptionCreatable = computed(
+  () =>
+    props.onCreate &&
+    props.searchValue &&
+    !props.options.some((option) => option.label === props.searchValue)
+)
+
+const handleSearchValueChange = (event: Event) => {
+  emit('searchValueChange', (event.target as HTMLInputElement).value)
+}
+
+const getActiveOptionNode = async () => {
+  await nextTick()
+  return optionsRef.value?.querySelector(`.${activeOptionClass}`) || null
+}
+
+const selectOptionValue = (optionValue: string | Array<number | string> | number) => {
+  if (props.isMulti) {
+    // @ts-ignore
+    emit('change', [...new Set([...(props.value as Array<string | number>), optionValue])])
+  } else {
+    props.deactivateDropdown()
+    emit('change', optionValue)
+  }
+}
+
+const createOption = (newOptionLabel: string) => {
+  isCreatingOption.value = true
+  props.onCreate?.(
+    newOptionLabel,
+    (createdOptionValue: string | Array<number | string> | number) => {
+      isCreatingOption.value = false
+      selectOptionValue(createdOptionValue)
+    }
+  )
+}
+
+const handleInputEnterKeyDown = async (event: KeyboardEvent) => {
+  event.preventDefault()
+
+  const $active = await getActiveOptionNode()
+  if (!$active) return
+
+  const optionValueToSelect = $active.getAttribute('data-select-option-value')
+  const optionLabelToCreate = $active.getAttribute('data-create-option-label')
+
+  if (optionValueToSelect) {
+    selectOptionValue(optionValueToSelect)
+  } else if (optionLabelToCreate) {
+    createOption(optionLabelToCreate)
+  }
+}
+
+const handleInputArrowUpOrDownKeyDown = async (event: KeyboardEvent) => {
+  const $active = (await getActiveOptionNode()) as HTMLElement
+  const $options = optionsRef.value
+  if (!$active || !$options) return
+
+  const $optionsHeight = $options.getBoundingClientRect().height
+  const $activeHeight = $active.getBoundingClientRect().height
+
+  if (event.keyCode === 40) {
+    // Down Arrow
+    if ($options.lastElementChild === $active) {
+      $active.classList.remove(activeOptionClass)
+      $options.firstElementChild?.classList.add(activeOptionClass)
+      $options.scrollTop = 0
+    } else {
+      $active.classList.remove(activeOptionClass)
+      $active.nextElementSibling?.classList.add(activeOptionClass)
+      if ($active.offsetTop > $options.scrollTop + $optionsHeight / 1.4) {
+        $options.scrollTop += $activeHeight
+      }
+    }
+  } else if (event.keyCode === 38) {
+    // Up Arrow
+    if ($options.firstElementChild === $active) {
+      $active.classList.remove(activeOptionClass)
+      $options.lastElementChild?.classList.add(activeOptionClass)
+      $options.scrollTop = $options.scrollHeight
+    } else {
+      $active.classList.remove(activeOptionClass)
+      $active.previousElementSibling?.classList.add(activeOptionClass)
+      if ($active.offsetTop < $options.scrollTop + $optionsHeight / 2.4) {
+        $options.scrollTop -= $activeHeight
+      }
+    }
+  }
+}
+
+const handleInputEscapeKeyDown = (event: KeyboardEvent) => {
+  event.stopImmediatePropagation()
+  props.deactivateDropdown()
+}
+
+const handleInputKeyDown = (event: KeyboardEvent) => {
+  if (event.keyCode === 27) {
+    handleInputEscapeKeyDown(event)
+  } else if (event.keyCode === 13) {
+    handleInputEnterKeyDown(event)
+  } else if (event.keyCode === 40 || event.keyCode === 38) {
+    handleInputArrowUpOrDownKeyDown(event)
+  }
+}
+
+const handleOptionMouseEnter = async (event: MouseEvent) => {
+  const $active = await getActiveOptionNode()
+  if ($active) $active.classList.remove(activeOptionClass)
+  ;(event.currentTarget as HTMLElement).classList.add(activeOptionClass)
+}
+
+const setFirstOptionAsActive = async () => {
+  const $active = await getActiveOptionNode()
+  if (!optionsRef.value) return
+  if ($active) $active.classList.remove(activeOptionClass)
+
+  if (optionsRef.value.firstElementChild) {
+    optionsRef.value.firstElementChild.classList.add(activeOptionClass)
+  }
+}
+
+onMounted(() => {
+  setFirstOptionAsActive()
+})
+</script>
+
 <template>
   <div class="dropdown" :style="{ width: `${dropdownWidth}px` }">
     <input
@@ -39,236 +215,9 @@
       </div>
     </div>
 
-    <div v-if="filteredOptions.length === 0" class="optionsNoResults">
-      No results
-    </div>
+    <div v-if="filteredOptions.length === 0" class="optionsNoResults">No results</div>
   </div>
 </template>
-
-<script lang="ts">
-import { defineComponent, ref, computed, onMounted, nextTick } from 'vue'
-const activeOptionClass = 'select-option-is-active'
-
-interface Option {
-  label: string
-  value: number | string
-}
-
-export default defineComponent({
-  props: {
-    dropdownWidth: {
-      type: Number,
-      default: undefined
-    },
-    value: {
-      type: [Array, String, Number],
-      default: undefined
-    },
-    isValueEmpty: {
-      type: Boolean,
-      required: true
-    },
-    searchable: {
-      type: Boolean,
-      default: false
-    },
-    searchValue: {
-      type: String,
-      required: true
-    },
-    deactivateDropdown: {
-      type: Function,
-      required: true
-    },
-    options: {
-      type: Array as () => Array<Option>,
-      required: true
-    },
-    onCreate: {
-      type: Function,
-      default: undefined
-    },
-    isMulti: {
-      type: Boolean,
-      required: true
-    },
-    withClearValue: {
-      type: Boolean,
-      required: true
-    }
-  },
-  setup(props, { emit }) {
-    const isCreatingOption = ref<boolean>(false)
-    const optionsRef = ref<HTMLDivElement>()
-
-    const optionsFilteredBySearchValue = computed(() =>
-      props.options.filter(option =>
-        option.label
-          .toString()
-          .toLowerCase()
-          .includes(props.searchValue.toLowerCase())
-      )
-    )
-
-    const filteredOptions = computed(() =>
-      props.isMulti
-        ? optionsFilteredBySearchValue.value.filter(
-            option => !(props.value as [string | number]).includes(option.value)
-          )
-        : optionsFilteredBySearchValue.value.filter(
-            option => props.value !== option.value
-          )
-    )
-
-    const isOptionCreatable = computed(
-      () =>
-        props.onCreate &&
-        props.searchValue &&
-        !props.options.map(option => option.label).includes(props.searchValue)
-    )
-
-    const handleSearchValueChange = (event: Event) => {
-      emit('searchValueChange', (event.target as HTMLInputElement).value)
-    }
-
-    const getActiveOptionNode = async () => {
-      await nextTick()
-      return optionsRef.value
-        ? optionsRef.value.querySelector(`.${activeOptionClass}`)
-        : null
-    }
-
-    const selectOptionValue = (
-      optionValue: string | Array<number | string> | number
-    ) => {
-      if (props.isMulti) {
-        emit('change', [
-          ...new Set([...(props.value as Array<string | number>), optionValue])
-        ])
-      } else {
-        props.deactivateDropdown()
-        emit('change', optionValue)
-      }
-    }
-
-    const createOption = (newOptionLabel: string) => {
-      isCreatingOption.value = true
-      props.onCreate?.(
-        newOptionLabel,
-        (createdOptionValue: string | Array<number | string> | number) => {
-          isCreatingOption.value = false
-          selectOptionValue(createdOptionValue)
-        }
-      )
-    }
-
-    const handleInputEnterKeyDown = async (event: KeyboardEvent) => {
-      event.preventDefault()
-
-      const $active = await getActiveOptionNode()
-      if (!$active) return
-
-      const optionValueToSelect = $active.getAttribute(
-        'data-select-option-value'
-      )
-      const optionLabelToCreate = $active.getAttribute(
-        'data-create-option-label'
-      )
-
-      if (optionValueToSelect) {
-        selectOptionValue(optionValueToSelect)
-      } else if (optionLabelToCreate) {
-        createOption(optionLabelToCreate)
-      }
-    }
-
-    const handleInputArrowUpOrDownKeyDown = async (event: KeyboardEvent) => {
-      const $active = (await getActiveOptionNode()) as HTMLElement
-      const $options = optionsRef.value
-      if (!$active || !$options) return
-
-      const $optionsHeight = $options.getBoundingClientRect().height
-      const $activeHeight = $active.getBoundingClientRect().height
-
-      if (event.keyCode === 40) {
-        if ($options.lastElementChild === $active) {
-          $active.classList.remove(activeOptionClass)
-          $options.firstElementChild?.classList.add(activeOptionClass)
-          $options.scrollTop = 0
-        } else {
-          $active.classList.remove(activeOptionClass)
-          $active.nextElementSibling?.classList.add(activeOptionClass)
-          if ($active.offsetTop > $options.scrollTop + $optionsHeight / 1.4) {
-            $options.scrollTop += $activeHeight
-          }
-        }
-      } else if (event.keyCode === 38) {
-        if ($options.firstElementChild === $active) {
-          $active.classList.remove(activeOptionClass)
-          $options.lastElementChild?.classList.add(activeOptionClass)
-          $options.scrollTop = $options.scrollHeight
-        } else {
-          $active.classList.remove(activeOptionClass)
-          $active.previousElementSibling?.classList.add(activeOptionClass)
-          if ($active.offsetTop < $options.scrollTop + $optionsHeight / 2.4) {
-            $options.scrollTop -= $activeHeight
-          }
-        }
-      }
-    }
-
-    const handleInputEscapeKeyDown = (event: KeyboardEvent) => {
-      event.stopImmediatePropagation()
-      props.deactivateDropdown()
-    }
-    const handleInputKeyDown = (event: KeyboardEvent) => {
-      if (event.keyCode === 27) {
-        handleInputEscapeKeyDown(event)
-      } else if (event.keyCode === 13) {
-        handleInputEnterKeyDown(event)
-      } else if (event.keyCode === 40 || event.keyCode === 38) {
-        handleInputArrowUpOrDownKeyDown(event)
-      }
-    }
-
-    const handleOptionMouseEnter = async (event: MouseEvent) => {
-      const $active = await getActiveOptionNode()
-      if ($active) $active.classList.remove(activeOptionClass)
-      ;(event.currentTarget as HTMLElement).classList.add(activeOptionClass)
-    }
-
-    const setFirstOptionAsActive = async () => {
-      const $active = await getActiveOptionNode()
-      if (!optionsRef.value) return
-      if ($active) $active.classList.remove(activeOptionClass)
-
-      if (optionsRef.value.firstElementChild) {
-        optionsRef.value.firstElementChild.classList.add(activeOptionClass)
-      }
-    }
-
-    onMounted(() => {
-      setFirstOptionAsActive()
-    })
-
-    return {
-      optionsRef,
-      isCreatingOption,
-      optionsFilteredBySearchValue,
-      filteredOptions,
-      isOptionCreatable,
-      getActiveOptionNode,
-      selectOptionValue,
-      handleSearchValueChange,
-      handleInputEnterKeyDown,
-      handleInputArrowUpOrDownKeyDown,
-      handleInputKeyDown,
-      handleOptionMouseEnter,
-      createOption
-    }
-  }
-})
-</script>
 
 <style scoped lang="scss">
 .dropdown {
@@ -278,7 +227,8 @@ export default defineComponent({
   left: -1px;
   border-radius: 0 0 4px 4px;
   background: #fff;
-  box-shadow: rgba(9, 30, 66, 0.25) 0px 4px 8px -2px,
+  box-shadow:
+    rgba(9, 30, 66, 0.25) 0px 4px 8px -2px,
     rgba(9, 30, 66, 0.31) 0px 0px 1px;
   width: 100%;
 }

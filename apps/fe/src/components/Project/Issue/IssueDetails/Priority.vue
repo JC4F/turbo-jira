@@ -1,8 +1,31 @@
+<script setup lang="ts">
+import { IssuePriority, IssuePriorityCopy } from '@/types'
+import { issuePriorityColors } from '@/utils'
+
+const props = defineProps<{
+  value: IssuePriority
+  updateIssue: (data: { priority: IssuePriority }) => Promise<void>
+}>()
+
+const issuePriorityOptions = Object.values(IssuePriority).map((priority) => ({
+  value: priority,
+  label: IssuePriorityCopy[priority],
+  icon: [IssuePriority.LOW, IssuePriority.LOWEST].includes(priority) ? 'arrow-down' : 'arrow-up',
+  color: issuePriorityColors[priority]
+}))
+
+const updateIssuePriority = async (priority: IssuePriority) => {
+  try {
+    await props.updateIssue({ priority })
+  } catch (error) {
+    console.error(error)
+  }
+}
+</script>
+
 <template>
   <div>
-    <div class="mt-6 mb-1 uppercase text-textMedium text-[13px] font-bold">
-      Priority
-    </div>
+    <div class="mt-6 mb-1 uppercase text-textMedium text-[13px] font-bold">Priority</div>
     <j-select
       searchable
       variant="empty"
@@ -36,45 +59,5 @@
     </j-select>
   </div>
 </template>
-
-<script lang="ts">
-import { defineComponent } from 'vue'
-import { IssuePriority, IssuePriorityCopy } from '@/types/issue'
-import { issuePriorityColors } from '@/utils/colors'
-export default defineComponent({
-  props: {
-    value: {
-      type: String as () => IssuePriority,
-      required: true
-    },
-    updateIssue: {
-      type: Function,
-      required: true
-    }
-  },
-  setup(props) {
-    const issuePriorityOptions = Object.values(IssuePriority).map(priority => ({
-      value: priority,
-      label: IssuePriorityCopy[priority],
-      icon: [IssuePriority.LOW, IssuePriority.LOWEST].includes(priority)
-        ? 'arrow-down'
-        : 'arrow-up',
-      color: issuePriorityColors[priority]
-    }))
-    const updateIssuePriority = async (priority: IssuePriority) => {
-      try {
-        await props.updateIssue({ priority })
-      } catch (error) {
-        console.error(error)
-      }
-    }
-
-    return {
-      issuePriorityOptions,
-      updateIssuePriority
-    }
-  }
-})
-</script>
 
 <style></style>

@@ -1,5 +1,38 @@
+<script lang="ts" setup>
+import { computed } from 'vue'
+
+// Define props
+const props = defineProps<{
+  value?: string | number
+  icon?: string | null
+  iconSize?: number
+  invalid?: boolean
+  filter?: any // Adjust type as needed
+}>()
+
+// Define emits
+const emit = defineEmits<{
+  (e: 'input', value: string): void
+  (e: 'blur', value: string): void
+}>()
+
+// Methods
+const handleInput = (event: Event) => {
+  emit('input', (event.currentTarget as HTMLInputElement).value)
+}
+
+const handleBlur = (event: FocusEvent) => {
+  emit('blur', (event.currentTarget as HTMLInputElement).value)
+}
+
+// Computed properties
+const iconStyles = computed(() => ({
+  '--iconContainerWidth': `${props.iconSize ?? 16 * 2}px`
+}))
+</script>
+
 <template>
-  <div :style="Iconstyles" class="inputContainer">
+  <div :style="iconStyles" class="inputContainer">
     <div v-if="icon" class="inputIconContainer">
       <j-icon :size="iconSize" :name="icon"></j-icon>
     </div>
@@ -12,51 +45,6 @@
     />
   </div>
 </template>
-
-<script lang="ts">
-import { defineComponent, computed } from 'vue'
-export default defineComponent({
-  name: 'j-input',
-  inheritAttrs: false,
-  props: {
-    value: {
-      type: [String, Number],
-      default: undefined
-    },
-    icon: {
-      type: String,
-      default: null
-    },
-    iconSize: {
-      type: Number,
-      default: 16
-    },
-    invalid: {
-      type: Boolean,
-      default: false
-    },
-    filter: {
-      default: undefined
-    }
-  },
-  setup(props, { emit }) {
-    const handleInput = (event: Event) => {
-      emit('input', (event.currentTarget as HTMLInputElement).value)
-    }
-    const handleBlur = (event: FocusEvent) => {
-      emit('blur', (event.currentTarget as HTMLInputElement).value)
-    }
-    const Iconstyles = computed(() => ({
-      '--iconContainerWidth': props.iconSize * 2 + 'px'
-    }))
-    return {
-      handleInput,
-      handleBlur,
-      Iconstyles
-    }
-  }
-})
-</script>
 
 <style lang="scss" scoped>
 .inputContainer {

@@ -1,3 +1,5 @@
+<script lang="ts" setup></script>
+
 <template>
   <div class="flex justify-center w-full py-48">
     <span>
@@ -33,12 +35,7 @@
         </g>
         <g>
           <g transform="rotate(45 -50.355 121.569)">
-            <circle
-              r="8"
-              fill="#5E6C84"
-              fill-opacity=".875"
-              transform="scale(1 1)"
-            >
+            <circle r="8" fill="#5E6C84" fill-opacity=".875" transform="scale(1 1)">
               <animateTransform
                 attributeName="transform"
                 type="scale"
@@ -61,12 +58,7 @@
         </g>
         <g>
           <g transform="rotate(90 -15 65)">
-            <circle
-              r="8"
-              fill="#5E6C84"
-              fill-opacity=".75"
-              transform="scale(1 1)"
-            >
+            <circle r="8" fill="#5E6C84" fill-opacity=".75" transform="scale(1 1)">
               <animateTransform
                 attributeName="transform"
                 type="scale"
@@ -89,12 +81,7 @@
         </g>
         <g>
           <g transform="rotate(135 -.355 41.569)">
-            <circle
-              r="8"
-              fill="#5E6C84"
-              fill-opacity=".625"
-              transform="scale(1 1)"
-            >
+            <circle r="8" fill="#5E6C84" fill-opacity=".625" transform="scale(1 1)">
               <animateTransform
                 attributeName="transform"
                 type="scale"
@@ -117,12 +104,7 @@
         </g>
         <g>
           <g transform="rotate(180 10 25)">
-            <circle
-              r="8"
-              fill="#5E6C84"
-              fill-opacity=".5"
-              transform="scale(1 1)"
-            >
+            <circle r="8" fill="#5E6C84" fill-opacity=".5" transform="scale(1 1)">
               <animateTransform
                 attributeName="transform"
                 type="scale"
@@ -145,12 +127,7 @@
         </g>
         <g>
           <g transform="rotate(-135 20.355 8.431)">
-            <circle
-              r="8"
-              fill="#5E6C84"
-              fill-opacity=".375"
-              transform="scale(1 1)"
-            >
+            <circle r="8" fill="#5E6C84" fill-opacity=".375" transform="scale(1 1)">
               <animateTransform
                 attributeName="transform"
                 type="scale"
@@ -173,12 +150,7 @@
         </g>
         <g>
           <g transform="rotate(-90 35 -15)">
-            <circle
-              r="8"
-              fill="#5E6C84"
-              fill-opacity=".25"
-              transform="scale(1 1)"
-            >
+            <circle r="8" fill="#5E6C84" fill-opacity=".25" transform="scale(1 1)">
               <animateTransform
                 attributeName="transform"
                 type="scale"
@@ -201,12 +173,7 @@
         </g>
         <g>
           <g transform="rotate(-45 70.355 -71.569)">
-            <circle
-              r="8"
-              fill="#5E6C84"
-              fill-opacity=".125"
-              transform="scale(1 1)"
-            >
+            <circle r="8" fill="#5E6C84" fill-opacity=".125" transform="scale(1 1)">
               <animateTransform
                 attributeName="transform"
                 type="scale"
@@ -231,9 +198,3 @@
     </span>
   </div>
 </template>
-
-<script lang="ts">
-import { defineComponent } from 'vue'
-
-export default defineComponent({})
-</script>

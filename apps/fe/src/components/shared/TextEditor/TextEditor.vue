@@ -1,3 +1,74 @@
+<script lang="ts" setup>
+import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
+import Quill from 'quill'
+import { quillConfig } from './editor'
+
+const props = defineProps<{
+  placeholder?: string
+  value?: string
+  defaultValue?: string
+  mode: string
+}>()
+
+const emit = defineEmits<{
+  (e: 'input', value: string): void
+  (e: 'changeMode', mode: string): void
+}>()
+
+const quill = ref<Quill>()
+const editorRef = ref<HTMLDivElement>()
+const initialValue = ref<string>(props.value ?? props.defaultValue ?? '')
+
+const initQuill = () => {
+  return new Quill(editorRef.value as HTMLDivElement, {
+    placeholder: props.placeholder,
+    ...quillConfig
+  })
+}
+
+const enableWriteMode = () => {
+  emit('changeMode', 'write')
+}
+
+const insertValue = (value: string) => {
+  quill.value?.clipboard.dangerouslyPasteHTML(0, value)
+  quill.value?.blur()
+}
+
+const getHTMLValue = () =>
+  (editorRef.value as HTMLDivElement).querySelector('.ql-editor')?.innerHTML
+
+const handleContentsChange = () => {
+  emit('input', getHTMLValue() ?? '')
+}
+
+watch(
+  () => props.mode,
+  (_, from) => {
+    if (from === 'write') {
+      quill.value?.setText('')
+      insertValue(props.value ?? '')
+      initialValue.value = props.value ?? ''
+    }
+  }
+)
+
+onMounted(() => {
+  try {
+    quill.value = initQuill()
+    insertValue(initialValue.value)
+    quill.value.on('text-change', handleContentsChange)
+  } catch (error) {
+    console.log(error)
+  }
+})
+
+onBeforeUnmount(() => {
+  quill.value?.off('text-change', handleContentsChange)
+  quill.value = null as any
+})
+</script>
+
 <template>
   <div>
     <div v-show="mode == 'write'" class="ql">
@@ -12,97 +83,6 @@
     </div>
   </div>
 </template>
-
-<script lang="ts">
-import { defineComponent, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import Quill from 'quill'
-import { quillConfig } from './editor'
-export default defineComponent({
-  name: 'j-text-editor',
-  props: {
-    placeholder: {
-      type: String,
-      default: undefined,
-    },
-    value: {
-      type: String,
-      default: undefined,
-    },
-    defaultValue: {
-      type: String,
-      default: undefined,
-    },
-    mode: {
-      type: String,
-      required: true,
-    },
-  },
-  setup(props, { emit }) {
-    const quill = ref<Quill>()
-    const editorRef = ref<HTMLDivElement>()
-    const initialValue = ref<string>(props.value ?? props.defaultValue ?? '')
-
-    const initQuill = () => {
-      return new Quill(editorRef.value as HTMLDivElement, {
-        placeholder: props.placeholder,
-        ...quillConfig,
-      })
-    }
-
-    const enableWriteMode = () => {
-      emit('changeMode', 'write')
-    }
-
-    const insertValue = (value: string) => {
-      quill.value?.clipboard.dangerouslyPasteHTML(0, value)
-      quill.value?.blur()
-    }
-
-    const getHTMLValue = () =>
-      (editorRef.value as HTMLDivElement).querySelector('.ql-editor')?.innerHTML
-
-    const handleContentsChange = () => {
-      emit('input', getHTMLValue())
-    }
-
-    watch(
-      () => props.mode,
-      (_, from) => {
-        if (from === 'write') {
-          quill.value?.setText('')
-          insertValue(props.value ?? '')
-          initialValue.value = props.value ?? ''
-        }
-      }
-    )
-
-    onMounted(() => {
-      try {
-        quill.value = initQuill()
-        insertValue(initialValue.value)
-        quill.value.on('text-change', handleContentsChange)
-      } catch (error) {
-        console.log(error)
-      }
-    })
-
-    onBeforeUnmount(() => {
-      {
-        quill.value?.off('text-change', handleContentsChange)
-        // eslint-disable-next-line
-        quill.value = null as any
-      }
-    })
-
-    return {
-      editorRef,
-      getHTMLValue,
-      initialValue,
-      enableWriteMode,
-    }
-  },
-})
-</script>
 
 <style lang="scss">
 .ql {
@@ -121,8 +101,17 @@ export default defineComponent({
 }
 .ql-editor {
   // min-height: 110px;
-  font-family: 'CircularStd', -apple-system, BlinkMacSystemFont, 'Segoe UI',
-    Roboto, 'Helvetica Neue', Helvetica, Arial, sans-serif, 'CircularStd';
+  font-family:
+    'CircularStd',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    'Helvetica Neue',
+    Helvetica,
+    Arial,
+    sans-serif,
+    'CircularStd';
 
   h1,
   h2,

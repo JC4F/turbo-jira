@@ -1,8 +1,8 @@
 import { type Ref, onMounted, onUnmounted } from 'vue'
 
 export const useOutsideClick = (
-  $root: Ref<HTMLElement | undefined>,
-  $bound: Ref<HTMLElement | undefined>,
+  $root: Ref<HTMLElement | null>,
+  $bound: Ref<HTMLElement | null>,
   onOutsideClick: Function
 ) => {
   const handleClickOutside = (e: MouseEvent) => {

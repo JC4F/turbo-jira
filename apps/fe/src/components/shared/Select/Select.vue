@@ -1,10 +1,120 @@
+<script lang="ts" setup>
+import { ref, computed, nextTick } from 'vue'
+import Dropdown from './Dropdown.vue'
+import { useOutsideClick } from '@/hooks'
+
+interface Option {
+  label: string
+  value: number | string
+}
+
+// Define props
+const props = defineProps<{
+  dropdownWidth?: number
+  variant?: string
+  name?: string
+  customRender?: boolean
+  customRenderOption?: boolean
+  searchable?: boolean
+  value?: Array<number | string> | string | number
+  defaultValue?: string | Array<number | string> | number
+  placeholder?: string
+  invalid?: boolean
+  options: Option[]
+  isMulti: boolean
+  withClearValue: boolean
+}>()
+
+// Define emits
+const emit = defineEmits<{
+  (e: 'change', value: string | number | Array<number | string>): void
+}>()
+
+const selectRef = ref<HTMLDivElement | null>(null)
+const dropdownRef = ref<HTMLDivElement | null>(null)
+const isDropdownOpen = ref<boolean>(false)
+const searchValue = ref<string>('')
+const stateValue = ref(props.defaultValue || (props.isMulti ? [] : null))
+
+const getOption = (optionValue: any) => {
+  return props.options.find((option) => option.value === optionValue)
+}
+
+const getOptionLabel = (optionValue: any) => {
+  return (getOption(optionValue) || { label: '' }).label
+}
+
+const isControlled = computed(() => props.value !== undefined)
+
+const localValue = computed(() => (isControlled.value ? props.value : stateValue.value))
+
+const preserveValueType = (newValue: string | number | Array<number | string>) => {
+  const areOptionValuesNumbers = props.options.some((option) => typeof option.value === 'number')
+
+  if (areOptionValuesNumbers) {
+    if (props.isMulti) {
+      return (newValue as Array<string | number>).map(Number)
+    }
+    if (newValue) {
+      return Number(newValue)
+    }
+  }
+  return newValue
+}
+
+const handleChange = (newValue: string | number | Array<number | string>) => {
+  if (!isControlled.value) {
+    stateValue.value = preserveValueType(newValue)
+  }
+  emit('change', preserveValueType(newValue))
+}
+
+const removeOptionValue = (optionValue: any) => {
+  handleChange((localValue.value as Array<string | number>).filter((val) => val !== optionValue))
+}
+
+const isValueEmpty = computed(() =>
+  props.isMulti
+    ? !(localValue.value as Array<string | number>).length
+    : !getOption(localValue.value as string | number | Array<number | string>)
+)
+
+const handleFocusedSelectKeydown = (event: KeyboardEvent) => {
+  if (isDropdownOpen.value) return
+  if (event.keyCode === 13) {
+    event.preventDefault()
+  }
+  if (event.keyCode !== 27 && event.keyCode !== 9 && !event.shiftKey) {
+    isDropdownOpen.value = true
+  }
+}
+
+const deactivateDropdown = async () => {
+  isDropdownOpen.value = false
+  searchValue.value = ''
+  await nextTick()
+  selectRef.value?.focus()
+}
+
+const activateDropdown = async () => {
+  isDropdownOpen.value = true
+  await nextTick()
+  selectRef.value?.blur()
+  if (props.searchable) {
+    ;(dropdownRef.value as any).$refs.inputRef.focus()
+  }
+}
+
+const handleSearchValueChange = (newValue: string) => {
+  searchValue.value = newValue
+}
+
+// Use outside click hook
+useOutsideClick(ref(document.body), selectRef, deactivateDropdown)
+</script>
+
 <template>
-  <div
-    class="select"
-    ref="selectRef"
-    :class="[variant]"
-    @keydown="handleFocusedSelectKeydown"
-  >
+  <div class="select" ref="selectRef" :class="[variant]" @keydown="handleFocusedSelectKeydown">
     <div
       class="valueContainer text-textDarkest"
       :data-testid="name ? `select:${name}` : 'select'"
@@ -12,10 +122,7 @@
     >
       <div class="placeholder" v-if="isValueEmpty">{{ placeholder }}</div>
 
-      <slot
-        v-if="!isValueEmpty && !isMulti && customRender"
-        v-bind="getOption(localValue)"
-      />
+      <slot v-if="!isValueEmpty && !isMulti && customRender" v-bind="getOption(localValue)" />
       <template v-else>
         {{ getOptionLabel(localValue) }}
       </template>
@@ -24,7 +131,7 @@
         <div
           class="flex items-center mx-1 my-1"
           v-for="optionValue in localValue"
-          :key="(optionValue as any)"
+          :key="optionValue as any"
         >
           <slot
             v-if="customRender"
@@ -38,10 +145,7 @@
             <div class="valueMultiItemLabel">
               {{ getOptionLabel(optionValue) }}
             </div>
-            <div
-              @click="removeOptionValue(optionValue)"
-              class="valueMultiItemClose"
-            >
+            <div @click="removeOptionValue(optionValue)" class="valueMultiItemClose">
               <svg class="icon" viewBox="0 0 24 24">
                 <path
                   d="M16.192 6.344L11.949 10.586 7.707 6.344 6.293 7.758 10.535 12 6.293 16.242 7.707 17.656 11.949 13.414 16.192 17.656 17.606 16.242 13.364 12 17.606 7.758z"
@@ -52,12 +156,7 @@
         </div>
 
         <div class="m-1 addMore">
-          <svg
-            class="icon"
-            viewBox="0 0 24 24"
-            focusable="false"
-            role="presentation"
-          >
+          <svg class="icon" viewBox="0 0 24 24" focusable="false" role="presentation">
             <path
               d="M13 11V3.993A.997.997 0 0 0 12 3c-.556 0-1 .445-1 .993V11H3.993A.997.997 0 0 0 3 12c0 .557.445 1 .993 1H11v7.007c0 .548.448.993 1 .993.556 0 1-.445 1-.993V13h7.007A.997.997 0 0 0 21 12c0-.556-.445-1-.993-1H13z"
               fill="currentColor"
@@ -97,188 +196,6 @@
     </Dropdown>
   </div>
 </template>
-
-<script lang="ts">
-import { defineComponent, ref, computed, nextTick } from 'vue'
-import Dropdown from './Dropdown.vue'
-import { useOutsideClick } from '../../../hooks/useOutsideClick'
-
-interface Option {
-  label: string
-  value: number | string
-}
-
-export default defineComponent({
-  name: 'j-select',
-  props: {
-    dropdownWidth: {
-      type: Number,
-      default: undefined
-    },
-    variant: {
-      type: String,
-      default: 'normal'
-    },
-    name: {
-      type: String,
-      default: undefined
-    },
-    customRender: {
-      type: Boolean,
-      default: false
-    },
-    customRenderOption: {
-      type: Boolean,
-      default: false
-    },
-    searchable: {
-      type: Boolean,
-      default: false
-    },
-    value: {
-      type: [Array, String, Number],
-      default: undefined
-    },
-    defaultValue: {
-      type: [String, Array, Number],
-      default: undefined
-    },
-    placeholder: {
-      type: String,
-      default: 'Select'
-    },
-    invalid: {
-      type: Boolean,
-      default: false
-    },
-    options: {
-      type: Array as () => Array<Option>,
-      required: true
-    },
-    isMulti: {
-      type: Boolean,
-      default: false
-    },
-    withClearValue: {
-      type: Boolean,
-      default: false
-    }
-  },
-  components: {
-    Dropdown
-  },
-  setup(props, { emit }) {
-    const selectRef = ref<HTMLDivElement>()
-    const dropdownRef = ref<HTMLDivElement>()
-    const isDropdownOpen = ref<boolean>(false)
-    const searchValue = ref<string>('')
-    const stateValue = ref(props.defaultValue || (props.isMulti ? [] : null))
-
-    const getOption = (optionValue: any) => {
-      return props.options.find(option => option.value === optionValue)
-    }
-
-    const getOptionLabel = (optionValue: any) => {
-      return (getOption(optionValue) || { label: '' }).label
-    }
-    const isControlled = computed(() => props.value != undefined)
-
-    const localValue = computed(() =>
-      isControlled.value ? props.value : stateValue.value
-    )
-
-    const preserveValueType = (
-      newValue: string | number | Array<number | string>
-    ) => {
-      const areOptionValuesNumbers = props.options.some(
-        option => typeof option.value === 'number'
-      )
-
-      if (areOptionValuesNumbers) {
-        if (props.isMulti) {
-          return (newValue as [string | number]).map(Number)
-        }
-        if (newValue) {
-          return Number(newValue)
-        }
-      }
-      return newValue
-    }
-
-    const handleChange = (
-      newValue: string | number | Array<number | string>
-    ) => {
-      if (!isControlled.value) {
-        stateValue.value = preserveValueType(newValue)
-      }
-      emit('change', preserveValueType(newValue))
-    }
-
-    const removeOptionValue = (optionValue: any) => {
-      handleChange(
-        (localValue.value as [string | number]).filter(
-          val => val !== optionValue
-        )
-      )
-    }
-
-    const isValueEmpty = computed(() =>
-      props.isMulti
-        ? !(localValue.value as [string | number]).length
-        : !getOption(
-            localValue.value as string | number | Array<number | string>
-          )
-    )
-
-    const handleFocusedSelectKeydown = (event: KeyboardEvent) => {
-      if (isDropdownOpen.value) return
-      if (event.keyCode === 13) {
-        event.preventDefault()
-      }
-      if (event.keyCode !== 27 && event.keyCode !== 9 && !event.shiftKey) {
-        isDropdownOpen.value = true
-      }
-    }
-
-    const deactivateDropdown = async () => {
-      isDropdownOpen.value = false
-      searchValue.value = ''
-      await nextTick()
-      selectRef.value && selectRef.value.focus()
-    }
-    const activateDropdown = async () => {
-      isDropdownOpen.value = true
-      await nextTick()
-      selectRef.value && selectRef.value.blur()
-      // eslint-disable-next-line
-      props.searchable && (dropdownRef.value as any).$refs.inputRef.focus()
-    }
-    const handleSearchValueChange = (newValue: string) => {
-      searchValue.value = newValue
-    }
-
-    useOutsideClick(ref(document.body), selectRef, deactivateDropdown)
-
-    return {
-      selectRef,
-      dropdownRef,
-      isDropdownOpen,
-      searchValue,
-      stateValue,
-      getOption,
-      removeOptionValue,
-      getOptionLabel,
-      localValue,
-      isValueEmpty,
-      activateDropdown,
-      deactivateDropdown,
-      handleFocusedSelectKeydown,
-      handleSearchValueChange,
-      handleChange
-    }
-  }
-})
-</script>
 
 <style lang="scss" scoped>
 .select {
