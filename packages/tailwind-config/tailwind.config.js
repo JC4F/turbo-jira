@@ -65,6 +65,13 @@ module.exports = {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      spacing: {
+        sidebar: "230px",
+        sidebarShort: "210px",
+        navbarLeft: "64px",
+        navbarLeftSidebar: `${230 + 64}px`,
+        navbarLeftSidebarShort: `${210 + 64}px`,
+      },
       keyframes: {
         "accordion-down": {
           from: { height: 0 },
