@@ -13,7 +13,7 @@
     "type-check": "vue-tsc --build --force",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
     "format": "prettier --write src/",
-    "check-types": "tsc --noEmit -p ./tsconfig.app.json"
+    "check-types": "vue-tsc --noEmit -p ./tsconfig.app.json"
   },
   "dependencies": {
     "@apollo/client": "^3.11.4",

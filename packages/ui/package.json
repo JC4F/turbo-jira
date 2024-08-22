@@ -6,7 +6,7 @@
   "types": "./index.ts",
   "scripts": {
     "lint": "eslint .",
-    "check-types": "tsc --noEmit"
+    "check-types": "vue-tsc --noEmit"
   },
   "dependencies": {
     "@vueuse/core": "^10.11.1",
@@ -20,6 +20,7 @@
     "@repo/eslint-config": "workspace:*",
     "@repo/tailwind-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
-    "eslint": "^8.57.0"
+    "eslint": "^8.57.0",
+    "vue-tsc": "^2.0.21"
   }
 }
