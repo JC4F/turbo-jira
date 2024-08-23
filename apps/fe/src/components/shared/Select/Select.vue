@@ -21,7 +21,7 @@ const props = defineProps<{
   placeholder?: string
   invalid?: boolean
   options: Option[]
-  isMulti: boolean
+  isMulti?: boolean
   withClearValue: boolean
 }>()
 

@@ -4,7 +4,7 @@ import IssueDetails from '@/components/Project/Issue/IssueDetails/IssueDetails.v
 import { getters } from '@/stores'
 
 defineProps<{
-  issueId: string | number
+  issueId: string
 }>()
 
 // Computed property for project

@@ -89,7 +89,7 @@ const handleSubmit = async () => {
     users: issueCreateObject.userIds.map(getUserById)
   }
   try {
-    await mutate({ issue } as any)
+    await mutate({ createIssueInput: issue } as any)
     const res = await fetchProjectIssues()
     if (res?.data) {
       mutations.setProject({

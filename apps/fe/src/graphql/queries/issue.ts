@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client/core'
 
 export const getIssueWithUsersAndComments = gql`
-  query getIssue($id: Int!) {
+  query getIssue($id: String!) {
     getIssueWithUsersAndComments(issueId: $id) {
       id
       title
@@ -64,8 +64,8 @@ export const createIssue = gql`
 `
 
 export const updateIssueMutation = gql`
-  mutation updateIssue($issueId: Float!, $issue: IssueUpdateInput!) {
-    updateIssue(id: $issueId, issue: $issue) {
+  mutation updateIssue($issueId: String!, $issue: UpdateIssueInput!) {
+    updateIssue(id: $issueId, updateIssueInput: $issue) {
       id
       title
       description

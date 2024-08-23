@@ -1,4 +1,5 @@
 import type { User } from './user'
+import type { Comment } from '@/types/comment'
 
 export enum IssueType {
   TASK = 'task',

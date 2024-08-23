@@ -39,7 +39,7 @@ const handleIssueDrop = (issueId: string, d: Target, s: Target) => {
   })
 
   mutate({
-    issueId: Number(issueId),
+    issueId,
     issue: issueUpdateValues
   } as any).catch((e) => {
     console.error(e)

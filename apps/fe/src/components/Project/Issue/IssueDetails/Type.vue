@@ -3,7 +3,7 @@ import { IssueType, IssueTypeCopy } from '@/types/issue'
 
 const props = defineProps<{
   value: IssueType
-  issueId: string | number
+  issueId: string
   updateIssue: (data: { type: IssueType }) => Promise<void>
 }>()
 

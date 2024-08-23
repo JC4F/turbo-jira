@@ -21,7 +21,7 @@ const props = defineProps<{
     label: string,
     callback: (value: string | Array<number | string> | number) => void
   ) => void
-  isMulti: boolean
+  isMulti?: boolean
   withClearValue: boolean
 }>()
 
