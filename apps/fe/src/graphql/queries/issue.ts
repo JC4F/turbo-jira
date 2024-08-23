@@ -82,7 +82,7 @@ export const updateIssueMutation = gql`
 `
 
 export const deleteIssue = gql`
-  mutation deleteIssue($issueId: Float!) {
-    deleteIssue(id: $issueId)
+  mutation deleteIssue($issueId: String!) {
+    removeIssue(id: $issueId)
   }
 `

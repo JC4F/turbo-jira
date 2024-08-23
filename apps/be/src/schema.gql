@@ -99,7 +99,7 @@ type Mutation {
   createUser(createUserInput: CreateUserInput!): User!
   createIssue(createIssueInput: CreateIssueInput!): Issue!
   updateIssue(updateIssueInput: UpdateIssueInput!, id: String!): Issue!
-  removeIssue(id: String!): Issue!
+  removeIssue(id: String!): Boolean!
   updateProject(updateProjectInput: UpdateProjectInput!): Project!
   createComment(createCommentInput: CreateCommentInput!): Comment!
   updateComment(updateCommentInput: UpdateCommentInput!): Comment!
