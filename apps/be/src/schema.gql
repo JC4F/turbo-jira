@@ -120,9 +120,16 @@ input CreateIssueInput {
   priority: String!
   reporterId: ID!
   projectId: ID!
-  users: [CreateUserInput!]!
+  users: [UserInput!]!
   userIds: [ID!]!
   description: String
+}
+
+input UserInput {
+  id: ID!
+  name: String
+  avatarUrl: String
+  projectId: String
 }
 
 input UpdateIssueInput {
@@ -132,9 +139,10 @@ input UpdateIssueInput {
   priority: String
   reporterId: ID
   projectId: ID
-  users: [CreateUserInput!]
+  users: [UserInput!]
   userIds: [ID!]
   description: String
+  listPosition: Float
 }
 
 input UpdateProjectInput {
