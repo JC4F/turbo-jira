@@ -20,17 +20,14 @@ import type { Issue } from '@/types/issue'
 import { useClipboard } from '@/hooks/useClipboard'
 import { formatDateTimeConversational } from '@/utils/date'
 import { getters, mutations } from '@/stores'
-import { eventBus, updateArrayItemById } from '@/utils'
+import { eventBus, sortByNewest, updateArrayItemById } from '@/utils'
 import { deleteComment } from '@/graphql/queries/comment'
-
-const sortByNewest = (items: any[] = [], sortField: string) =>
-  [...items].sort((a, b) => -a[sortField].localeCompare(b[sortField]))
 
 const emit = defineEmits(['close'])
 
 // Define props
 const props = defineProps<{
-  issueId: string | number
+  issueId: string
   withCloseButton?: boolean
   withFullScreenButton?: boolean
 }>()
@@ -75,7 +72,7 @@ const {
 } = useQuery<{
   getIssueWithUsersAndComments: Issue
 }>(getIssueWithUsersAndComments, {
-  id: Number(props.issueId)
+  id: props.issueId
 })
 
 onResult((res) => {
@@ -126,7 +123,7 @@ const handleUpdateIssue = async (fields: Partial<Issue>) => {
     issues: updateArrayItemById(project.value.issues, props.issueId as string, fields)
   })
   await mutateIssue({
-    issueId: Number(props.issueId),
+    issueId: props.issueId,
     issue: { ...fields }
   } as any)
   await refetchIssue()
@@ -141,7 +138,7 @@ const triggerIssueDelete = () => {
 }
 
 const deleteIssueHandler = async () => {
-  await mutate({ issueId: Number(props.issueId) } as any)
+  await mutate({ issueId: props.issueId } as any)
   const res = await fetchProjectIssues()
   if (res?.data) {
     mutations.setProject({
@@ -166,15 +163,15 @@ const deleteIssueHandler = async () => {
   }
 }
 
-const triggeCommentDelete = (id: string | number) => {
+const triggeCommentDelete = (id: string) => {
   eventBus.emit('toggle-comment-delete', {
     isOpen: true,
     id
   })
 }
 
-const deleteCommentHandler = async (id: string | number) => {
-  await deleteMutation({ commentId: `${id}` } as any)
+const deleteCommentHandler = async (id: string) => {
+  await deleteMutation({ removeCommentId: `${id}` } as any)
   await refetchIssue()
   eventBus.emit('toggle-comment-delete', {
     isOpen: false,

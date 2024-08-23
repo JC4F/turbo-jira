@@ -8,10 +8,7 @@ import { getProjectIssues } from '@/graphql/queries/issue'
 import type { Issue } from '@/types/issue'
 import { getters } from '@/stores'
 import Input from '@/components/shared/Input/Input.vue'
-
-// Utility function to sort items by the newest
-const sortByNewest = <T extends { [key: string]: any }>(items: T[], sortField: string): T[] =>
-  items.sort((a, b) => -a[sortField].localeCompare(b[sortField]))
+import { sortByNewest } from '@/utils'
 
 // Reactive state
 const isSearchTermEmpty = ref(true)

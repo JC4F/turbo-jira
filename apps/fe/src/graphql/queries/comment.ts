@@ -14,7 +14,7 @@ export const createComment = gql`
 `
 
 export const deleteComment = gql`
-  mutation RemoveComment($removeCommentId: Int!) {
+  mutation RemoveComment($removeCommentId: ID!) {
     removeComment(id: $removeCommentId) {
       body
     }
