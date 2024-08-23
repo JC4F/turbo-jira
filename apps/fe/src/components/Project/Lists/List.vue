@@ -68,7 +68,7 @@ const dropPlaceholderOptions = {
 
 const onDrop = (dropResult: DropResult) => {
   const arr = Object.values(IssueStatus)
-  const to = arr.indexOf(props.status as IssueStatus)
+  const to = arr.indexOf(props.status)
   emit('drop', { ...dropResult, to })
 }
 
@@ -76,9 +76,6 @@ const getCardPayload = (index: number) => {
   const issuesByStatus = getSortedListIssues(filteredListIssues.value, props.status)
   return issuesByStatus[index]
 }
-
-// Exported variables and methods
-// const Issue = issueComponent
 </script>
 
 <template>
