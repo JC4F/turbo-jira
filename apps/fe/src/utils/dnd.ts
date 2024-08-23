@@ -9,7 +9,7 @@ export interface DropResult {
 
 export interface Target {
   index: number
-  droppableId: IssueStatus
+  issueStatusZone: IssueStatus
 }
 
 export const moveItemWithinArray = (arr: Issue[], item: Issue, newIndex: number) => {
@@ -36,7 +36,7 @@ export const updateArrayItemById = (arr: Issue[], itemId: string, fields: Partia
 
 export const isPositionChanged = (destination: Target, source: Target) => {
   if (!destination) return false
-  const isSameList = destination.droppableId === source.droppableId
+  const isSameList = destination.issueStatusZone === source.issueStatusZone
   const isSamePosition = destination.index === source.index
   return !isSameList || !isSamePosition
 }
@@ -52,9 +52,9 @@ const getAfterDropPrevNextIssue = (
   source: Target,
   droppedIssueId: string
 ) => {
-  const beforeDropDestinationIssues = getSortedListIssues(allIssues, destination.droppableId)
+  const beforeDropDestinationIssues = getSortedListIssues(allIssues, destination.issueStatusZone)
   const droppedIssue = allIssues.find((issue) => issue.id === droppedIssueId)
-  const isSameList = destination.droppableId === source.droppableId
+  const isSameList = destination.issueStatusZone === source.issueStatusZone
 
   const afterDropDestinationIssues = isSameList
     ? moveItemWithinArray(beforeDropDestinationIssues, droppedIssue as Issue, destination.index)

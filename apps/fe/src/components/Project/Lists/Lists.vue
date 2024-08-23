@@ -25,7 +25,7 @@ const handleIssueDrop = (issueId: string, d: Target, s: Target) => {
   if (!isPositionChanged(s, d)) return
 
   const issueUpdateValues = {
-    status: d.droppableId,
+    status: d.issueStatusZone,
     listPosition: calculateIssueListPosition(project.value.issues, d, s, issueId)
   }
 
@@ -57,14 +57,14 @@ const onDrop = (dropResult: DropResult) => {
   if (removedIndex !== null) {
     source.value = {
       index: removedIndex,
-      droppableId: payload.status
+      issueStatusZone: payload.status
     }
   }
 
   if (addedIndex !== null) {
     destination.value = {
       index: addedIndex,
-      droppableId: Object.values(IssueStatus)[to]
+      issueStatusZone: Object.values(IssueStatus)[to]
     }
   }
 

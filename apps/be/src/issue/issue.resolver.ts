@@ -49,7 +49,7 @@ export class IssueResolver {
   }
 
   @Auth([Role.ADMIN, Role.USER])
-  @Mutation(() => Issue)
+  @Mutation(() => Boolean)
   async removeIssue(@Args('id', { type: () => String }) id: string) {
     return await this.issueService.remove(id);
   }
