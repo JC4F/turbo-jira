@@ -2,6 +2,8 @@
 import { ref, computed, onUnmounted, defineComponent } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useQuery, useMutation } from '@vue/apollo-composable'
+import { Button } from '@repo/ui'
+import { Clipboard, Expand, Trash, X } from 'lucide-vue-next'
 import Comment from './Comment.vue'
 import IssueDescription from './Description.vue'
 import IssueTitle from './Title.vue'
@@ -196,23 +198,21 @@ onUnmounted(() => {
       <!-- Type -->
       <IssueType :updateIssue="handleUpdateIssue" :issueId="issueCopy.id" :value="issueCopy.type" />
       <div class="flex-auto"></div>
-      <j-button icon="feedback" variant="empty">Give Feedback</j-button>
-      <j-button @click="copyIssueLink" icon="link" variant="empty">Copy Link</j-button>
-      <j-button @click="triggerIssueDelete" icon="trash" variant="empty" />
-      <j-button
-        v-if="withFullScreenButton"
-        @click="goFullScreen"
-        icon="expand"
-        :iconSize="24"
-        variant="empty"
-      />
-      <j-button
-        v-if="withCloseButton"
-        @click="$emit('close')"
-        icon="times"
-        :iconSize="24"
-        variant="empty"
-      />
+      <Button icon="feedback" variant="outline">Give Feedback</Button>
+      <Button @click="copyIssueLink" variant="outline">
+        <Clipboard class="h-4 w-4 xl:mr-2" />
+        <span class="hidden xl:inline">Copy Link</span>
+      </Button>
+      <Button @click="triggerIssueDelete" variant="outline">
+        <Trash class="h-4 w-4" />
+        <span class="hidden xl:inline">Delete</span>
+      </Button>
+      <Button v-if="withFullScreenButton" @click="goFullScreen" variant="outline">
+        <Expand class="h-4 w-4" />
+      </Button>
+      <Button v-if="withCloseButton" @click="$emit('close')" variant="outline">
+        <X class="h-4 w-4" />
+      </Button>
     </div>
     <div class="flex w-full flex-wrap pb-16 px-7">
       <!-- LEFT SECTION -->

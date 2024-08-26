@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator } from '@repo/ui'
+import BreadcrumbList from '@ui/components/ui/breadcrumb/BreadcrumbList.vue'
 import { defineProps } from 'vue'
 
 defineProps<{
@@ -7,10 +9,14 @@ defineProps<{
 </script>
 
 <template>
-  <div class="text-foreground text-15">
-    <span v-for="(item, index) in items" :key="item">
-      <span class="relative mx-2 font-lg" v-if="index !== 0">/</span>
-      {{ item }}
-    </span>
-  </div>
+  <Breadcrumb>
+    <BreadcrumbList>
+      <BreadcrumbItem v-for="(item, index) in items" :key="item">
+        <BreadcrumbLink>
+          <BreadcrumbSeparator v-if="index !== 0" class="mx-2" />
+          {{ item }}
+        </BreadcrumbLink>
+      </BreadcrumbItem>
+    </BreadcrumbList>
+  </Breadcrumb>
 </template>

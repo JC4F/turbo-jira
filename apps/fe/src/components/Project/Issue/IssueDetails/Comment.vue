@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { computed, ref } from 'vue'
 import { useMutation } from '@vue/apollo-composable'
+import { Button } from '@repo/ui'
 import type { Comment } from '@/types'
 import { formatDateTimeConversational } from '@/utils/date'
 import { createComment, updateComment } from '@/graphql/queries/comment'
@@ -98,11 +99,11 @@ const handleCancel = () => {
 <template>
   <div class="relative mt-6 text-15">
     <!-- user-avatar -->
-    <j-avatar
-      class="absolute top-0 left-0"
-      :name="comment.user.name"
-      :avatarUrl="comment.user.avatarUrl"
-    />
+    <Avatar class="absolute top-0 left-0">
+      <AvatarImage :src="comment.user.avatarUrl" alt="avatar" />
+      <AvatarFallback>{{ comment.user.name }}</AvatarFallback>
+    </Avatar>
+
     <!-- content -->
     <div class="pl-10">
       <!-- username -->
@@ -123,16 +124,10 @@ const handleCancel = () => {
           placeholder="Add a comment..."
         />
         <div class="flex items-center pt-2">
-          <j-button
-            class="mr-2"
-            variant="primary"
-            type="submit"
-            @click="handleSubmit"
-            :isWorking="isWorking"
-          >
+          <Button class="mr-2" type="submit" @click="handleSubmit" :disabled="isWorking">
             Save
-          </j-button>
-          <j-button variant="empty" @click="handleCancel"> Cancel </j-button>
+          </Button>
+          <Button variant="outline" @click="handleCancel"> Cancel </Button>
         </div>
       </div>
       <div v-else>

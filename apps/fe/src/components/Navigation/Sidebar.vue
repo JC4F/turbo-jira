@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { computed } from 'vue'
+import { FolderDot } from 'lucide-vue-next'
 import { navLinks } from './Sidebar'
 import { ProjectCategoryCopy } from '@/types'
 import { getters } from '@/stores'
@@ -21,7 +22,7 @@ const sidebarWidth = computed(() => (props.expanded ? 240 : 20))
   <div :style="{ width: `${sidebarWidth}px` }" class="sidebar h-full relative">
     <div class="sidebar-content px-4 bg-background">
       <div class="flex py-6 px-1">
-        <j-icon name="project-avatar" :size="40"></j-icon>
+        <FolderDot class="w-6 h-6" />
         <div class="pt-1 pl-2">
           <div class="mb-1 text-foreground text-15 font-medium">
             {{ project.name }}
@@ -42,7 +43,7 @@ const sidebarWidth = computed(() => (props.expanded ? 240 : 20))
           class="link flex items-center relative py-2 px-3 rounded-sm text-foreground"
           :class="`${!link.to ? 'not-allowed' : 'allowed'}`"
         >
-          <j-icon :name="link.icon" :size="24" class="mr-4"></j-icon>
+          <component :is="link.icon" class="mr-4 w-4 h-4" />
 
           <div class="text-15 pt-px">{{ link.name }}</div>
           <div

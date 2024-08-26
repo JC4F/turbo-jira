@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Button, type ButtonVariants } from '@repo/ui'
 import { IssueStatusCopy, IssueStatus } from '@/types/issue'
 import { issueStatusVariants } from '@/utils/colors'
 
@@ -36,12 +37,12 @@ const updateIssueStatus = async (status: IssueStatus) => {
       customRenderOption
     >
       <template v-slot:default="{ label }">
-        <j-button
+        <Button
           class="uppercase text-foreground text-[13px]"
-          :variant="issueStatusVariants[value]"
+          :variant="issueStatusVariants[value] as ButtonVariants['variant']"
         >
           {{ label }}
-        </j-button>
+        </Button>
       </template>
       <template v-slot:option="{ label }">
         <div class="flex items-center pr-1 pl-2">

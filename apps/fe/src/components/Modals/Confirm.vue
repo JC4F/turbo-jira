@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { Button } from '@repo/ui'
 import { ref, onUnmounted, defineProps, defineEmits } from 'vue'
 
 defineProps({
@@ -44,10 +45,8 @@ onUnmounted(() => {
     </div>
     <p class="pb-4 whitespace-pre-wrap text-15">{{ message }}</p>
     <div class="flex pt-3">
-      <j-button :isWorking="isWorking" @click="handleConfirmed" class="mr-2" :variant="variant">{{
-        confirmText
-      }}</j-button>
-      <j-button @click="handleClose" class="mr-2" variant="empty">Cancel</j-button>
+      <Button :disabled="isWorking" @click="handleConfirmed" class="mr-2">{{ confirmText }}</Button>
+      <Button @click="handleClose" class="mr-2" variant="outline">Cancel</Button>
     </div>
   </div>
 </template>

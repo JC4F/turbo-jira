@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { Avatar, AvatarFallback, AvatarImage } from '@repo/ui'
+import { ArrowDown, ArrowUp } from 'lucide-vue-next'
 import { type Issue, IssuePriority } from '@/types/issue'
 import { getters } from '@/stores'
 import { issuePriorityColors } from '@/utils/colors'
 import { eventBus } from '@/utils/eventBus'
+import IssueTypeIcon from '@/components/shared/issue-type-icon/issue-type-icon.vue'
 
 // Props
 const props = defineProps<{
@@ -19,8 +22,8 @@ const assignees = computed(() =>
 
 const issuePriorityStyles = computed(() => ({
   icon: [IssuePriority.LOW, IssuePriority.LOWEST].includes(props.issue.priority)
-    ? 'arrow-down'
-    : 'arrow-up',
+    ? ArrowDown
+    : ArrowUp,
   color: issuePriorityColors[props.issue.priority]
 }))
 
@@ -44,23 +47,19 @@ const openIssueDetails = () => {
       </p>
       <div class="flex items-center justify-between">
         <div class="flex items-center">
-          <j-icon :name="issue.type" :size="20" class="mr-1 text-foreground"></j-icon>
+          <IssueTypeIcon :issueType="issue.type" class="mr-1 text-foreground" />
 
-          <j-icon
+          <component
+            :is="issuePriorityStyles.icon"
             :style="{ color: issuePriorityStyles.color }"
-            :name="issuePriorityStyles.icon"
-            :size="20"
-          ></j-icon>
+            class="h-4 w-4"
+          />
         </div>
         <div class="flex flex-row-reverse ml-1">
-          <j-avatar
-            v-for="user in assignees"
-            :key="user?.id"
-            :size="24"
-            :avatarUrl="user?.avatarUrl"
-            :name="user?.name"
-            class="-ml-1 shadow-outline-white"
-          />
+          <Avatar class="-ml-1 shadow" v-for="user in assignees" :key="user?.id">
+            <AvatarImage :src="user?.avatarUrl || ''" alt="avatar" />
+            <AvatarFallback>{{ user?.name }}</AvatarFallback>
+          </Avatar>
         </div>
       </div>
     </div>

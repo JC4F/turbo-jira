@@ -30,7 +30,7 @@ export const issueStatusVariants = {
   [IssueStatus.BACKLOG]: 'secondary',
   [IssueStatus.DONE]: 'success',
   [IssueStatus.SELECTED]: 'secondary',
-  [IssueStatus.INPROGRESS]: 'primary'
+  [IssueStatus.INPROGRESS]: 'default'
 }
 
 export const issuePriorityColors = {

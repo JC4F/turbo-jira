@@ -1,6 +1,11 @@
 {
   "extends": "@repo/typescript-config/vue.json",
-  "include": ["env.d.ts", "src/**/*", "src/**/*.vue"],
+  "include": [
+    "env.d.ts",
+    "src/**/*",
+    "src/**/*.vue",
+    "src/components/shared/issue-type-buton/issue-type-button.vue"
+  ],
   "exclude": ["src/**/__tests__/*"],
   "compilerOptions": {
     "composite": true,

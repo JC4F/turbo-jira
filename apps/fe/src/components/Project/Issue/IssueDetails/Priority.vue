@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { Button } from '@repo/ui'
+import { ArrowDown, ArrowUp } from 'lucide-vue-next'
 import { IssuePriority, IssuePriorityCopy } from '@/types'
 import { issuePriorityColors } from '@/utils'
 
@@ -10,7 +12,7 @@ const props = defineProps<{
 const issuePriorityOptions = Object.values(IssuePriority).map((priority) => ({
   value: priority,
   label: IssuePriorityCopy[priority],
-  icon: [IssuePriority.LOW, IssuePriority.LOWEST].includes(priority) ? 'arrow-down' : 'arrow-up',
+  icon: [IssuePriority.LOW, IssuePriority.LOWEST].includes(priority) ? ArrowDown : ArrowUp,
   color: issuePriorityColors[priority]
 }))
 
@@ -37,19 +39,19 @@ const updateIssuePriority = async (priority: IssuePriority) => {
       @change="updateIssuePriority"
     >
       <template v-slot:default="{ label, icon, color }">
-        <j-button variant="secondary">
+        <Button variant="secondary">
           <div class="flex items-center">
-            <j-icon :style="{ color }" :size="18" :name="icon"></j-icon>
+            <component :style="{ color }" :is="icon" />
 
             <div class="pr-1 pl-2">
               {{ label }}
             </div>
           </div>
-        </j-button>
+        </Button>
       </template>
       <template v-slot:option="{ label, icon, color }">
         <div class="my-px mr-4 flex items-center">
-          <j-icon :style="{ color }" :size="18" :name="icon"></j-icon>
+          <component :style="{ color }" :is="icon" />
 
           <div class="pr-1 pl-2">
             {{ label }}

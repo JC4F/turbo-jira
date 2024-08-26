@@ -9,12 +9,16 @@
     "check-types": "vue-tsc --noEmit"
   },
   "dependencies": {
+    "@radix-icons/vue": "^1.0.0",
+    "@vee-validate/zod": "^4.13.2",
     "@vueuse/core": "^10.11.1",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "radix-vue": "^1.9.3",
     "tailwind-merge": "^2.4.0",
-    "vue": "^3.4.29"
+    "vee-validate": "^4.13.2",
+    "vue": "^3.4.29",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",

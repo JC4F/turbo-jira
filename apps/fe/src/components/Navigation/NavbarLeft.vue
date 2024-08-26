@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { Avatar, AvatarFallback, AvatarImage } from '@repo/ui'
+import { HelpCircle, Plus, Search } from 'lucide-vue-next'
 import { eventBus } from '@/utils'
 import { getters } from '@/stores'
 
@@ -7,7 +9,7 @@ const currentUser = computed(getters.currentUser)
 
 const items = [
   {
-    icon: 'search',
+    icon: Search,
     tooltip: 'Search issue',
     handler: () => {
       eventBus.emit('toggle-issue-search', {
@@ -16,7 +18,7 @@ const items = [
     }
   },
   {
-    icon: 'plus',
+    icon: Plus,
     tooltip: 'Create issue',
     handler: () => {
       eventBus.emit('toggle-issue-create', {
@@ -74,7 +76,7 @@ const items = [
           v-tippy="item.tooltip"
           class="itemIcon w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 select-none transition-colors duration-100 cursor-pointer"
         >
-          <j-icon class="text-white" :name="item.icon" :size="24"></j-icon>
+          <item.icon class="text-white" />
         </div>
       </div>
       <div class="flex-auto"></div>
@@ -83,11 +85,10 @@ const items = [
           v-tippy="currentUser.name"
           class="itemIcon w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 select-none transition-colors duration-100 cursor-pointer"
         >
-          <j-avatar
-            :name="currentUser.name"
-            :avatarUrl="currentUser.avatarUrl"
-            :size="26"
-          ></j-avatar>
+          <Avatar>
+            <AvatarImage :src="currentUser.avatarUrl" alt="avatar" />
+            <AvatarFallback>{{ currentUser.name }}</AvatarFallback>
+          </Avatar>
         </div>
       </div>
       <div class="relative w-full flex items-center justify-center min-h-[42px]">
@@ -95,7 +96,7 @@ const items = [
           v-tippy="`About`"
           class="itemIcon w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 select-none transition-colors duration-100 cursor-pointer"
         >
-          <j-icon fill="transparant" class="text-white" name="help" :size="24"></j-icon>
+          <HelpCircle class="h-4 w-4" />
         </div>
       </div>
     </div>

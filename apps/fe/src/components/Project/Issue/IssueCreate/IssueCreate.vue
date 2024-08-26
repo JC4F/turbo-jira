@@ -1,7 +1,24 @@
 <script lang="ts" setup>
 import { computed, reactive, ref } from 'vue'
+import { useForm } from 'vee-validate'
+import { toTypedSchema } from '@vee-validate/zod'
+import * as z from 'zod'
 import Omit from 'lodash.omit'
 import { useMutation, useQuery } from '@vue/apollo-composable'
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+  Button,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormLabel,
+  FormMessage,
+  Input
+} from '@repo/ui'
+import { ArrowDown, ArrowUp, X, XIcon } from 'lucide-vue-next'
+import FormItem from '@ui/components/ui/form/FormItem.vue'
 import { getters, mutations } from '@/stores'
 import {
   IssueType,
@@ -15,6 +32,7 @@ import {
 import { issuePriorityColors } from '@/utils/colors'
 import { createIssue, getProjectIssues } from '@/graphql/queries/issue'
 import { successToast } from '@/plugins'
+import IssueTypeIcon from '@/components/shared/issue-type-icon/issue-type-icon.vue'
 
 const emit = defineEmits(['close'])
 
@@ -42,25 +60,6 @@ const defaultIssueValues = {
   priority: IssuePriority.MEDIUM
 }
 
-// Reactive object for creating a new issue
-const issueCreateObject = reactive<IssueCreateDTO>(defaultIssueValues)
-
-// Validation functions
-const isRequired = (value: string) => ['', null, undefined].indexOf(value) === -1
-
-const isValidDTO = computed(
-  () =>
-    isRequired(issueCreateObject.type) &&
-    isRequired(issueCreateObject.title) &&
-    isRequired(issueCreateObject.reporterId) &&
-    isRequired(issueCreateObject.priority)
-)
-
-// Function to set the value of a specific field in the issue object
-const setFieldValue = (field: keyof IssueCreateDTO, value: any) => {
-  issueCreateObject[field] = value as never
-}
-
 // Loading states
 const loading = ref<boolean>(false)
 
@@ -72,21 +71,38 @@ const { refetch: fetchProjectIssues, loading: isFetchIssuesLoading } = useQuery<
 // Computed property to check if the component is currently working
 const isWorking = computed(() => loading.value && isFetchIssuesLoading && isMutationLoading)
 
-// Helper function to get user by ID, omitting certain fields
+const formSchema = toTypedSchema(
+  z.object({
+    issuetype: z.string(),
+    type: z.nativeEnum(IssueType),
+    title: z.string(),
+    reporterId: z.string(),
+    summary: z.string(),
+    description: z.string(),
+    reporter: z.string(),
+    userIds: z.string().array(),
+    priority: z.nativeEnum(IssuePriority)
+  })
+)
+
+const { handleSubmit } = useForm({
+  validationSchema: formSchema,
+  initialValues: defaultIssueValues
+})
+
 const getUserById = (userId: string) =>
   Omit(
     project.value.users.find((user) => user.id === userId),
     ['__typename', 'name', 'avatarUrl', 'projectId']
   )
 
-// Function to handle the submission of a new issue
-const handleSubmit = async () => {
+const onSubmit = handleSubmit(async (values) => {
   loading.value = true
   const issue: IssueCreateDTO = {
-    ...issueCreateObject,
+    ...values,
     status: IssueStatus.BACKLOG,
     projectId: project.value.id,
-    users: issueCreateObject.userIds.map(getUserById)
+    users: values.userIds.map(getUserById)
   }
   try {
     await mutate({ createIssueInput: issue } as any)
@@ -104,7 +120,7 @@ const handleSubmit = async () => {
     console.error(error)
     emit('close')
   }
-}
+})
 </script>
 
 <template>
@@ -112,9 +128,11 @@ const handleSubmit = async () => {
     <div class="flex items-center py-3 text-foreground">
       <div class="text-xl">Create issue</div>
       <div class="flex-auto"></div>
-      <j-button @click="$emit('close')" icon="x" :iconSize="24" variant="empty" />
+      <Button @click="$emit('close')" variant="outline">
+        <X class="w-4 h-4" />
+      </Button>
     </div>
-    <form novalidate autocomplete="off">
+    <form novalidate autocomplete="off" @submit="onSubmit">
       <div class="formField">
         <label for="issuetype" class="formFieldLabel">Issue type</label>
         <j-select
@@ -133,7 +151,7 @@ const handleSubmit = async () => {
         >
           <template v-slot:default="{ label, icon }">
             <div class="flex items-center my-px mr-4">
-              <j-icon class="mr-1" :size="16" :name="icon"></j-icon>
+              <IssueTypeIcon :issueType="icon" class="w-4 h-4 mr-1" />
               <div class="pl-2 pr-1">
                 {{ label }}
               </div>
@@ -142,19 +160,19 @@ const handleSubmit = async () => {
         </j-select>
         <div class="formFieldTip">Start typing to get a list of possible matches.</div>
       </div>
-      <div class="sep"></div>
-      <div class="formField">
-        <label class="formFieldLabel" for="summary">Short Summary</label>
-        <div class="relative">
-          <j-input
-            :value="issueCreateObject.title"
-            id="summary"
-            @input="setFieldValue('title', $event)"
-          />
-        </div>
 
-        <div class="formFieldTip">Concisely summarize the issue in one or two sentences.</div>
-      </div>
+      <div class="sep"></div>
+
+      <FormField v-slot="{ componentField }" name="username">
+        <FormItem>
+          <FormLabel>Short Summary</FormLabel>
+          <FormControl>
+            <Input type="text" placeholder="shadcn" v-bind="componentField" />
+          </FormControl>
+          <FormDescription> Concisely summarize the issue in one or two sentences </FormDescription>
+          <FormMessage />
+        </FormItem>
+      </FormField>
 
       <div class="formField">
         <label class="formFieldLabel" for="description">Description</label>
@@ -178,17 +196,14 @@ const handleSubmit = async () => {
         >
           <template v-slot:default="{ label, user, remove, optionValue }">
             <div class="flex items-center my-px mr-4">
-              <j-avatar :size="20" :avatarUrl="user.avatarUrl" :name="user.name" />
+              <Avatar class="w-5 h-5">
+                <AvatarImage :src="user.avatarUrl" alt="avatar" />
+                <AvatarFallback>{{ user.name }}</AvatarFallback>
+              </Avatar>
               <div class="pl-2 pr-1">
                 {{ label }}
               </div>
-              <j-icon
-                v-if="remove"
-                @click="remove(optionValue)"
-                class="text-background"
-                :size="20"
-                name="times"
-              ></j-icon>
+              <XIcon v-if="remove" @click="remove(optionValue)" class="text-background" />
             </div>
           </template>
         </j-select>
@@ -206,17 +221,14 @@ const handleSubmit = async () => {
         >
           <template v-slot:default="{ label, user, remove, optionValue }">
             <div class="flex items-center my-px mr-4">
-              <j-avatar :size="20" :avatarUrl="user.avatarUrl" :name="user.name" />
+              <Avatar class="w-5 h-5">
+                <AvatarImage :src="user.avatarUrl" alt="avatar" />
+                <AvatarFallback>{{ user.name }}</AvatarFallback>
+              </Avatar>
               <div class="pl-2 pr-1">
                 {{ label }}
               </div>
-              <j-icon
-                v-if="remove"
-                @click="remove(optionValue)"
-                class="text-background"
-                :size="20"
-                name="times"
-              ></j-icon>
+              <XIcon v-if="remove" @click="remove(optionValue)" class="text-background" />
             </div>
           </template>
         </j-select>
@@ -231,7 +243,7 @@ const handleSubmit = async () => {
             Object.values(IssuePriority).map((p) => ({
               value: p,
               label: IssuePriorityCopy[p],
-              icon: parseInt(p) < 3 ? 'arrow-down' : 'arrow-up',
+              icon: parseInt(p) < 3 ? ArrowDown : ArrowUp,
               color: issuePriorityColors[p]
             }))
           "
@@ -240,7 +252,7 @@ const handleSubmit = async () => {
         >
           <template v-slot:default="{ label, icon, color }">
             <div class="flex items-center my-px mr-4">
-              <j-icon :style="{ color }" :size="20" :name="icon"></j-icon>
+              <component :is="icon" class="w-4 h-4" :style="{ color }"></component>
 
               <div class="pl-2 pr-1">
                 {{ label }}
@@ -251,15 +263,10 @@ const handleSubmit = async () => {
         <div class="formFieldTip">Priority in relation to other issues.</div>
       </div>
       <div class="flex items-center justify-end formField">
-        <j-button
-          :isWorking="isWorking"
-          @click.prevent="handleSubmit"
-          :disabled="!isValidDTO"
-          class="ml-3"
-          variant="primary"
-          >Create</j-button
+        <Button @click.prevent="handleSubmit" :disabled="!isValidDTO || isWorking" class="ml-3"
+          >Create</Button
         >
-        <j-button @click.prevent="$emit('close')" class="ml-3" variant="secondary">Cancel</j-button>
+        <Button @click.prevent="$emit('close')" class="ml-3" variant="secondary">Cancel</Button>
       </div>
     </form>
   </div>

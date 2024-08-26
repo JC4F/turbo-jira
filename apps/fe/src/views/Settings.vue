@@ -2,6 +2,7 @@
 import { computed, reactive, ref } from 'vue'
 import pick from 'lodash.pick'
 import { useMutation, useQuery } from '@vue/apollo-composable'
+import { Button } from '@repo/ui'
 import { ProjectCategoryCopy, ProjectCategory } from '@/types/project'
 import { getters, mutations } from '@/stores'
 import { updateProject, getProjectWithUsersAndIssues } from '@/graphql/queries/project'
@@ -48,7 +49,7 @@ const handleUpdateProject = async () => {
       mutations.setProject(res.data.getProjectWithUsersAndIssues)
     }
     successToast('Changes have been saved successfully.').showToast()
-  } catch (error) {
+  } catch {
     errorToast('An error has occurred').showToast()
   } finally {
     isWorking.value = false
@@ -101,13 +102,9 @@ const handleUpdateProject = async () => {
         />
       </div>
       <div class="pt-7">
-        <j-button
-          :isWorking="isWorking"
-          :disabled="!isValid"
-          @click.prevent="handleUpdateProject"
-          variant="primary"
-          >Save changes</j-button
-        >
+        <Button :disabled="!isValid || isWorking" @click.prevent="handleUpdateProject">
+          Save changes
+        </Button>
       </div>
     </form>
   </div>

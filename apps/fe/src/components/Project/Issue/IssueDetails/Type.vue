@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { Button } from '@repo/ui'
+import IssueTypeIcon from '@/components/shared/issue-type-icon/issue-type-icon.vue'
 import { IssueType, IssueTypeCopy } from '@/types/issue'
 
 const props = defineProps<{
@@ -34,19 +36,15 @@ const updateIssueType = async (type: IssueType) => {
     customRender
     customRenderOption
   >
-    <template v-slot:default="{ label, icon }">
-      <j-button
-        class="uppercase text-foreground text-[13px]"
-        :iconSize="20"
-        variant="empty"
-        :icon="icon"
-      >
+    <template v-slot:default="{ label, value }">
+      <Button class="uppercase text-foreground text-[13px]" variant="outline">
+        <IssueTypeIcon :issueType="value" />
         {{ `${label}-${issueId}` }}
-      </j-button>
+      </Button>
     </template>
-    <template v-slot:option="{ label, icon }">
+    <template v-slot:option="{ label, value }">
       <div class="pr-1 pl-2 flex items-center">
-        <j-icon :name="icon" :size="20" class="mr-1"></j-icon>
+        <IssueTypeIcon :issueType="value" />
 
         <div class="text-15 pr-1 pl-2">
           {{ label }}

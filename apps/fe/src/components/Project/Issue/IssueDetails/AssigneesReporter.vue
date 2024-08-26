@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { computed } from 'vue'
 import Omit from 'lodash.omit'
+import { Avatar, AvatarFallback, AvatarImage, Button } from '@repo/ui'
 import { getters } from '@/stores'
 
 // Props definition
@@ -73,18 +74,24 @@ const updateIssueAssignees = async (userIds: string[]) => {
       @change="updateIssueReporter"
     >
       <template v-slot:default="{ user }">
-        <j-button variant="secondary">
+        <Button variant="secondary">
           <div class="flex items-center">
-            <j-avatar :size="20" :avatarUrl="user.avatarUrl" :name="user.name" />
+            <Avatar class="w-5 h-5">
+              <AvatarImage :src="user.avatarUrl" alt="avatar" />
+              <AvatarFallback>{{ user.name }}</AvatarFallback>
+            </Avatar>
             <div class="ml-[0.375rem] mr-1">
               {{ user.name }}
             </div>
           </div>
-        </j-button>
+        </Button>
       </template>
       <template v-slot:option="{ user }">
         <div class="my-px mr-4 flex items-center">
-          <j-avatar :size="20" :avatarUrl="user.avatarUrl" :name="user.name" />
+          <Avatar class="w-5 h-5">
+            <AvatarImage :src="user.avatarUrl" alt="avatar" />
+            <AvatarFallback>{{ user.name }}</AvatarFallback>
+          </Avatar>
           <div class="ml-[0.375rem] mr-1">
             {{ user.name }}
           </div>
@@ -106,25 +113,25 @@ const updateIssueAssignees = async (userIds: string[]) => {
       @change="updateIssueAssignees"
     >
       <template v-slot:default="{ user, remove, optionValue }">
-        <j-button variant="secondary">
+        <Button variant="secondary">
           <div class="flex items-center">
-            <j-avatar :size="20" :avatarUrl="user.avatarUrl" :name="user.name" />
+            <Avatar class="w-5 h-5">
+              <AvatarImage :src="user.avatarUrl" alt="avatar" />
+              <AvatarFallback>{{ user.name }}</AvatarFallback>
+            </Avatar>
             <div class="ml-[0.375rem] mr-1.5">
               {{ user.name }}
             </div>
-            <j-icon
-              v-if="remove"
-              @click="remove(optionValue)"
-              class="text-background"
-              :size="20"
-              name="times"
-            ></j-icon>
+            <XIcon v-if="remove" @click="remove(optionValue)" class="text-background" />
           </div>
-        </j-button>
+        </Button>
       </template>
       <template v-slot:option="{ user }">
         <div class="my-px mr-4 flex items-center">
-          <j-avatar :size="20" :avatarUrl="user.avatarUrl" :name="user.name" />
+          <Avatar class="w-5 h-5">
+            <AvatarImage :src="user.avatarUrl" alt="avatar" />
+            <AvatarFallback>{{ user.name }}</AvatarFallback>
+          </Avatar>
           <div class="ml-[0.375rem] mr-1">
             {{ user.name }}
           </div>

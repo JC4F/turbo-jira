@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { Button } from '@repo/ui'
 import { ref, computed } from 'vue'
 
 // Define props
@@ -48,14 +49,8 @@ const updateIssueDescription = async () => {
       placeholder="Describe the issue"
     />
     <div v-if="!readOnly" class="flex items-center pt-3">
-      <j-button
-        :isWorking="isWorking"
-        @click="updateIssueDescription"
-        variant="primary"
-        class="mr-2"
-      >
-        Save</j-button
-      ><j-button @click="cancelWrite" variant="empty"> Cancel </j-button>
+      <Button :disabled="isWorking" @click="updateIssueDescription" class="mr-2"> Save</Button
+      ><Button @click="cancelWrite" variant="outline"> Cancel </Button>
     </div>
   </div>
 </template>
