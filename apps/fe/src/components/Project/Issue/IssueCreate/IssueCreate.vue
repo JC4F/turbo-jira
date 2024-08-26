@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, reactive, ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import * as z from 'zod'
@@ -21,9 +21,13 @@ import {
   SelectGroup,
   SelectItem,
   SelectTrigger,
-  SelectValue
+  SelectValue,
+  TagsInput,
+  TagsInputItem,
+  TagsInputItemDelete,
+  TagsInputItemText
 } from '@repo/ui'
-import { ArrowDown, ArrowUp, X, XIcon } from 'lucide-vue-next'
+import { ArrowDown, ArrowUp, X } from 'lucide-vue-next'
 import FormItem from '@ui/components/ui/form/FormItem.vue'
 import { getters, mutations } from '@/stores'
 import {
@@ -45,16 +49,6 @@ const emit = defineEmits(['close'])
 // Computed values for project and current user
 const project = computed(getters.project)
 const currentUser = computed(getters.currentUser)
-
-// Computed value for project users
-const projectUsers = computed(() => {
-  if (!project.value) return []
-  return project.value.users.map((user) => ({
-    value: user.id,
-    label: user.name,
-    user
-  }))
-})
 
 // Default values for a new issue
 const defaultIssueValues = {
@@ -184,98 +178,103 @@ const onSubmit = handleSubmit(async (values) => {
         </FormItem>
       </FormField>
 
-      <div class="formField">
-        <label class="formFieldLabel" for="description">Description</label>
-        <j-text-editor
-          :mode="`write`"
-          @input="setFieldValue('description', $event)"
-          class="descriptionEditor"
-          id="description"
-        />
-        <div class="formFieldTip">Describe the issue in as much detail as you'd like.</div>
-      </div>
-      <div class="formField">
-        <label class="formFieldLabel" for="reporter">Reporter</label>
-        <j-select
-          id="reporter"
-          searchable
-          :value="issueCreateObject.reporterId"
-          :options="projectUsers"
-          customRender
-          @change="setFieldValue('reporterId', $event)"
-        >
-          <template v-slot:default="{ label, user, remove, optionValue }">
-            <div class="flex items-center my-px mr-4">
-              <Avatar class="w-5 h-5">
-                <AvatarImage :src="user.avatarUrl" alt="avatar" />
-                <AvatarFallback>{{ user.name }}</AvatarFallback>
-              </Avatar>
-              <div class="pl-2 pr-1">
-                {{ label }}
-              </div>
-              <XIcon v-if="remove" @click="remove(optionValue)" class="text-background" />
-            </div>
-          </template>
-        </j-select>
-      </div>
-      <div class="formField">
-        <label class="formFieldLabel" for="userIds">Assignees</label>
-        <j-select
-          id="userIds"
-          :value="issueCreateObject.userIds"
-          searchable
-          :options="projectUsers"
-          :isMulti="true"
-          @change="setFieldValue('userIds', $event)"
-          customRender
-        >
-          <template v-slot:default="{ label, user, remove, optionValue }">
-            <div class="flex items-center my-px mr-4">
-              <Avatar class="w-5 h-5">
-                <AvatarImage :src="user.avatarUrl" alt="avatar" />
-                <AvatarFallback>{{ user.name }}</AvatarFallback>
-              </Avatar>
-              <div class="pl-2 pr-1">
-                {{ label }}
-              </div>
-              <XIcon v-if="remove" @click="remove(optionValue)" class="text-background" />
-            </div>
-          </template>
-        </j-select>
-      </div>
-      <div class="formField">
-        <label class="formFieldLabel" for="priority">Priority</label>
-        <j-select
-          id="priority"
-          :value="issueCreateObject.priority"
-          searchable
-          :options="
-            Object.values(IssuePriority).map((p) => ({
-              value: p,
-              label: IssuePriorityCopy[p],
-              icon: parseInt(p) < 3 ? ArrowDown : ArrowUp,
-              color: issuePriorityColors[p]
-            }))
-          "
-          customRender
-          @change="setFieldValue('priority', $event)"
-        >
-          <template v-slot:default="{ label, icon, color }">
-            <div class="flex items-center my-px mr-4">
-              <component :is="icon" class="w-4 h-4" :style="{ color }"></component>
+      <FormField v-slot="{ field }" name="description">
+        <FormItem>
+          <FormLabel>Description</FormLabel>
+          <FormControl>
+            <j-text-editor :mode="`write`" v-bind="field" class="min-h-[110px]" />
+          </FormControl>
+          <FormDescription>Describe the issue in as much detail as you'd like.</FormDescription>
+          <FormMessage />
+        </FormItem>
+      </FormField>
 
-              <div class="pl-2 pr-1">
-                {{ label }}
-              </div>
-            </div>
-          </template>
-        </j-select>
-        <div class="formFieldTip">Priority in relation to other issues.</div>
-      </div>
+      <FormField v-slot="{ componentField }" name="reporter">
+        <FormItem>
+          <FormLabel>Reporter</FormLabel>
+
+          <Select v-bind="componentField">
+            <FormControl>
+              <SelectTrigger>
+                <SelectValue placeholder="Select a reporter" />
+              </SelectTrigger>
+            </FormControl>
+            <SelectContent>
+              <SelectGroup>
+                <SelectItem v-for="(user, index) in project.users" :key="index" :value="user.id">
+                  <div class="flex items-center my-px mr-4">
+                    <Avatar class="w-5 h-5">
+                      <AvatarImage :src="user.avatarUrl" alt="avatar" />
+                      <AvatarFallback>{{ user.name }}</AvatarFallback>
+                    </Avatar>
+                    <div class="pl-2 pr-1">
+                      {{ user.name }}
+                    </div>
+                  </div>
+                </SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+          <FormMessage />
+        </FormItem>
+      </FormField>
+
+      <FormField v-slot="{ value }" name="userIds">
+        <FormItem>
+          <FormLabel>Assignees</FormLabel>
+          <FormControl>
+            <TagsInput :model-value="value">
+              <TagsInputItem v-for="item in value" :key="item" :value="item">
+                <TagsInputItemText />
+                <TagsInputItemDelete />
+              </TagsInputItem>
+
+              <TagsInputInput placeholder="Assignees..." />
+            </TagsInput>
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      </FormField>
+
+      <FormField v-slot="{ componentField }" name="priority">
+        <FormItem>
+          <FormLabel>Priority</FormLabel>
+
+          <Select v-bind="componentField">
+            <FormControl>
+              <SelectTrigger>
+                <SelectValue placeholder="Select a priority" />
+              </SelectTrigger>
+            </FormControl>
+            <SelectContent>
+              <SelectGroup>
+                <SelectItem
+                  v-for="(isssuPriority, index) in Object.values(IssuePriority)"
+                  :key="index"
+                  :value="isssuPriority"
+                >
+                  <div class="flex items-center my-px mr-4">
+                    <component
+                      :is="parseInt(isssuPriority) < 3 ? ArrowDown : ArrowUp"
+                      class="w-4 h-4"
+                      :style="{ color: issuePriorityColors[isssuPriority] }"
+                    ></component>
+
+                    <div class="pl-2 pr-1">
+                      {{ IssuePriorityCopy[isssuPriority] }}
+                    </div>
+                  </div>
+                </SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+          <FormDescription>riority in relation to other issues.</FormDescription>
+          <FormMessage />
+        </FormItem>
+      </FormField>
+
       <div class="flex items-center justify-end formField">
-        <Button @click.prevent="handleSubmit" :disabled="!isValidDTO || isWorking" class="ml-3"
-          >Create</Button
-        >
+        <Button type="submit" :disabled="isWorking" class="ml-3">Create</Button>
         <Button @click.prevent="$emit('close')" class="ml-3" variant="secondary">Cancel</Button>
       </div>
     </form>

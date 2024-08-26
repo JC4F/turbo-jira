@@ -9,3 +9,4 @@ export * from "@ui/components/ui/sheet";
 export * from "@ui/components/ui/select";
 export * from "@ui/components/ui/textarea";
 export * from "@ui/components/ui/form";
+export * from "@ui/components/ui/tags-input";
