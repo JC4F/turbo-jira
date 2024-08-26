@@ -15,7 +15,13 @@ import {
   FormField,
   FormLabel,
   FormMessage,
-  Input
+  Input,
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
 } from '@repo/ui'
 import { ArrowDown, ArrowUp, X, XIcon } from 'lucide-vue-next'
 import FormItem from '@ui/components/ui/form/FormItem.vue'
@@ -133,37 +139,41 @@ const onSubmit = handleSubmit(async (values) => {
       </Button>
     </div>
     <form novalidate autocomplete="off" @submit="onSubmit">
-      <div class="formField">
-        <label for="issuetype" class="formFieldLabel">Issue type</label>
-        <j-select
-          id="issuetype"
-          :value="issueCreateObject.type"
-          searchable
-          :options="
-            Object.values(IssueType).map((type) => ({
-              value: type,
-              label: IssueTypeCopy[type],
-              icon: IssueTypeCopy[type].toLowerCase()
-            }))
-          "
-          @change="setFieldValue('type', $event)"
-          customRender
-        >
-          <template v-slot:default="{ label, icon }">
-            <div class="flex items-center my-px mr-4">
-              <IssueTypeIcon :issueType="icon" class="w-4 h-4 mr-1" />
-              <div class="pl-2 pr-1">
-                {{ label }}
-              </div>
-            </div>
-          </template>
-        </j-select>
-        <div class="formFieldTip">Start typing to get a list of possible matches.</div>
-      </div>
+      <FormField v-slot="{ componentField }" name="issuetype">
+        <FormItem>
+          <FormLabel>Issue type</FormLabel>
+
+          <Select v-bind="componentField">
+            <FormControl>
+              <SelectTrigger>
+                <SelectValue placeholder="Select an issue type to display" />
+              </SelectTrigger>
+            </FormControl>
+            <SelectContent>
+              <SelectGroup>
+                <SelectItem
+                  v-for="(issueType, index) in Object.values(IssueType)"
+                  :key="index"
+                  :value="issueType"
+                >
+                  <div class="flex items-center my-px mr-4">
+                    <IssueTypeIcon :issueType="issueType" class="w-4 h-4 mr-1" />
+                    <div class="pl-2 pr-1">
+                      {{ IssueTypeCopy[issueType] }}
+                    </div>
+                  </div>
+                </SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+          <FormDescription> Start typing to get a list of possible matches. </FormDescription>
+          <FormMessage />
+        </FormItem>
+      </FormField>
 
       <div class="sep"></div>
 
-      <FormField v-slot="{ componentField }" name="username">
+      <FormField v-slot="{ componentField }" name="summary">
         <FormItem>
           <FormLabel>Short Summary</FormLabel>
           <FormControl>
