@@ -60,6 +60,7 @@ module.exports = {
         ignoreRestSiblings: true,
       },
     ],
+    "import/order": ["off"],
     // add specific rules configurations here
   },
 };

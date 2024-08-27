@@ -1,35 +1,30 @@
 <script lang="ts" setup>
-import { computed, reactive, ref } from 'vue'
-import pick from 'lodash.pick'
-import { useMutation, useQuery } from '@vue/apollo-composable'
-import { Button } from '@repo/ui'
-import { ProjectCategoryCopy, ProjectCategory } from '@/types/project'
+import { getProjectWithUsersAndIssues, updateProject } from '@/graphql/queries/project'
+import { errorToast, successToast } from '@/plugins/toast'
 import { getters, mutations } from '@/stores'
-import { updateProject, getProjectWithUsersAndIssues } from '@/graphql/queries/project'
-import { successToast, errorToast } from '@/plugins/toast'
+import {
+  ProjectCategory,
+  ProjectCategoryCopy,
+  projectSettingSchema,
+  type ProjectSettingDTO
+} from '@/types/project'
+import { Button, Textarea } from '@repo/ui'
+import { toTypedSchema } from '@vee-validate/zod'
+import { useMutation, useQuery } from '@vue/apollo-composable'
+import { useForm } from 'vee-validate'
+import { computed, ref } from 'vue'
 
-// Reactive state
 const isWorking = ref<boolean>(false)
 const queryEnabled = ref<boolean>(false)
 
-// Computed property for project
 const project = computed(getters.project)
 
-// Reactive DTO for project update
-const projectUpdateDTO = reactive(pick(project.value, ['name', 'url', 'description', 'category']))
+const defaultProjectSettingValues: Partial<ProjectSettingDTO> = {}
 
-// Validation functions
-const isRequired = (value: string) => ['', null, undefined].indexOf(value) === -1
-
-const isValid = computed(
-  () => isRequired(projectUpdateDTO.name) && isRequired(projectUpdateDTO.category)
-)
-
-// Project category options
-const projectCategoryOptions = Object.values(ProjectCategory).map((category) => ({
-  value: category,
-  label: ProjectCategoryCopy[category]
-}))
+const { handleSubmit } = useForm({
+  validationSchema: toTypedSchema(projectSettingSchema),
+  initialValues: defaultProjectSettingValues
+})
 
 // Apollo mutation and query
 const { mutate } = useMutation(updateProject)
@@ -38,12 +33,11 @@ const { refetch } = useQuery(getProjectWithUsersAndIssues, {}, () => ({
   enabled: queryEnabled.value
 }))
 
-// Handle project update
-const handleUpdateProject = async () => {
+const handleUpdateProject = handleSubmit(async (values) => {
   try {
     isWorking.value = true
     queryEnabled.value = true
-    await mutate({ project: projectUpdateDTO })
+    await mutate({ project: values })
     const res = await refetch()
     if (res?.data) {
       mutations.setProject(res.data.getProjectWithUsersAndIssues)
@@ -54,7 +48,7 @@ const handleUpdateProject = async () => {
   } finally {
     isWorking.value = false
   }
-}
+})
 </script>
 
 <template>
@@ -63,48 +57,66 @@ const handleUpdateProject = async () => {
     <header class="flex justify-between mt-3 text-foreground">
       <div class="text-2xl font-medium">Project Details</div>
     </header>
-    <form @submit.prevent style="max-width: 640px" autocomplete="off" novalidate>
-      <div class="pt-5">
-        <label class="label" for="name">Name</label>
-        <j-input
-          :value="projectUpdateDTO.name"
-          id="name"
-          placeholder="Project name"
-          @input="(v: string) => (projectUpdateDTO.name = v)"
-        />
-      </div>
-      <div class="pt-5">
-        <label class="label" for="url">URL</label>
-        <j-input
-          :value="projectUpdateDTO.url"
-          id="url"
-          placeholder="URL"
-          @input="(v: string) => (projectUpdateDTO.url = v)"
-        />
-      </div>
-      <div class="pt-5">
-        <label class="label" for="desc">Description</label>
-        <j-textarea
-          placeholder="No description"
-          class="text-15 bg-background"
-          :value="projectUpdateDTO.description"
-          @input="(v: string) => (projectUpdateDTO.description = v)"
-        />
-        <div class="tip">Describe the project in as much detail as you'd like.</div>
-      </div>
-      <div class="pt-5">
-        <label class="label" for="name">Project Category</label>
-        <j-select
-          :value="projectUpdateDTO.category"
-          searchable
-          :options="projectCategoryOptions"
-          @change="(v: ProjectCategory) => (projectUpdateDTO.category = v)"
-        />
-      </div>
+    <form style="max-width: 640px" autocomplete="off" novalidate @submit="handleUpdateProject">
+      <FormField class="pt-5" v-slot="{ componentField }" name="name">
+        <FormItem>
+          <FormLabel>Name</FormLabel>
+          <FormControl>
+            <Input type="text" placeholder="Name ..." v-bind="componentField" />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      </FormField>
+
+      <FormField class="pt-5" v-slot="{ componentField }" name="url">
+        <FormItem>
+          <FormLabel>URL</FormLabel>
+          <FormControl>
+            <Input type="text" placeholder="URL ..." v-bind="componentField" />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      </FormField>
+
+      <FormField class="pt-5" v-slot="{ componentField }" name="description">
+        <FormItem>
+          <FormLabel>Description</FormLabel>
+          <FormControl>
+            <Textarea placeholder="No description" class="resize-none" v-bind="componentField" />
+          </FormControl>
+          <FormDescription> Describe the project in as much detail as you'd like. </FormDescription>
+          <FormMessage />
+        </FormItem>
+      </FormField>
+
+      <FormField class="pt-5" v-slot="{ componentField }" name="category">
+        <FormItem>
+          <FormLabel>Category</FormLabel>
+
+          <Select v-bind="componentField">
+            <FormControl>
+              <SelectTrigger>
+                <SelectValue placeholder="Select a category" />
+              </SelectTrigger>
+            </FormControl>
+            <SelectContent>
+              <SelectGroup>
+                <SelectItem
+                  v-for="category in Object.values(ProjectCategory)"
+                  :key="category"
+                  :value="category"
+                >
+                  {{ ProjectCategoryCopy[category] }}
+                </SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+          <FormMessage />
+        </FormItem>
+      </FormField>
+
       <div class="pt-7">
-        <Button :disabled="!isValid || isWorking" @click.prevent="handleUpdateProject">
-          Save changes
-        </Button>
+        <Button :disabled="isWorking"> Save changes </Button>
       </div>
     </form>
   </div>

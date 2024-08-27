@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { computed, ref } from 'vue'
 import { useMutation } from '@vue/apollo-composable'
-import { Button } from '@repo/ui'
+import { Button, Textarea } from '@repo/ui'
 import type { Comment } from '@/types'
 import { formatDateTimeConversational } from '@/utils/date'
 import { createComment, updateComment } from '@/graphql/queries/comment'
@@ -88,12 +88,6 @@ const handleKeyDown = (e: KeyboardEvent) => {
 const handleCancel = () => {
   isFormOpen.value = false
 }
-
-// const handleFakeTextareaClicked = () => {
-//   if (props.isCreate) {
-//     isFormOpen.value = true
-//   }
-// }
 </script>
 
 <template>
@@ -116,9 +110,9 @@ const handleCancel = () => {
       <div v-if="!isCreate" v-text="createdAt" class="inline-block pb-2 text-sm text-foreground" />
       <!-- body-form -->
       <div v-if="isFormOpen">
-        <j-textarea
-          v-model="newComment"
-          autoFocus
+        <Textarea
+          :modelValue="newComment"
+          autofocus
           rows="2"
           @keydown="handleKeyDown"
           placeholder="Add a comment..."

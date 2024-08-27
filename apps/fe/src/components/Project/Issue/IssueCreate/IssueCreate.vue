@@ -1,10 +1,19 @@
 <script lang="ts" setup>
-import { computed, ref } from 'vue'
-import { useForm } from 'vee-validate'
-import { toTypedSchema } from '@vee-validate/zod'
-import * as z from 'zod'
-import Omit from 'lodash.omit'
-import { useMutation, useQuery } from '@vue/apollo-composable'
+import IssueTypeIcon from '@/components/shared/issue-type-icon/issue-type-icon.vue'
+import { createIssue, getProjectIssues } from '@/graphql/queries/issue'
+import { successToast } from '@/plugins'
+import { getters, mutations } from '@/stores'
+import {
+  IssuePriority,
+  IssuePriorityCopy,
+  IssueStatus,
+  IssueType,
+  IssueTypeCopy,
+  issueCreateSchema,
+  type Issue,
+  type IssueCreateDTO
+} from '@/types'
+import { issuePriorityColors } from '@/utils/colors'
 import {
   Avatar,
   AvatarFallback,
@@ -23,44 +32,35 @@ import {
   SelectTrigger,
   SelectValue,
   TagsInput,
+  TagsInputInput,
   TagsInputItem,
   TagsInputItemDelete,
   TagsInputItemText
 } from '@repo/ui'
-import { ArrowDown, ArrowUp, X } from 'lucide-vue-next'
 import FormItem from '@ui/components/ui/form/FormItem.vue'
-import { getters, mutations } from '@/stores'
-import {
-  IssueType,
-  IssuePriority,
-  IssuePriorityCopy,
-  IssueTypeCopy,
-  IssueStatus,
-  type IssueCreateDTO,
-  type Issue
-} from '@/types/issue'
-import { issuePriorityColors } from '@/utils/colors'
-import { createIssue, getProjectIssues } from '@/graphql/queries/issue'
-import { successToast } from '@/plugins'
-import IssueTypeIcon from '@/components/shared/issue-type-icon/issue-type-icon.vue'
+import { toTypedSchema } from '@vee-validate/zod'
+import { useMutation, useQuery } from '@vue/apollo-composable'
+import { ArrowDown, ArrowUp, X } from 'lucide-vue-next'
+import { useForm } from 'vee-validate'
+import { computed, ref } from 'vue'
 
 const emit = defineEmits(['close'])
 
-// Computed values for project and current user
 const project = computed(getters.project)
 const currentUser = computed(getters.currentUser)
 
-// Default values for a new issue
-const defaultIssueValues = {
+const defaultIssueValues: Partial<IssueCreateDTO> = {
   type: IssueType.TASK,
   title: '',
   description: '',
   reporterId: currentUser.value.id,
   userIds: [],
-  priority: IssuePriority.MEDIUM
+  priority: IssuePriority.MEDIUM,
+  status: IssueStatus.BACKLOG,
+  projectId: project.value.id
+  // users: values.userIds.map(getUserById)
 }
 
-// Loading states
 const loading = ref<boolean>(false)
 
 const { mutate, loading: isMutationLoading } = useMutation(createIssue)
@@ -68,41 +68,17 @@ const { refetch: fetchProjectIssues, loading: isFetchIssuesLoading } = useQuery<
   getProjectIssues: Issue[]
 }>(getProjectIssues)
 
-// Computed property to check if the component is currently working
 const isWorking = computed(() => loading.value && isFetchIssuesLoading && isMutationLoading)
 
-const formSchema = toTypedSchema(
-  z.object({
-    issuetype: z.string(),
-    type: z.nativeEnum(IssueType),
-    title: z.string(),
-    reporterId: z.string(),
-    summary: z.string(),
-    description: z.string(),
-    reporter: z.string(),
-    userIds: z.string().array(),
-    priority: z.nativeEnum(IssuePriority)
-  })
-)
-
 const { handleSubmit } = useForm({
-  validationSchema: formSchema,
+  validationSchema: toTypedSchema(issueCreateSchema),
   initialValues: defaultIssueValues
 })
-
-const getUserById = (userId: string) =>
-  Omit(
-    project.value.users.find((user) => user.id === userId),
-    ['__typename', 'name', 'avatarUrl', 'projectId']
-  )
 
 const onSubmit = handleSubmit(async (values) => {
   loading.value = true
   const issue: IssueCreateDTO = {
-    ...values,
-    status: IssueStatus.BACKLOG,
-    projectId: project.value.id,
-    users: values.userIds.map(getUserById)
+    ...values
   }
   try {
     await mutate({ createIssueInput: issue } as any)
@@ -171,7 +147,7 @@ const onSubmit = handleSubmit(async (values) => {
         <FormItem>
           <FormLabel>Short Summary</FormLabel>
           <FormControl>
-            <Input type="text" placeholder="shadcn" v-bind="componentField" />
+            <Input type="text" placeholder="Short Summary" v-bind="componentField" />
           </FormControl>
           <FormDescription> Concisely summarize the issue in one or two sentences </FormDescription>
           <FormMessage />

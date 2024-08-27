@@ -1,9 +1,6 @@
 {
   "extends": "@repo/typescript-config/vue.json",
-  "include": [
-    ".",
-    "../../apps/fe/src/components/shared/issue-type-buton/issue-type-button.vue"
-  ],
+  "include": ["."],
   "exclude": ["dist", "build", "node_modules"],
   "compilerOptions": {
     "baseUrl": ".",

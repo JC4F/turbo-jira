@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Textarea } from '@repo/ui'
 import { ref } from 'vue'
 
 const props = defineProps<{
@@ -22,7 +23,7 @@ const updateIssueDescription = async () => {
 
 <template>
   <div class="w-full inline-block mt-4 -ml-2 h-10">
-    <j-textarea
+    <Textarea
       placeholder="Short summary"
       class="title h-auto font-medium text-2xl text-foreground;"
       @input="(e: any) => (title = e)"

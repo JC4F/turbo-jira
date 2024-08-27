@@ -1,3 +1,4 @@
+import { z } from 'zod'
 import type { Issue } from './issue'
 import type { User } from './user'
 
@@ -24,3 +25,12 @@ export const ProjectCategoryCopy = {
   [ProjectCategory.MARKETING]: 'Marketing',
   [ProjectCategory.BUSINESS]: 'Business'
 }
+
+export const projectSettingSchema = z.object({
+  name: z.string(),
+  url: z.string().optional(),
+  description: z.string().optional(),
+  category: z.nativeEnum(ProjectCategory)
+})
+
+export type ProjectSettingDTO = z.infer<typeof projectSettingSchema>
