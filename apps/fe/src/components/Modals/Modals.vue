@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import Modal from './Modal.vue'
-import Confirm from './Confirm.vue'
-import IssueCreate from '@/components/Project/Issue/IssueCreate/IssueCreate.vue'
-import IssueSearch from '@/components/Project/Issue/IssueSearch/IssueSearch.vue'
-import IssueDetails from '@/components/Project/Issue/IssueDetails/IssueDetails.vue'
+import ConfirmModal from './Confirm.vue'
+import IssueCreateModal from '@/components/Project/Issue/IssueCreate/IssueCreate.vue'
+import IssueSearchModal from '@/components/Project/Issue/IssueSearch/IssueSearch.vue'
+import IssueDetailsModal from '@/components/Project/Issue/IssueDetails/IssueDetails.vue'
 import { eventBus } from '@/utils'
 
 // Refs to track the open state of various modals
@@ -47,15 +46,13 @@ eventBus.on('toggle-comment-delete', ({ isOpen, id }) => {
 const issueDeleteProps = {
   title: 'Are you sure you want to delete this issue?',
   message: "Once you delete, it's gone for good.",
-  confirmText: 'Delete issue',
-  variant: 'primary'
+  confirmText: 'Delete issue'
 }
 
 const commentDeleteProps = {
   title: 'Are you sure you want to delete this comment?',
   message: "Once you delete, it's gone for good.",
-  confirmText: 'Delete comment',
-  variant: 'primary'
+  confirmText: 'Delete comment'
 }
 
 // Methods for confirming deletion
@@ -70,43 +67,28 @@ const confirmCommentDelete = () => {
 
 <template>
   <div>
-    <Modal
-      v-if="isIssueCreateOpen"
-      @close="isIssueCreateOpen = false"
-      :width="700"
-      :component="IssueCreate"
-    />
-    <Modal
-      v-if="isIssueSearchOpen"
-      @close="isIssueSearchOpen = false"
-      variant="aside"
-      :width="600"
-      :component="IssueSearch"
-    />
+    <IssueCreateModal v-if="isIssueCreateOpen" @close="isIssueCreateOpen = false" />
 
-    <Modal
+    <IssueSearchModal v-if="isIssueSearchOpen" @close="isIssueSearchOpen = false" />
+
+    <IssueDetailsModal
       v-if="isIssueDetailsOpen"
       @close="isIssueDetailsOpen = false"
-      :width="1040"
-      :component="IssueDetails"
-      :componentProps="{ issueId }"
-    />
-    <Modal
-      v-if="isIssueDeleteOpen"
-      @confirm="confirmIssueDelete"
-      @close="isIssueDeleteOpen = false"
-      :width="600"
-      :component="Confirm"
-      :componentProps="issueDeleteProps"
+      :issueId="issueId || ''"
     />
 
-    <Modal
+    <ConfirmModal
+      v-if="isIssueDeleteOpen"
+      v-bind="issueDeleteProps"
+      @confirm="confirmIssueDelete"
+      @close="isIssueDeleteOpen = false"
+    />
+
+    <ConfirmModal
       v-if="isCommentDeleteOpen"
+      v-bind="commentDeleteProps"
       @confirm="confirmCommentDelete"
       @close="isCommentDeleteOpen = false"
-      :width="600"
-      :component="Confirm"
-      :componentProps="commentDeleteProps"
     />
   </div>
 </template>

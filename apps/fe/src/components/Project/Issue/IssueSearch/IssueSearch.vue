@@ -9,6 +9,9 @@ import { useQuery } from '@vue/apollo-composable'
 import { debounce } from 'throttle-debounce'
 import { computed, ref } from 'vue'
 import SearchResult from './SearchResult.vue'
+import { Dialog, DialogContent } from '@repo/ui'
+
+const emit = defineEmits(['close'])
 
 // Reactive state
 const isSearchTermEmpty = ref(true)
@@ -34,51 +37,59 @@ const handleSearchChange = debounce(500, (value: string) => {
     refetch({ searchTerm: searchTerm.value })
   }
 })
+
+const handleUpdateOpen = (value: boolean) => {
+  if (!value) emit('close')
+}
 </script>
 
 <template>
-  <div class="px-8 pb-16 pt-6">
-    <div class="relative pr-7 mb-10 w-full max-w-sm items-center">
-      <Input
-        autofocus
-        type="text"
-        placeholder="Search issues by summary, description..."
-        class="pl-10 text-foreground"
-        :value="searchTerm"
-        @input="handleSearchChange"
-      />
-      <span class="absolute start-0 inset-y-0 flex items-center justify-center px-2">
-        <Search class="size-6 text-muted-foreground" />
-      </span>
-    </div>
-
-    <div
-      class="pt-10 flex flex-col justify-center items-center"
-      v-if="loading && !isSearchTermEmpty"
-    >
-      <Spinner />
-    </div>
-    <div class="fadeIn" v-else>
-      <div v-if="isSearchTermEmpty && recentIssues.length > 0">
-        <div class="text-foreground font-bold text-xs uppercase pb-3">Recent Issues</div>
-        <SearchResult v-for="issue in recentIssues" :key="issue.id" :issue="issue" />
-      </div>
-      <div v-if="!isSearchTermEmpty && matchingIssues.length > 0">
-        <div class="text-foreground font-bold text-xs uppercase pb-3">Matching Issues</div>
-        <SearchResult v-for="issue in matchingIssues" :key="issue.id" :issue="issue" />
-      </div>
-      <div
-        class="pt-10 flex flex-col justify-center items-center"
-        v-if="!isSearchTermEmpty && !loading && matchingIssues.length === 0"
-      >
-        <j-icon :size="125" name="no-result"></j-icon>
-        <div class="pt-8 font-medium text-xl">
-          We couldn&apos;t find anything matching your search
+  <Dialog :open="true" @update:open="handleUpdateOpen">
+    <DialogContent class="w-[700px]">
+      <div class="px-8 pb-16 pt-6">
+        <div class="relative pr-7 mb-10 w-full max-w-sm items-center">
+          <Input
+            autofocus
+            type="text"
+            placeholder="Search issues by summary, description..."
+            class="pl-10 text-foreground"
+            :value="searchTerm"
+            @input="handleSearchChange"
+          />
+          <span class="absolute start-0 inset-y-0 flex items-center justify-center px-2">
+            <Search class="size-6 text-muted-foreground" />
+          </span>
         </div>
-        <div class="pt-2 text-15">Try again with a different term.</div>
+
+        <div
+          class="pt-10 flex flex-col justify-center items-center"
+          v-if="loading && !isSearchTermEmpty"
+        >
+          <Spinner />
+        </div>
+        <div class="fadeIn" v-else>
+          <div v-if="isSearchTermEmpty && recentIssues.length > 0">
+            <div class="text-foreground font-bold text-xs uppercase pb-3">Recent Issues</div>
+            <SearchResult v-for="issue in recentIssues" :key="issue.id" :issue="issue" />
+          </div>
+          <div v-if="!isSearchTermEmpty && matchingIssues.length > 0">
+            <div class="text-foreground font-bold text-xs uppercase pb-3">Matching Issues</div>
+            <SearchResult v-for="issue in matchingIssues" :key="issue.id" :issue="issue" />
+          </div>
+          <div
+            class="pt-10 flex flex-col justify-center items-center"
+            v-if="!isSearchTermEmpty && !loading && matchingIssues.length === 0"
+          >
+            <j-icon :size="125" name="no-result"></j-icon>
+            <div class="pt-8 font-medium text-xl">
+              We couldn&apos;t find anything matching your search
+            </div>
+            <div class="pt-2 text-15">Try again with a different term.</div>
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
+    </DialogContent>
+  </Dialog>
 </template>
 
 <style lang="scss" scoped></style>

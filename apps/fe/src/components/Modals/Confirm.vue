@@ -1,5 +1,12 @@
 <script lang="ts" setup>
-import { Button } from '@repo/ui'
+import {
+  Button,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogTitle
+} from '@repo/ui'
 import { ref, onUnmounted, defineProps, defineEmits } from 'vue'
 
 defineProps({
@@ -14,10 +21,6 @@ defineProps({
   confirmText: {
     type: String,
     default: 'Confirm'
-  },
-  variant: {
-    type: String,
-    default: 'primary'
   }
 })
 
@@ -33,20 +36,31 @@ const handleConfirmed = () => {
 
 const handleClose = () => emit('close')
 
+const handleUpdateOpen = (value: boolean) => {
+  if (!value) handleClose()
+}
+
 onUnmounted(() => {
   isWorking.value = false
 })
 </script>
 
 <template>
-  <div class="px-10 py-8">
-    <div class="pb-4 text-2xl font-medium leading-normal text-foreground">
-      {{ title }}
-    </div>
-    <p class="pb-4 whitespace-pre-wrap text-15">{{ message }}</p>
-    <div class="flex pt-3">
-      <Button :disabled="isWorking" @click="handleConfirmed" class="mr-2">{{ confirmText }}</Button>
-      <Button @click="handleClose" class="mr-2" variant="outline">Cancel</Button>
-    </div>
-  </div>
+  <Dialog class="z-[99999]" :open="true" @update:open="handleUpdateOpen">
+    <DialogContent class="z-[99999] w-[600px]">
+      <DialogHeader>
+        <DialogTitle>{{ title }}</DialogTitle>
+        <DialogDescription>
+          {{ message }}
+        </DialogDescription>
+      </DialogHeader>
+
+      <DialogFooter>
+        <Button :disabled="isWorking" @click="handleConfirmed" class="mr-2">
+          {{ confirmText }}
+        </Button>
+        <Button @click="handleClose" class="mr-2" variant="outline">Cancel</Button>
+      </DialogFooter>
+    </DialogContent>
+  </Dialog>
 </template>
