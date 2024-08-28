@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import IssueTypeIcon from '@/components/shared/issue-type-icon/issue-type-icon.vue'
+import IssueTypeIcon from '@/components/shared/IssueTypeIcon/IssueTypeIcon.vue'
 import type { Issue } from '@/types/issue'
 import { eventBus } from '@/utils'
 

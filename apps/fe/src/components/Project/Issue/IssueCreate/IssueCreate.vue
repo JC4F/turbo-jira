@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import IssueTypeIcon from '@/components/shared/issue-type-icon/issue-type-icon.vue'
+import IssueTypeIcon from '@/components/shared/IssueTypeIcon/IssueTypeIcon.vue'
 import { createIssue, getProjectIssues } from '@/graphql/queries/issue'
 import { successToast } from '@/plugins'
 import { getters, mutations } from '@/stores'
