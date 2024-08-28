@@ -37,7 +37,12 @@ const queryEnabled = ref<boolean>(false)
 
 const project = computed(store.getProject)
 
-const defaultProjectSettingValues: Partial<ProjectSettingDTO> = {}
+const defaultProjectSettingValues: Partial<ProjectSettingDTO> = {
+  name: project.value.name,
+  url: project.value.url || undefined,
+  description: project.value.description || undefined,
+  category: project.value.category
+}
 
 const { handleSubmit } = useForm({
   validationSchema: toTypedSchema(projectSettingSchema),
@@ -55,7 +60,7 @@ const handleUpdateProject = handleSubmit(async (values) => {
   try {
     isWorking.value = true
     queryEnabled.value = true
-    await mutate({ project: values })
+    await mutate({ updateProjectInput: { ...values, id: project.value.id } })
     const res = await refetch()
     if (res?.data) {
       store.setProject(res.data.getProjectWithUsersAndIssues)

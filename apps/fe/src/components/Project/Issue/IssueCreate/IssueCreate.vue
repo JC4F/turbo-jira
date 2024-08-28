@@ -61,8 +61,8 @@ const defaultIssueValues: Partial<IssueCreateDTO> = {
   userIds: [],
   priority: IssuePriority.MEDIUM,
   status: IssueStatus.BACKLOG,
-  projectId: project.value.id
-  // users: values.userIds.map(getUserById)
+  projectId: project.value.id,
+  users: []
 }
 
 const loading = ref<boolean>(false)
@@ -80,6 +80,8 @@ const { handleSubmit } = useForm({
 })
 
 const onSubmit = handleSubmit(async (values) => {
+  console.log('check value: ', values)
+
   loading.value = true
   const issue: IssueCreateDTO = {
     ...values
@@ -109,7 +111,7 @@ const handleUpdateOpen = (value: boolean) => {
 
 <template>
   <Dialog :open="true" @update:open="handleUpdateOpen">
-    <DialogContent class="w-[700px]" hide-close>
+    <DialogContent class="w-[700px] max-w-max" hide-close>
       <div class="flex items-center text-foreground">
         <div class="text-xl">Create issue</div>
         <div class="flex-auto"></div>
@@ -118,7 +120,7 @@ const handleUpdateOpen = (value: boolean) => {
         </Button>
       </div>
       <form novalidate autocomplete="off" @submit="onSubmit">
-        <FormField v-slot="{ componentField }" name="issuetype">
+        <FormField v-slot="{ componentField }" name="type">
           <FormItem>
             <FormLabel>Issue type</FormLabel>
 
@@ -152,7 +154,7 @@ const handleUpdateOpen = (value: boolean) => {
 
         <div class="sep"></div>
 
-        <FormField v-slot="{ componentField }" name="summary">
+        <FormField v-slot="{ componentField }" name="title">
           <FormItem>
             <FormLabel>Short Summary</FormLabel>
             <FormControl>
@@ -176,7 +178,7 @@ const handleUpdateOpen = (value: boolean) => {
           </FormItem>
         </FormField>
 
-        <FormField v-slot="{ componentField }" name="reporter">
+        <FormField v-slot="{ componentField }" name="reporterId">
           <FormItem>
             <FormLabel>Reporter</FormLabel>
 

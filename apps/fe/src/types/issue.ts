@@ -1,5 +1,5 @@
-import { z } from 'zod'
 import type { Comment } from '@/types/comment'
+import { z } from 'zod'
 
 export enum IssueType {
   TASK = 'task',
@@ -74,18 +74,15 @@ export const IssueTypeCopy = {
 }
 
 export const issueCreateSchema = z.object({
-  issuetype: z.string(),
   type: z.nativeEnum(IssueType),
   title: z.string(),
   reporterId: z.string(),
-  summary: z.string(),
   description: z.string(),
-  reporter: z.string(),
   userIds: z.string().array(),
   priority: z.nativeEnum(IssuePriority),
   status: z.nativeEnum(IssueStatus).optional(),
-  projectId: z.string().optional()
-  // users: z.array(z.any()).optional()
+  projectId: z.string().optional(),
+  users: z.array(z.any()).optional()
 })
 
 export type IssueCreateDTO = z.infer<typeof issueCreateSchema>
