@@ -1,29 +1,29 @@
 <script lang="ts" setup>
-import { ref, computed, onUnmounted, defineComponent } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { useQuery, useMutation } from '@vue/apollo-composable'
-import { Button, Dialog, DialogContent } from '@repo/ui'
-import { Clipboard, Expand, MessageCircle, Trash, X } from 'lucide-vue-next'
-import Comment from './Comment.vue'
-import IssueDescription from './Description.vue'
-import IssueTitle from './Title.vue'
-import IssueType from './Type.vue'
-import IssueStatus from './Status.vue'
-import IssueAssigneesReporter from './AssigneesReporter.vue'
-import IssuePriority from './Priority.vue'
 import IssueLoader from '@/components/Project/IssueLoader.vue'
+import { deleteComment } from '@/graphql/queries/comment'
 import {
-  getIssueWithUsersAndComments,
   deleteIssue,
+  getIssueWithUsersAndComments,
   getProjectIssues,
   updateIssueMutation
 } from '@/graphql/queries/issue'
-import type { Issue } from '@/types/issue'
 import { useClipboard } from '@/hooks/useClipboard'
-import { formatDateTimeConversational } from '@/utils/date'
-import { getters, mutations } from '@/stores'
+import { useAppStore } from '@/stores'
+import type { Issue } from '@/types/issue'
 import { eventBus, sortByNewest, updateArrayItemById } from '@/utils'
-import { deleteComment } from '@/graphql/queries/comment'
+import { formatDateTimeConversational } from '@/utils/date'
+import { Button, Dialog, DialogContent } from '@repo/ui'
+import { useMutation, useQuery } from '@vue/apollo-composable'
+import { Clipboard, Expand, MessageCircle, Trash, X } from 'lucide-vue-next'
+import { computed, defineComponent, onUnmounted, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import IssueAssigneesReporter from './AssigneesReporter.vue'
+import Comment from './Comment.vue'
+import IssueDescription from './Description.vue'
+import IssuePriority from './Priority.vue'
+import IssueStatus from './Status.vue'
+import IssueTitle from './Title.vue'
+import IssueType from './Type.vue'
 
 const emit = defineEmits(['close'])
 
@@ -48,10 +48,12 @@ defineComponent({
   }
 })
 
+const store = useAppStore()
+
 const issueCopy = ref<Issue>()
 
-const project = computed(getters.project)
-const currentUser = computed(getters.currentUser)
+const project = computed(store.getProject)
+const currentUser = computed(store.getCurrentUser)
 const commentsSorted = computed(() => {
   if (!issueCopy.value) {
     return []
@@ -117,7 +119,7 @@ const goFullScreen = () => {
 const handleUpdateIssue = async (fields: Partial<Issue>) => {
   issueCopy.value = { ...issueCopy.value, ...fields } as Issue
 
-  mutations.setProject({
+  store.setProject({
     ...project.value,
     issues: updateArrayItemById(project.value.issues, props.issueId as string, fields)
   })
@@ -140,7 +142,7 @@ const deleteIssueHandler = async () => {
   await mutate({ issueId: props.issueId } as any)
   const res = await fetchProjectIssues()
   if (res?.data) {
-    mutations.setProject({
+    store.setProject({
       ...project.value,
       issues: res?.data.getProjectIssues
     })

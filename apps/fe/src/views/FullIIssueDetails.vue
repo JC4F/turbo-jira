@@ -1,14 +1,16 @@
 <script lang="ts" setup>
-import { computed } from 'vue'
 import IssueDetails from '@/components/Project/Issue/IssueDetails/IssueDetails.vue'
-import { getters } from '@/stores'
+import { useAppStore } from '@/stores'
+import { computed } from 'vue'
 
 defineProps<{
   issueId: string
 }>()
 
+const store = useAppStore()
+
 // Computed property for project
-const project = computed(getters.project)
+const project = computed(store.getProject)
 </script>
 
 <template>

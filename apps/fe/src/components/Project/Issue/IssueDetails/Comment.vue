@@ -1,11 +1,11 @@
 <script lang="ts" setup>
-import { computed, ref } from 'vue'
-import { useMutation } from '@vue/apollo-composable'
-import { Avatar, AvatarFallback, AvatarImage, Button, Textarea } from '@repo/ui'
+import { createComment, updateComment } from '@/graphql/queries/comment'
+import { useAppStore } from '@/stores'
 import type { Comment } from '@/types'
 import { formatDateTimeConversational } from '@/utils/date'
-import { createComment, updateComment } from '@/graphql/queries/comment'
-import { getters } from '@/stores'
+import { Avatar, AvatarFallback, AvatarImage, Button, Textarea } from '@repo/ui'
+import { useMutation } from '@vue/apollo-composable'
+import { computed, ref } from 'vue'
 
 // Define props
 const props = defineProps<{
@@ -17,8 +17,10 @@ const props = defineProps<{
 // Emit events
 const emit = defineEmits(['delete'])
 
+const store = useAppStore()
+
 // Computed properties
-const currentUser = computed(getters.currentUser)
+const currentUser = computed(store.getCurrentUser)
 const newComment = ref<string>(props.isCreate ? '' : props.comment.body)
 const isWorking = ref<boolean>(false)
 const isFormOpen = ref<boolean>(false)

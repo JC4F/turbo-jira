@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { getProjectWithUsersAndIssues, updateProject } from '@/graphql/queries/project'
 import { errorToast, successToast } from '@/plugins/toast'
-import { getters, mutations } from '@/stores'
+import { useAppStore } from '@/stores'
 import {
   ProjectCategory,
   ProjectCategoryCopy,
@@ -14,10 +14,12 @@ import { useMutation, useQuery } from '@vue/apollo-composable'
 import { useForm } from 'vee-validate'
 import { computed, ref } from 'vue'
 
+const store = useAppStore()
+
 const isWorking = ref<boolean>(false)
 const queryEnabled = ref<boolean>(false)
 
-const project = computed(getters.project)
+const project = computed(store.getProject)
 
 const defaultProjectSettingValues: Partial<ProjectSettingDTO> = {}
 
@@ -40,7 +42,7 @@ const handleUpdateProject = handleSubmit(async (values) => {
     await mutate({ project: values })
     const res = await refetch()
     if (res?.data) {
-      mutations.setProject(res.data.getProjectWithUsersAndIssues)
+      store.setProject(res.data.getProjectWithUsersAndIssues)
     }
     successToast('Changes have been saved successfully.').showToast()
   } catch {

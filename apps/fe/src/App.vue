@@ -1,17 +1,19 @@
 <script lang="ts" setup>
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
-import { useQuery } from '@vue/apollo-composable'
-import { getters, mutations } from './stores'
 import PageLoader from '@/components/Loader.vue'
 import Modals from '@/components/Modals/Modals.vue'
 import { getProjectWithUsersAndIssues } from '@/graphql/queries/project'
+import { useAppStore } from '@/stores'
+import { useQuery } from '@vue/apollo-composable'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+
+const store = useAppStore()
 
 // Reactive state
 const expanded = ref<boolean>(true)
 
 // Computed property to check if the app is ready
 const isAppReady = computed(
-  () => getters.isAuthenticated() && Object.keys(getters.currentUser()).length !== 0
+  () => store.getIsAuthenticated() && Object.keys(store.getCurrentUser()).length !== 0
 )
 
 // Media query handling
@@ -37,7 +39,7 @@ const { onResult } = useQuery(getProjectWithUsersAndIssues, {}, { fetchPolicy: '
 onResult((res) => {
   const { data } = res as any
   if (data) {
-    mutations.setProject(data.getProjectWithUsersAndIssues)
+    store.setProject(data.getProjectWithUsersAndIssues)
   }
 })
 </script>

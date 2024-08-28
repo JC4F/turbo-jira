@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import IssueTypeIcon from '@/components/shared/IssueTypeIcon/IssueTypeIcon.vue'
-import { getters } from '@/stores'
+import { useAppStore } from '@/stores'
 import { IssuePriority, type Issue } from '@/types/issue'
 import { issuePriorityColors } from '@/utils/colors'
 import { eventBus } from '@/utils/eventBus'
@@ -14,8 +14,10 @@ const props = defineProps<{
   index: number
 }>()
 
+const store = useAppStore()
+
 // Computed properties
-const project = computed(getters.project)
+const project = computed(store.getProject)
 const assignees = computed(() =>
   props.issue.userIds.map((userId) => project.value.users.find((user) => user.id === userId))
 )

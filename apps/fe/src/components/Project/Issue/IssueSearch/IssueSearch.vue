@@ -1,17 +1,19 @@
 <script setup lang="ts">
 import Spinner from '@/components/Loader.vue'
 import { getProjectIssues } from '@/graphql/queries/issue'
-import { getters } from '@/stores'
+import { useAppStore } from '@/stores'
 import type { Issue } from '@/types/issue'
 import { sortByNewest } from '@/utils'
+import { Input, Sheet, SheetContent } from '@repo/ui'
 import { useQuery } from '@vue/apollo-composable'
+import { Search } from 'lucide-vue-next'
 import { debounce } from 'throttle-debounce'
 import { computed, ref } from 'vue'
 import SearchResult from './SearchResult.vue'
-import { Sheet, SheetContent, Input } from '@repo/ui'
-import { Search } from 'lucide-vue-next'
 
 const emit = defineEmits(['close'])
+
+const store = useAppStore()
 
 // Reactive state
 const isSearchTermEmpty = ref(true)
@@ -23,7 +25,7 @@ const { result, refetch, loading } = useQuery<{ getProjectIssues: Issue[] }>(get
 })
 
 // Computed properties for project and issues
-const project = computed(() => getters.project())
+const project = computed(store.getProject)
 
 const matchingIssues = computed(() => result.value?.getProjectIssues ?? [])
 

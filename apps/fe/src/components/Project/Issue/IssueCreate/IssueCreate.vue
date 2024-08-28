@@ -2,7 +2,7 @@
 import IssueTypeIcon from '@/components/shared/IssueTypeIcon/IssueTypeIcon.vue'
 import { createIssue, getProjectIssues } from '@/graphql/queries/issue'
 import { successToast } from '@/plugins'
-import { getters, mutations } from '@/stores'
+import { useAppStore } from '@/stores'
 import {
   IssuePriority,
   IssuePriorityCopy,
@@ -48,8 +48,10 @@ import { computed, ref } from 'vue'
 
 const emit = defineEmits(['close'])
 
-const project = computed(getters.project)
-const currentUser = computed(getters.currentUser)
+const store = useAppStore()
+
+const project = computed(store.getProject)
+const currentUser = computed(store.getCurrentUser)
 
 const defaultIssueValues: Partial<IssueCreateDTO> = {
   type: IssueType.TASK,
@@ -86,7 +88,7 @@ const onSubmit = handleSubmit(async (values) => {
     await mutate({ createIssueInput: issue } as any)
     const res = await fetchProjectIssues()
     if (res?.data) {
-      mutations.setProject({
+      store.setProject({
         ...project.value,
         issues: res.data.getProjectIssues
       })

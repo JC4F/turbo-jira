@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { computed } from 'vue'
-import Omit from 'lodash.omit'
+import { useAppStore } from '@/stores'
+import type { User } from '@/types'
 import {
   Avatar,
   AvatarFallback,
@@ -15,8 +15,8 @@ import {
   TagsInputItem,
   TagsInputItemDelete
 } from '@repo/ui'
-import { getters } from '@/stores'
-import type { User } from '@/types'
+import Omit from 'lodash.omit'
+import { computed } from 'vue'
 
 // Props definition
 const props = defineProps({
@@ -34,7 +34,9 @@ const props = defineProps({
   }
 })
 
-const project = computed(getters.project)
+const store = useAppStore()
+
+const project = computed(store.getProject)
 const usersByUserIds = computed(() => {
   return props.userIds.map(getUserById).filter((item): item is User => Boolean(item))
 })

@@ -1,15 +1,17 @@
 <script lang="ts" setup>
-import xor from 'lodash.xor'
-import { computed, ref } from 'vue'
-import { debounce } from 'throttle-debounce'
-import { Avatar, AvatarFallback, AvatarImage, Button, Input } from '@repo/ui'
-import { Search } from 'lucide-vue-next'
-import { getters } from '@/stores'
+import { useAppStore } from '@/stores'
 import type { Filters } from '@/types'
+import { Avatar, AvatarFallback, AvatarImage, Button, Input } from '@repo/ui'
+import xor from 'lodash.xor'
+import { Search } from 'lucide-vue-next'
+import { debounce } from 'throttle-debounce'
+import { computed, ref } from 'vue'
+
+const store = useAppStore()
 
 // Reactive Variables
-const projectFilters = computed(getters.filters)
-const project = computed(getters.project)
+const projectFilters = computed(store.getFilters)
+const project = computed(store.getProject)
 
 const filters = ref<Filters>(projectFilters.value || {})
 
