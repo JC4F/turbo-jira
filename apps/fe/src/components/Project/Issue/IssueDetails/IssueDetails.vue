@@ -3,7 +3,7 @@ import { ref, computed, onUnmounted, defineComponent } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useQuery, useMutation } from '@vue/apollo-composable'
 import { Button, Dialog, DialogContent } from '@repo/ui'
-import { Clipboard, Expand, Trash, X } from 'lucide-vue-next'
+import { Clipboard, Expand, MessageCircle, Trash, X } from 'lucide-vue-next'
 import Comment from './Comment.vue'
 import IssueDescription from './Description.vue'
 import IssueTitle from './Title.vue'
@@ -48,11 +48,8 @@ defineComponent({
   }
 })
 
-// Reactive references
 const issueCopy = ref<Issue>()
-// const isDeleteConfirmOpen = ref<boolean>(false)
 
-// Computed properties
 const project = computed(getters.project)
 const currentUser = computed(getters.currentUser)
 const commentsSorted = computed(() => {
@@ -197,34 +194,39 @@ const handleUpdateOpen = (value: boolean) => {
 
 <template>
   <Dialog :open="true" @update:open="handleUpdateOpen">
-    <DialogContent class="w-[700px]">
+    <DialogContent class="w-[1040px] max-w-max" hide-close>
       <IssueLoader v-if="!issueCopy" />
       <div class="w-full h-full" v-else>
-        <div class="flex items-center px-3 pt-4 text-foreground">
+        <div class="flex items-center text-foreground justify-between">
           <!-- Type -->
           <IssueType
             :updateIssue="handleUpdateIssue"
             :issueId="issueCopy.id"
             :value="issueCopy.type"
           />
-          <div class="flex-auto"></div>
-          <Button icon="feedback" variant="outline">Give Feedback</Button>
-          <Button @click="copyIssueLink" variant="outline">
-            <Clipboard class="h-4 w-4 xl:mr-2" />
-            <span class="hidden xl:inline">Copy Link</span>
-          </Button>
-          <Button @click="triggerIssueDelete" variant="outline">
-            <Trash class="h-4 w-4" />
-            <span class="hidden xl:inline">Delete</span>
-          </Button>
-          <Button v-if="withFullScreenButton" @click="goFullScreen" variant="outline">
-            <Expand class="h-4 w-4" />
-          </Button>
-          <Button v-if="withCloseButton" @click="$emit('close')" variant="outline">
-            <X class="h-4 w-4" />
-          </Button>
+
+          <div class="flex items-center gap-2">
+            <Button variant="outline">
+              <MessageCircle class="h-4 w-4 xl:mr-2" />
+              <span class="hidden xl:inline">Give Feedback</span>
+            </Button>
+            <Button @click="copyIssueLink" variant="outline">
+              <Clipboard class="h-4 w-4 xl:mr-2" />
+              <span class="hidden xl:inline">Copy Link</span>
+            </Button>
+            <Button @click="triggerIssueDelete" variant="outline">
+              <Trash class="h-4 w-4 xl:mr-2" />
+              <span class="hidden xl:inline">Delete</span>
+            </Button>
+            <Button v-if="withFullScreenButton" @click="goFullScreen" variant="outline">
+              <Expand class="h-4 w-4" />
+            </Button>
+            <Button v-if="withCloseButton" @click="$emit('close')" variant="outline">
+              <X class="h-4 w-4" />
+            </Button>
+          </div>
         </div>
-        <div class="flex w-full flex-wrap pb-16 px-7">
+        <div class="flex w-full flex-wrap">
           <!-- LEFT SECTION -->
           <div class="sm:w-full md:w-7/12 lg:w-4/6 pr-10">
             <!-- Title -->
@@ -236,7 +238,7 @@ const handleUpdateOpen = (value: boolean) => {
             />
             <!-- Comments -->
             <div class="pt-10">
-              <div class="font-medium text-15">Comments</div>
+              <div class="font-medium">Comments</div>
               <Comment
                 :refetchIssue="refetchIssue"
                 isCreate
@@ -244,7 +246,7 @@ const handleUpdateOpen = (value: boolean) => {
                   {
                     user: currentUser,
                     body: 'Add a comment...',
-                    issueId: issueId as any
+                    issueId
                   } as any
                 "
               />

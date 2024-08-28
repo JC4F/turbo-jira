@@ -21,10 +21,10 @@ const sidebarWidth = computed(() => (props.expanded ? 240 : 20))
 <template>
   <div :style="{ width: `${sidebarWidth}px` }" class="sidebar h-full relative">
     <div class="sidebar-content px-4 bg-background">
-      <div class="flex py-6 px-1">
+      <div class="flex py-6 px-1 items-center">
         <FolderDot class="w-6 h-6" />
         <div class="pt-1 pl-2">
-          <div class="mb-1 text-foreground text-15 font-medium">
+          <div class="mb-1 text-foreground font-medium">
             {{ project.name }}
           </div>
           <div class="text-foreground text-[13px]">
@@ -45,10 +45,10 @@ const sidebarWidth = computed(() => (props.expanded ? 240 : 20))
         >
           <component :is="link.icon" class="mr-4 w-4 h-4" />
 
-          <div class="text-15 pt-px">{{ link.name }}</div>
+          <div class="pt-px">{{ link.name }}</div>
           <div
             v-if="!link.to"
-            class="not-implemented bg-foreground text-foreground inline-block absolute rounded-sm uppercase opacity-0 text-xs font-bold"
+            class="not-implemented bg-foreground text-background inline-block absolute rounded-sm uppercase opacity-0 text-xs font-bold"
           >
             Not implemented
           </div>

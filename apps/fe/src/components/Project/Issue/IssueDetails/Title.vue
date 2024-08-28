@@ -29,6 +29,7 @@ const updateIssueDescription = async () => {
       @input="(e: any) => (title = e)"
       @blur="updateIssueDescription"
       :value="value"
+      rows="1"
     />
   </div>
 </template>

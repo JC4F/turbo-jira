@@ -1,6 +1,14 @@
 <script setup lang="ts">
 import IssueTypeIcon from '@/components/shared/issue-type-icon/issue-type-icon.vue'
 import { IssueType, IssueTypeCopy } from '@/types/issue'
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@repo/ui'
 
 const props = defineProps<{
   value: IssueType
@@ -19,16 +27,16 @@ const updateIssueType = async (type: IssueType) => {
 
 <template>
   <Select :modelValue="value" @update:modelValue="updateIssueType as any">
-    <SelectTrigger>
+    <SelectTrigger class="w-fit">
       <SelectValue placeholder="Select a status" />
     </SelectTrigger>
     <SelectContent>
       <SelectGroup>
         <SelectItem v-for="type in Object.values(IssueType)" :key="type" :value="type">
           <div class="pr-1 pl-2 flex items-center">
-            <IssueTypeIcon :issueType="value" />
+            <IssueTypeIcon :issueType="type" />
 
-            <div class="text-15 pr-1 pl-2">
+            <div class="pr-1 pl-2">
               {{ IssueTypeCopy[type] }}
             </div>
           </div>

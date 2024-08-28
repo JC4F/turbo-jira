@@ -79,7 +79,7 @@ const getCardPayload = (index: number) => {
 </script>
 
 <template>
-  <div class="list mr-2 flex flex-col rounded-sm bg-background flex-shrink-0">
+  <div class="list mr-2 flex flex-col rounded-sm bg-secondary flex-shrink-0">
     <div class="px-3 pt-3 pb-4 uppercase truncate text-foreground text-[13px]">
       {{ IssueStatusCopy[status] }}
       <span class="lowercase text-[13px]">{{ formattedIssuesCount }}</span>

@@ -25,7 +25,7 @@ const handleResize = () => {
     <div>
       <button aria-label="toggle" class="btn">
         <div class="overlay"></div>
-        <span class="cursor-pointer fill-current text-white flex-shrink-0 leading-none">
+        <span class="cursor-pointer fill-current text-accent flex-shrink-0 leading-none">
           <ChevronLeft v-if="expanded" />
           <ChevronRight v-else />
         </span>

@@ -26,7 +26,7 @@ const selectResult = () => {
   >
     <IssueTypeIcon :issueType="props.issue.type" />
     <div class="pl-4">
-      <div class="text-foreground text-15">{{ issue.title }}</div>
+      <div class="text-foreground">{{ issue.title }}</div>
       <div class="uppercase text-xs text-foreground">
         {{ `${issue.type}-${issue.id}` }}
       </div>

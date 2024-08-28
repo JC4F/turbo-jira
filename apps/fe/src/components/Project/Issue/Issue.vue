@@ -42,7 +42,7 @@ const openIssueDetails = () => {
       @click="openIssueDetails"
       class="issue rounded-sm bg-white transition-all duration-100 select-none hover:bg-background"
     >
-      <p class="pb-3 text-15 text-foreground">
+      <p class="pb-3 text-foreground">
         {{ issue.title }}
       </p>
       <div class="flex items-center justify-between">

@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { computed, ref } from 'vue'
 import { useMutation } from '@vue/apollo-composable'
-import { Button, Textarea } from '@repo/ui'
+import { Avatar, AvatarFallback, AvatarImage, Button, Textarea } from '@repo/ui'
 import type { Comment } from '@/types'
 import { formatDateTimeConversational } from '@/utils/date'
 import { createComment, updateComment } from '@/graphql/queries/comment'
@@ -91,9 +91,9 @@ const handleCancel = () => {
 </script>
 
 <template>
-  <div class="relative mt-6 text-15">
+  <div class="relative mt-6">
     <!-- user-avatar -->
-    <Avatar class="absolute top-0 left-0">
+    <Avatar class="absolute top-1 left-0 w-8 h-8">
       <AvatarImage :src="comment.user.avatarUrl" alt="avatar" />
       <AvatarFallback>{{ comment.user.name }}</AvatarFallback>
     </Avatar>

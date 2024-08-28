@@ -107,8 +107,8 @@ const handleUpdateOpen = (value: boolean) => {
 
 <template>
   <Dialog :open="true" @update:open="handleUpdateOpen">
-    <DialogContent class="w-[700px]">
-      <div class="flex items-center py-3 text-foreground">
+    <DialogContent class="w-[700px]" hide-close>
+      <div class="flex items-center text-foreground">
         <div class="text-xl">Create issue</div>
         <div class="flex-auto"></div>
         <Button @click="$emit('close')" variant="outline">
@@ -253,7 +253,7 @@ const handleUpdateOpen = (value: boolean) => {
                 </SelectGroup>
               </SelectContent>
             </Select>
-            <FormDescription>riority in relation to other issues.</FormDescription>
+            <FormDescription>Priority in relation to other issues.</FormDescription>
             <FormMessage />
           </FormItem>
         </FormField>

@@ -1,5 +1,13 @@
 <script setup lang="ts">
 import { IssueStatus, IssueStatusCopy } from '@/types/issue'
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@repo/ui'
 
 const props = defineProps<{
   value: IssueStatus
@@ -26,7 +34,7 @@ const updateIssueStatus = async (status: IssueStatus) => {
         <SelectGroup>
           <SelectItem v-for="status in Object.values(IssueStatus)" :key="status" :value="status">
             <div class="flex items-center pr-1 pl-2">
-              <div class="text-15 pr-1 pl-2">
+              <div class="pr-1 pl-2">
                 {{ IssueStatusCopy[status] }}
               </div>
             </div>
