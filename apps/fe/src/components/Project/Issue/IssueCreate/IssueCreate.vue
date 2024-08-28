@@ -24,6 +24,7 @@ import {
   FormControl,
   FormDescription,
   FormField,
+  FormItem,
   FormLabel,
   FormMessage,
   Input,
@@ -39,7 +40,6 @@ import {
   TagsInputItemDelete,
   TagsInputItemText
 } from '@repo/ui'
-import FormItem from '@ui/components/ui/form/FormItem.vue'
 import { toTypedSchema } from '@vee-validate/zod'
 import { useMutation, useQuery } from '@vue/apollo-composable'
 import { ArrowDown, ArrowUp, X } from 'lucide-vue-next'
