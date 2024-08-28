@@ -8,7 +8,23 @@ import {
   projectSettingSchema,
   type ProjectSettingDTO
 } from '@/types/project'
-import { Button, Textarea } from '@repo/ui'
+import {
+  Button,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+  Input,
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Textarea
+} from '@repo/ui'
 import { toTypedSchema } from '@vee-validate/zod'
 import { useMutation, useQuery } from '@vue/apollo-composable'
 import { useForm } from 'vee-validate'
@@ -118,7 +134,7 @@ const handleUpdateProject = handleSubmit(async (values) => {
       </FormField>
 
       <div class="pt-7">
-        <Button :disabled="isWorking"> Save changes </Button>
+        <Button :disabled="isWorking" type="submit"> Save changes </Button>
       </div>
     </form>
   </div>
