@@ -1,67 +1,68 @@
 <script lang="ts" setup>
-import { computed, reactive, ref } from 'vue'
-import Omit from 'lodash.omit'
-import { useMutation, useQuery } from '@vue/apollo-composable'
-import { getters, mutations } from '@/stores'
-import {
-  IssueType,
-  IssuePriority,
-  IssuePriorityCopy,
-  IssueTypeCopy,
-  IssueStatus,
-  type IssueCreateDTO,
-  type Issue
-} from '@/types/issue'
-import { issuePriorityColors } from '@/utils/colors'
+import IssueTypeIcon from '@/components/shared/issue-type-icon/issue-type-icon.vue'
 import { createIssue, getProjectIssues } from '@/graphql/queries/issue'
 import { successToast } from '@/plugins'
+import { getters, mutations } from '@/stores'
+import {
+  IssuePriority,
+  IssuePriorityCopy,
+  IssueStatus,
+  IssueType,
+  IssueTypeCopy,
+  issueCreateSchema,
+  type Issue,
+  type IssueCreateDTO
+} from '@/types'
+import { issuePriorityColors } from '@/utils/colors'
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+  Button,
+  Dialog,
+  DialogContent,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormLabel,
+  FormMessage,
+  Input,
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  TagsInput,
+  TagsInputInput,
+  TagsInputItem,
+  TagsInputItemDelete,
+  TagsInputItemText
+} from '@repo/ui'
+import FormItem from '@ui/components/ui/form/FormItem.vue'
+import { toTypedSchema } from '@vee-validate/zod'
+import { useMutation, useQuery } from '@vue/apollo-composable'
+import { ArrowDown, ArrowUp, X } from 'lucide-vue-next'
+import { useForm } from 'vee-validate'
+import { computed, ref } from 'vue'
 
 const emit = defineEmits(['close'])
 
-// Computed values for project and current user
 const project = computed(getters.project)
 const currentUser = computed(getters.currentUser)
 
-// Computed value for project users
-const projectUsers = computed(() => {
-  if (!project.value) return []
-  return project.value.users.map((user) => ({
-    value: user.id,
-    label: user.name,
-    user
-  }))
-})
-
-// Default values for a new issue
-const defaultIssueValues = {
+const defaultIssueValues: Partial<IssueCreateDTO> = {
   type: IssueType.TASK,
   title: '',
   description: '',
   reporterId: currentUser.value.id,
   userIds: [],
-  priority: IssuePriority.MEDIUM
+  priority: IssuePriority.MEDIUM,
+  status: IssueStatus.BACKLOG,
+  projectId: project.value.id
+  // users: values.userIds.map(getUserById)
 }
 
-// Reactive object for creating a new issue
-const issueCreateObject = reactive<IssueCreateDTO>(defaultIssueValues)
-
-// Validation functions
-const isRequired = (value: string) => ['', null, undefined].indexOf(value) === -1
-
-const isValidDTO = computed(
-  () =>
-    isRequired(issueCreateObject.type) &&
-    isRequired(issueCreateObject.title) &&
-    isRequired(issueCreateObject.reporterId) &&
-    isRequired(issueCreateObject.priority)
-)
-
-// Function to set the value of a specific field in the issue object
-const setFieldValue = (field: keyof IssueCreateDTO, value: any) => {
-  issueCreateObject[field] = value as never
-}
-
-// Loading states
 const loading = ref<boolean>(false)
 
 const { mutate, loading: isMutationLoading } = useMutation(createIssue)
@@ -69,24 +70,17 @@ const { refetch: fetchProjectIssues, loading: isFetchIssuesLoading } = useQuery<
   getProjectIssues: Issue[]
 }>(getProjectIssues)
 
-// Computed property to check if the component is currently working
 const isWorking = computed(() => loading.value && isFetchIssuesLoading && isMutationLoading)
 
-// Helper function to get user by ID, omitting certain fields
-const getUserById = (userId: string) =>
-  Omit(
-    project.value.users.find((user) => user.id === userId),
-    ['__typename', 'name', 'avatarUrl', 'projectId']
-  )
+const { handleSubmit } = useForm({
+  validationSchema: toTypedSchema(issueCreateSchema),
+  initialValues: defaultIssueValues
+})
 
-// Function to handle the submission of a new issue
-const handleSubmit = async () => {
+const onSubmit = handleSubmit(async (values) => {
   loading.value = true
   const issue: IssueCreateDTO = {
-    ...issueCreateObject,
-    status: IssueStatus.BACKLOG,
-    projectId: project.value.id,
-    users: issueCreateObject.userIds.map(getUserById)
+    ...values
   }
   try {
     await mutate({ createIssueInput: issue } as any)
@@ -104,165 +98,173 @@ const handleSubmit = async () => {
     console.error(error)
     emit('close')
   }
+})
+
+const handleUpdateOpen = (value: boolean) => {
+  if (!value) emit('close')
 }
 </script>
 
 <template>
-  <div class="w-full h-full px-8 py-5">
-    <div class="flex items-center py-3 text-foreground">
-      <div class="text-xl">Create issue</div>
-      <div class="flex-auto"></div>
-      <j-button @click="$emit('close')" icon="x" :iconSize="24" variant="empty" />
-    </div>
-    <form novalidate autocomplete="off">
-      <div class="formField">
-        <label for="issuetype" class="formFieldLabel">Issue type</label>
-        <j-select
-          id="issuetype"
-          :value="issueCreateObject.type"
-          searchable
-          :options="
-            Object.values(IssueType).map((type) => ({
-              value: type,
-              label: IssueTypeCopy[type],
-              icon: IssueTypeCopy[type].toLowerCase()
-            }))
-          "
-          @change="setFieldValue('type', $event)"
-          customRender
-        >
-          <template v-slot:default="{ label, icon }">
-            <div class="flex items-center my-px mr-4">
-              <j-icon class="mr-1" :size="16" :name="icon"></j-icon>
-              <div class="pl-2 pr-1">
-                {{ label }}
-              </div>
-            </div>
-          </template>
-        </j-select>
-        <div class="formFieldTip">Start typing to get a list of possible matches.</div>
+  <Dialog :open="true" @update:open="handleUpdateOpen">
+    <DialogContent class="w-[700px]" hide-close>
+      <div class="flex items-center text-foreground">
+        <div class="text-xl">Create issue</div>
+        <div class="flex-auto"></div>
+        <Button @click="$emit('close')" variant="outline">
+          <X class="w-4 h-4" />
+        </Button>
       </div>
-      <div class="sep"></div>
-      <div class="formField">
-        <label class="formFieldLabel" for="summary">Short Summary</label>
-        <div class="relative">
-          <j-input
-            :value="issueCreateObject.title"
-            id="summary"
-            @input="setFieldValue('title', $event)"
-          />
+      <form novalidate autocomplete="off" @submit="onSubmit">
+        <FormField v-slot="{ componentField }" name="issuetype">
+          <FormItem>
+            <FormLabel>Issue type</FormLabel>
+
+            <Select v-bind="componentField">
+              <FormControl>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select an issue type to display" />
+                </SelectTrigger>
+              </FormControl>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectItem
+                    v-for="(issueType, index) in Object.values(IssueType)"
+                    :key="index"
+                    :value="issueType"
+                  >
+                    <div class="flex items-center my-px mr-4">
+                      <IssueTypeIcon :issueType="issueType" class="w-4 h-4 mr-1" />
+                      <div class="pl-2 pr-1">
+                        {{ IssueTypeCopy[issueType] }}
+                      </div>
+                    </div>
+                  </SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+            <FormDescription> Start typing to get a list of possible matches. </FormDescription>
+            <FormMessage />
+          </FormItem>
+        </FormField>
+
+        <div class="sep"></div>
+
+        <FormField v-slot="{ componentField }" name="summary">
+          <FormItem>
+            <FormLabel>Short Summary</FormLabel>
+            <FormControl>
+              <Input type="text" placeholder="Short Summary" v-bind="componentField" />
+            </FormControl>
+            <FormDescription>
+              Concisely summarize the issue in one or two sentences
+            </FormDescription>
+            <FormMessage />
+          </FormItem>
+        </FormField>
+
+        <FormField v-slot="{ field }" name="description">
+          <FormItem>
+            <FormLabel>Description</FormLabel>
+            <FormControl>
+              <j-text-editor :mode="`write`" v-bind="field" class="min-h-[110px]" />
+            </FormControl>
+            <FormDescription>Describe the issue in as much detail as you'd like.</FormDescription>
+            <FormMessage />
+          </FormItem>
+        </FormField>
+
+        <FormField v-slot="{ componentField }" name="reporter">
+          <FormItem>
+            <FormLabel>Reporter</FormLabel>
+
+            <Select v-bind="componentField">
+              <FormControl>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a reporter" />
+                </SelectTrigger>
+              </FormControl>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectItem v-for="(user, index) in project.users" :key="index" :value="user.id">
+                    <div class="flex items-center my-px mr-4">
+                      <Avatar class="w-5 h-5">
+                        <AvatarImage :src="user.avatarUrl" alt="avatar" />
+                        <AvatarFallback>{{ user.name }}</AvatarFallback>
+                      </Avatar>
+                      <div class="pl-2 pr-1">
+                        {{ user.name }}
+                      </div>
+                    </div>
+                  </SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+            <FormMessage />
+          </FormItem>
+        </FormField>
+
+        <FormField v-slot="{ value }" name="userIds">
+          <FormItem>
+            <FormLabel>Assignees</FormLabel>
+            <FormControl>
+              <TagsInput :model-value="value">
+                <TagsInputItem v-for="item in value" :key="item" :value="item">
+                  <TagsInputItemText />
+                  <TagsInputItemDelete />
+                </TagsInputItem>
+
+                <TagsInputInput placeholder="Assignees..." />
+              </TagsInput>
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        </FormField>
+
+        <FormField v-slot="{ componentField }" name="priority">
+          <FormItem>
+            <FormLabel>Priority</FormLabel>
+
+            <Select v-bind="componentField">
+              <FormControl>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a priority" />
+                </SelectTrigger>
+              </FormControl>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectItem
+                    v-for="(isssuPriority, index) in Object.values(IssuePriority)"
+                    :key="index"
+                    :value="isssuPriority"
+                  >
+                    <div class="flex items-center my-px mr-4">
+                      <component
+                        :is="parseInt(isssuPriority) < 3 ? ArrowDown : ArrowUp"
+                        class="w-4 h-4"
+                        :style="{ color: issuePriorityColors[isssuPriority] }"
+                      ></component>
+
+                      <div class="pl-2 pr-1">
+                        {{ IssuePriorityCopy[isssuPriority] }}
+                      </div>
+                    </div>
+                  </SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+            <FormDescription>Priority in relation to other issues.</FormDescription>
+            <FormMessage />
+          </FormItem>
+        </FormField>
+
+        <div class="flex items-center justify-end formField">
+          <Button type="submit" :disabled="isWorking" class="ml-3">Create</Button>
+          <Button @click.prevent="$emit('close')" class="ml-3" variant="secondary">Cancel</Button>
         </div>
-
-        <div class="formFieldTip">Concisely summarize the issue in one or two sentences.</div>
-      </div>
-
-      <div class="formField">
-        <label class="formFieldLabel" for="description">Description</label>
-        <j-text-editor
-          :mode="`write`"
-          @input="setFieldValue('description', $event)"
-          class="descriptionEditor"
-          id="description"
-        />
-        <div class="formFieldTip">Describe the issue in as much detail as you'd like.</div>
-      </div>
-      <div class="formField">
-        <label class="formFieldLabel" for="reporter">Reporter</label>
-        <j-select
-          id="reporter"
-          searchable
-          :value="issueCreateObject.reporterId"
-          :options="projectUsers"
-          customRender
-          @change="setFieldValue('reporterId', $event)"
-        >
-          <template v-slot:default="{ label, user, remove, optionValue }">
-            <div class="flex items-center my-px mr-4">
-              <j-avatar :size="20" :avatarUrl="user.avatarUrl" :name="user.name" />
-              <div class="pl-2 pr-1">
-                {{ label }}
-              </div>
-              <j-icon
-                v-if="remove"
-                @click="remove(optionValue)"
-                class="text-background"
-                :size="20"
-                name="times"
-              ></j-icon>
-            </div>
-          </template>
-        </j-select>
-      </div>
-      <div class="formField">
-        <label class="formFieldLabel" for="userIds">Assignees</label>
-        <j-select
-          id="userIds"
-          :value="issueCreateObject.userIds"
-          searchable
-          :options="projectUsers"
-          :isMulti="true"
-          @change="setFieldValue('userIds', $event)"
-          customRender
-        >
-          <template v-slot:default="{ label, user, remove, optionValue }">
-            <div class="flex items-center my-px mr-4">
-              <j-avatar :size="20" :avatarUrl="user.avatarUrl" :name="user.name" />
-              <div class="pl-2 pr-1">
-                {{ label }}
-              </div>
-              <j-icon
-                v-if="remove"
-                @click="remove(optionValue)"
-                class="text-background"
-                :size="20"
-                name="times"
-              ></j-icon>
-            </div>
-          </template>
-        </j-select>
-      </div>
-      <div class="formField">
-        <label class="formFieldLabel" for="priority">Priority</label>
-        <j-select
-          id="priority"
-          :value="issueCreateObject.priority"
-          searchable
-          :options="
-            Object.values(IssuePriority).map((p) => ({
-              value: p,
-              label: IssuePriorityCopy[p],
-              icon: parseInt(p) < 3 ? 'arrow-down' : 'arrow-up',
-              color: issuePriorityColors[p]
-            }))
-          "
-          customRender
-          @change="setFieldValue('priority', $event)"
-        >
-          <template v-slot:default="{ label, icon, color }">
-            <div class="flex items-center my-px mr-4">
-              <j-icon :style="{ color }" :size="20" :name="icon"></j-icon>
-
-              <div class="pl-2 pr-1">
-                {{ label }}
-              </div>
-            </div>
-          </template>
-        </j-select>
-        <div class="formFieldTip">Priority in relation to other issues.</div>
-      </div>
-      <div class="flex items-center justify-end formField">
-        <j-button
-          :isWorking="isWorking"
-          @click.prevent="handleSubmit"
-          :disabled="!isValidDTO"
-          class="ml-3"
-          variant="primary"
-          >Create</j-button
-        >
-        <j-button @click.prevent="$emit('close')" class="ml-3" variant="secondary">Cancel</j-button>
-      </div>
-    </form>
-  </div>
+      </form>
+    </DialogContent>
+  </Dialog>
 </template>
 
 <style lang="scss" scoped>

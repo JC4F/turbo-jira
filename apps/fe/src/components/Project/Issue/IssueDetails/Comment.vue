@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { computed, ref } from 'vue'
 import { useMutation } from '@vue/apollo-composable'
+import { Avatar, AvatarFallback, AvatarImage, Button, Textarea } from '@repo/ui'
 import type { Comment } from '@/types'
 import { formatDateTimeConversational } from '@/utils/date'
 import { createComment, updateComment } from '@/graphql/queries/comment'
@@ -87,22 +88,16 @@ const handleKeyDown = (e: KeyboardEvent) => {
 const handleCancel = () => {
   isFormOpen.value = false
 }
-
-// const handleFakeTextareaClicked = () => {
-//   if (props.isCreate) {
-//     isFormOpen.value = true
-//   }
-// }
 </script>
 
 <template>
-  <div class="relative mt-6 text-15">
+  <div class="relative mt-6">
     <!-- user-avatar -->
-    <j-avatar
-      class="absolute top-0 left-0"
-      :name="comment.user.name"
-      :avatarUrl="comment.user.avatarUrl"
-    />
+    <Avatar class="absolute top-1 left-0 w-8 h-8">
+      <AvatarImage :src="comment.user.avatarUrl" alt="avatar" />
+      <AvatarFallback>{{ comment.user.name }}</AvatarFallback>
+    </Avatar>
+
     <!-- content -->
     <div class="pl-10">
       <!-- username -->
@@ -115,24 +110,18 @@ const handleCancel = () => {
       <div v-if="!isCreate" v-text="createdAt" class="inline-block pb-2 text-sm text-foreground" />
       <!-- body-form -->
       <div v-if="isFormOpen">
-        <j-textarea
-          v-model="newComment"
-          autoFocus
+        <Textarea
+          :modelValue="newComment"
+          autofocus
           rows="2"
           @keydown="handleKeyDown"
           placeholder="Add a comment..."
         />
         <div class="flex items-center pt-2">
-          <j-button
-            class="mr-2"
-            variant="primary"
-            type="submit"
-            @click="handleSubmit"
-            :isWorking="isWorking"
-          >
+          <Button class="mr-2" type="submit" @click="handleSubmit" :disabled="isWorking">
             Save
-          </j-button>
-          <j-button variant="empty" @click="handleCancel"> Cancel </j-button>
+          </Button>
+          <Button variant="outline" @click="handleCancel"> Cancel </Button>
         </div>
       </div>
       <div v-else>

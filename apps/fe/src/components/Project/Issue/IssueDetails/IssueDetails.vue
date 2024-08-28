@@ -2,6 +2,8 @@
 import { ref, computed, onUnmounted, defineComponent } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useQuery, useMutation } from '@vue/apollo-composable'
+import { Button, Dialog, DialogContent } from '@repo/ui'
+import { Clipboard, Expand, MessageCircle, Trash, X } from 'lucide-vue-next'
 import Comment from './Comment.vue'
 import IssueDescription from './Description.vue'
 import IssueTitle from './Title.vue'
@@ -46,11 +48,8 @@ defineComponent({
   }
 })
 
-// Reactive references
 const issueCopy = ref<Issue>()
-// const isDeleteConfirmOpen = ref<boolean>(false)
 
-// Computed properties
 const project = computed(getters.project)
 const currentUser = computed(getters.currentUser)
 const commentsSorted = computed(() => {
@@ -187,86 +186,101 @@ onUnmounted(() => {
   eventBus.off('confirm-issue-delete', deleteIssueHandler)
   eventBus.off('confirm-comment-delete', deleteCommentHandler)
 })
+
+const handleUpdateOpen = (value: boolean) => {
+  if (!value) emit('close')
+}
 </script>
 
 <template>
-  <IssueLoader v-if="!issueCopy" />
-  <div class="w-full h-full" v-else>
-    <div class="flex items-center px-3 pt-4 text-foreground">
-      <!-- Type -->
-      <IssueType :updateIssue="handleUpdateIssue" :issueId="issueCopy.id" :value="issueCopy.type" />
-      <div class="flex-auto"></div>
-      <j-button icon="feedback" variant="empty">Give Feedback</j-button>
-      <j-button @click="copyIssueLink" icon="link" variant="empty">Copy Link</j-button>
-      <j-button @click="triggerIssueDelete" icon="trash" variant="empty" />
-      <j-button
-        v-if="withFullScreenButton"
-        @click="goFullScreen"
-        icon="expand"
-        :iconSize="24"
-        variant="empty"
-      />
-      <j-button
-        v-if="withCloseButton"
-        @click="$emit('close')"
-        icon="times"
-        :iconSize="24"
-        variant="empty"
-      />
-    </div>
-    <div class="flex w-full flex-wrap pb-16 px-7">
-      <!-- LEFT SECTION -->
-      <div class="sm:w-full md:w-7/12 lg:w-4/6 pr-10">
-        <!-- Title -->
-        <IssueTitle :updateIssue="handleUpdateIssue" :value="issueCopy.title" />
-        <!-- Description -->
-        <IssueDescription
-          :updateIssue="handleUpdateIssue"
-          :initialValue="issueCopy.description ?? ''"
-        />
-        <!-- Comments -->
-        <div class="pt-10">
-          <div class="font-medium text-15">Comments</div>
-          <Comment
-            :refetchIssue="refetchIssue"
-            isCreate
-            :comment="
-              {
-                user: currentUser,
-                body: 'Add a comment...',
-                issueId: issueId as any
-              } as any
-            "
+  <Dialog :open="true" @update:open="handleUpdateOpen">
+    <DialogContent class="w-[1040px] max-w-max" hide-close>
+      <IssueLoader v-if="!issueCopy" />
+      <div class="w-full h-full" v-else>
+        <div class="flex items-center text-foreground justify-between">
+          <!-- Type -->
+          <IssueType
+            :updateIssue="handleUpdateIssue"
+            :issueId="issueCopy.id"
+            :value="issueCopy.type"
           />
-          <Comment
-            @delete="triggeCommentDelete"
-            :refetchIssue="refetchIssue"
-            :comment="comment"
-            v-for="comment in commentsSorted"
-            :key="comment.id"
-          />
+
+          <div class="flex items-center gap-2">
+            <Button variant="outline">
+              <MessageCircle class="h-4 w-4 xl:mr-2" />
+              <span class="hidden xl:inline">Give Feedback</span>
+            </Button>
+            <Button @click="copyIssueLink" variant="outline">
+              <Clipboard class="h-4 w-4 xl:mr-2" />
+              <span class="hidden xl:inline">Copy Link</span>
+            </Button>
+            <Button @click="triggerIssueDelete" variant="outline">
+              <Trash class="h-4 w-4 xl:mr-2" />
+              <span class="hidden xl:inline">Delete</span>
+            </Button>
+            <Button v-if="withFullScreenButton" @click="goFullScreen" variant="outline">
+              <Expand class="h-4 w-4" />
+            </Button>
+            <Button v-if="withCloseButton" @click="$emit('close')" variant="outline">
+              <X class="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+        <div class="flex w-full flex-wrap">
+          <!-- LEFT SECTION -->
+          <div class="sm:w-full md:w-7/12 lg:w-4/6 pr-10">
+            <!-- Title -->
+            <IssueTitle :updateIssue="handleUpdateIssue" :value="issueCopy.title" />
+            <!-- Description -->
+            <IssueDescription
+              :updateIssue="handleUpdateIssue"
+              :initialValue="issueCopy.description ?? ''"
+            />
+            <!-- Comments -->
+            <div class="pt-10">
+              <div class="font-medium">Comments</div>
+              <Comment
+                :refetchIssue="refetchIssue"
+                isCreate
+                :comment="
+                  {
+                    user: currentUser,
+                    body: 'Add a comment...',
+                    issueId
+                  } as any
+                "
+              />
+              <Comment
+                @delete="triggeCommentDelete"
+                :refetchIssue="refetchIssue"
+                :comment="comment"
+                v-for="comment in commentsSorted"
+                :key="comment.id"
+              />
+            </div>
+          </div>
+          <!-- RIGHT SECTION -->
+          <div class="sm:w-full md:w-5/12 lg:w-2/6 pt-1">
+            <!-- STATUS -->
+            <IssueStatus :updateIssue="handleUpdateIssue" :value="issueCopy.status" />
+            <!-- AssigneesReporter -->
+            <IssueAssigneesReporter
+              :reporterId="issueCopy.reporterId"
+              :userIds="issueCopy.userIds"
+              :updateIssue="handleUpdateIssue"
+            />
+            <!-- PRIORITY -->
+            <IssuePriority :value="issueCopy.priority" :updateIssue="handleUpdateIssue" />
+            <!-- DATES -->
+            <div class="mt-3 pt-3 leading-loose border-t border-border text-foreground text-[13px]">
+              <div>Created - {{ formatDateTimeConversational(issueCopy.createdAt) }}</div>
+              <div>Updated - {{ formatDateTimeConversational(issueCopy.updatedAt) }}</div>
+            </div>
+          </div>
         </div>
       </div>
-      <!-- RIGHT SECTION -->
-      <div class="sm:w-full md:w-5/12 lg:w-2/6 pt-1">
-        <!-- STATUS -->
-        <IssueStatus :updateIssue="handleUpdateIssue" :value="issueCopy.status" />
-        <!-- AssigneesReporter -->
-        <IssueAssigneesReporter
-          :reporterId="issueCopy.reporterId"
-          :userIds="issueCopy.userIds"
-          :updateIssue="handleUpdateIssue"
-        />
-        <!-- PRIORITY -->
-        <IssuePriority :value="issueCopy.priority" :updateIssue="handleUpdateIssue" />
-        <!-- DATES -->
-        <div class="mt-3 pt-3 leading-loose border-t border-border text-foreground text-[13px]">
-          <div>Created - {{ formatDateTimeConversational(issueCopy.createdAt) }}</div>
-          <div>Updated - {{ formatDateTimeConversational(issueCopy.updatedAt) }}</div>
-        </div>
-      </div>
-    </div>
-  </div>
+    </DialogContent>
+  </Dialog>
 </template>
 
 <style lang="scss" scoped>

@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { ChevronLeft, ChevronRight } from 'lucide-vue-next'
 import { defineProps, defineEmits } from 'vue'
 
 const props = defineProps({
@@ -24,12 +25,9 @@ const handleResize = () => {
     <div>
       <button aria-label="toggle" class="btn">
         <div class="overlay"></div>
-        <span class="cursor-pointer fill-current text-white flex-shrink-0 leading-none">
-          <j-icon
-            :name="expanded ? 'chevron-left' : 'chevron-right'"
-            :size="24"
-            class="icon text-foreground"
-          ></j-icon>
+        <span class="cursor-pointer fill-current text-accent flex-shrink-0 leading-none">
+          <ChevronLeft v-if="expanded" />
+          <ChevronRight v-else />
         </span>
       </button>
     </div>

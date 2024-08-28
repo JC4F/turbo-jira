@@ -75,7 +75,7 @@ const onDrop = (dropResult: DropResult) => {
 </script>
 
 <template>
-  <div class="container flex mt-7">
+  <div class="flex mt-7">
     <List @drop="onDrop" v-for="status in IssueStatus" :key="status" :status="status"> </List>
   </div>
 </template>

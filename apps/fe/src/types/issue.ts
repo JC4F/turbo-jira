@@ -1,4 +1,4 @@
-import type { User } from './user'
+import { z } from 'zod'
 import type { Comment } from '@/types/comment'
 
 export enum IssueType {
@@ -41,17 +41,17 @@ export interface Issue {
   projectId: string
 }
 
-export interface IssueCreateDTO {
-  type: IssueType
-  title: string
-  description: string | null
-  reporterId: string
-  userIds: string[]
-  priority: IssuePriority
-  status?: IssueStatus
-  projectId?: string
-  users?: Partial<User>[]
-}
+// export interface IssueCreateDTO {
+//   type: IssueType
+//   title: string
+//   description: string | null
+//   reporterId: string
+//   userIds: string[]
+//   priority: IssuePriority
+//   status?: IssueStatus
+//   projectId?: string
+//   users?: Partial<User>[]
+// }
 
 export const IssueStatusCopy = {
   [IssueStatus.BACKLOG]: 'Backlog',
@@ -72,3 +72,20 @@ export const IssueTypeCopy = {
   [IssueType.BUG]: 'Bug',
   [IssueType.STORY]: 'Story'
 }
+
+export const issueCreateSchema = z.object({
+  issuetype: z.string(),
+  type: z.nativeEnum(IssueType),
+  title: z.string(),
+  reporterId: z.string(),
+  summary: z.string(),
+  description: z.string(),
+  reporter: z.string(),
+  userIds: z.string().array(),
+  priority: z.nativeEnum(IssuePriority),
+  status: z.nativeEnum(IssueStatus).optional(),
+  projectId: z.string().optional()
+  // users: z.array(z.any()).optional()
+})
+
+export type IssueCreateDTO = z.infer<typeof issueCreateSchema>

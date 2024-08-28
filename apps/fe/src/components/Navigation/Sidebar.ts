@@ -1,32 +1,34 @@
+import { Bug, Component, Filter, Kanban, Rocket, Settings, StickyNote } from 'lucide-vue-next'
+
 export const navLinks = [
   {
     name: 'Kanban Board',
-    icon: 'board',
+    icon: Kanban,
     to: { name: 'board' }
   },
   {
     name: 'Project settings',
-    icon: 'cog',
+    icon: Settings,
     to: { name: 'settings' }
   },
   {
     name: 'Releases',
-    icon: 'ship'
+    icon: Rocket
   },
   {
     name: 'Issues and filters',
-    icon: 'filters'
+    icon: Filter
   },
   {
     name: 'Pages',
-    icon: 'page'
+    icon: StickyNote
   },
   {
     name: 'Reports',
-    icon: 'report'
+    icon: Bug
   },
   {
     name: 'Components',
-    icon: 'component'
+    icon: Component
   }
 ]

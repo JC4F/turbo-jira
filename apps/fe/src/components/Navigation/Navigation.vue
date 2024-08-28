@@ -33,6 +33,6 @@ const handleResize = (isExpanded: boolean) => {
   left: 0px;
   position: fixed;
   top: 0px;
-  z-index: 200;
+  z-index: 1;
 }
 </style>

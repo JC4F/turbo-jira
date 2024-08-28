@@ -2,6 +2,8 @@
 import xor from 'lodash.xor'
 import { computed, ref } from 'vue'
 import { debounce } from 'throttle-debounce'
+import { Avatar, AvatarFallback, AvatarImage, Button, Input } from '@repo/ui'
+import { Search } from 'lucide-vue-next'
 import { getters } from '@/stores'
 import type { Filters } from '@/types'
 
@@ -54,12 +56,19 @@ const areFiltersCleared = computed(() => {
   <div class="flex items-center mt-6">
     <div class="w-40 mr-4">
       <form autocomplete="off" novalidate>
-        <j-input
-          aria-label="search"
-          icon="search"
-          :value="projectFilters.searchTerm"
-          @input="handleInput"
-        />
+        <div class="relative w-full max-w-sm items-center">
+          <Input
+            id="search"
+            type="text"
+            placeholder="Search..."
+            class="pl-10"
+            :value="projectFilters.searchTerm"
+            @input="handleInput"
+          />
+          <span class="absolute start-0 inset-y-0 flex items-center justify-center px-2">
+            <Search class="size-6 text-muted-foreground" />
+          </span>
+        </div>
       </form>
     </div>
     <!-- Avatars -->
@@ -70,24 +79,30 @@ const areFiltersCleared = computed(() => {
         :class="{ active: projectFilters.userIds.includes(user.id) }"
         class="flex -ml-1 transition-transform duration-100 rounded-full lift"
       >
-        <j-avatar
+        <Avatar
           class="cursor-pointer select-none shadow-outline-white"
-          :name="user.name"
-          :size="36"
-          :avatarUrl="user.avatarUrl"
           @click.enter="handleUser(user.id)"
-        />
+        >
+          <AvatarImage :src="user.avatarUrl" alt="avatar" />
+          <AvatarFallback>{{ user.name }}</AvatarFallback>
+        </Avatar>
       </div>
     </div>
-    <j-button :isActive="projectFilters.myOnly" variant="empty" @click="handleOnlyMe"
-      >Only My Issues</j-button
+    <Button
+      :isActive="projectFilters.myOnly"
+      :variant="projectFilters.myOnly ? 'secondary' : 'outline'"
+      @click="handleOnlyMe"
+      >Only My Issues</Button
     >
-    <j-button :isActive="projectFilters.recent" class="ml-3" variant="empty" @click="handleRecent"
-      >Recently Updated</j-button
+    <Button
+      :variant="projectFilters.recent ? 'secondary' : 'outline'"
+      class="ml-3"
+      @click="handleRecent"
+      >Recently Updated</Button
     >
     <div class="flex items-center ml-3" v-if="!areFiltersCleared">
       <div class="self-stretch w-px mr-3 bg-foreground"></div>
-      <j-button variant="secondary" @click="handleReset">Clear all</j-button>
+      <Button variant="secondary" @click="handleReset">Clear all</Button>
     </div>
   </div>
 </template>

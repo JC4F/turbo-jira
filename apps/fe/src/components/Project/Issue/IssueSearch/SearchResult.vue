@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import IssueTypeIcon from '@/components/shared/issue-type-icon/issue-type-icon.vue'
 import type { Issue } from '@/types/issue'
 import { eventBus } from '@/utils'
 
@@ -7,7 +8,6 @@ const props = defineProps<{
   issue: Issue
 }>()
 
-// Methods
 const selectResult = () => {
   eventBus.emit('close-search-modal', {
     isOpen: false
@@ -17,9 +17,6 @@ const selectResult = () => {
     id: props.issue?.id
   })
 }
-
-// Expose components and methods
-// const IssueDetailsComponent = IssueDetails
 </script>
 
 <template>
@@ -27,9 +24,9 @@ const selectResult = () => {
     @click="selectResult"
     class="flex items-center py-1 px-3 rounded transition duration-100 cursor-pointer select-none hover:bg-background"
   >
-    <j-icon :size="24" class="flex-shrink-0" :name="props.issue.type"></j-icon>
+    <IssueTypeIcon :issueType="props.issue.type" />
     <div class="pl-4">
-      <div class="text-foreground text-15">{{ issue.title }}</div>
+      <div class="text-foreground">{{ issue.title }}</div>
       <div class="uppercase text-xs text-foreground">
         {{ `${issue.type}-${issue.id}` }}
       </div>
