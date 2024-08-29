@@ -2,4 +2,4 @@
 export const sortByNewest = <T extends { [key: string]: any }, U extends keyof T>(
   items: T[],
   sortField: U
-): T[] => items.sort((a, b) => -a[sortField].localeCompare(b[sortField]))
+): T[] => [...items].sort((a, b) => -a[sortField].localeCompare(b[sortField]))

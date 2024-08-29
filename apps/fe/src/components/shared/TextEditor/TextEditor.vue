@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
 import Quill from 'quill'
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { quillConfig } from './editor'
 
 const props = defineProps<{
@@ -31,7 +31,7 @@ const enableWriteMode = () => {
 }
 
 const insertValue = (value: string) => {
-  quill.value?.clipboard.dangerouslyPasteHTML(0, value)
+  quill.value?.setText(value)
   quill.value?.blur()
 }
 
@@ -100,7 +100,7 @@ onBeforeUnmount(() => {
   }
 }
 .ql-editor {
-  // min-height: 110px;
+  min-height: 110px;
   font-family:
     'CircularStd',
     -apple-system,

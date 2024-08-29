@@ -10,13 +10,11 @@ import {
   SelectGroup,
   SelectItem,
   SelectTrigger,
-  SelectValue,
-  TagsInput,
-  TagsInputItem,
-  TagsInputItemDelete
+  SelectValue
 } from '@repo/ui'
 import Omit from 'lodash.omit'
 import { computed } from 'vue'
+import IssueAssignee from '../components/IssueAssignee/IssueAssignee.vue'
 
 // Props definition
 const props = defineProps({
@@ -35,10 +33,13 @@ const props = defineProps({
 })
 
 const store = useAppStore()
-
 const project = computed(store.getProject)
-const usersByUserIds = computed(() => {
-  return props.userIds.map(getUserById).filter((item): item is User => Boolean(item))
+
+const userNameModels = computed(() => {
+  return props.userIds
+    .map(getUserById)
+    .filter((item): item is User => Boolean(item))
+    .map((item) => item.name)
 })
 
 const getUserById = (userId: string) =>
@@ -55,7 +56,11 @@ const updateIssueReporter = async (userId: string) => {
   }
 }
 
-const updateIssueAssignees = async (userIds: string[]) => {
+const updateIssueAssignees = async (userNames: string[]) => {
+  const userIds = userNames
+    .map((name) => project.value.users.find((user) => user.name === name)?.id)
+    .filter((item): item is string => Boolean(item))
+
   try {
     await props.updateIssue({
       userIds,
@@ -93,22 +98,7 @@ const updateIssueAssignees = async (userIds: string[]) => {
 
     <!-- ASSIGNEES -->
     <div class="mt-6 mb-1 uppercase text-foreground text-[13px] font-bold">Assignees</div>
-    <TagsInput :v-model="userIds" @update:modelValue="updateIssueAssignees as any">
-      <TagsInputItem v-for="user in usersByUserIds" :key="user.id" :value="user.id">
-        <div class="flex items-center">
-          <Avatar class="w-5 h-5">
-            <AvatarImage :src="user.avatarUrl" alt="avatar" />
-            <AvatarFallback>{{ user.name }}</AvatarFallback>
-          </Avatar>
-          <div class="ml-[0.375rem] mr-1.5">
-            {{ user.name }}
-          </div>
-        </div>
-        <TagsInputItemDelete />
-      </TagsInputItem>
-
-      <TagsInputInput placeholder="Assignees..." />
-    </TagsInput>
+    <IssueAssignee :model-values="userNameModels" @update:model-values="updateIssueAssignees" />
   </div>
 </template>
 

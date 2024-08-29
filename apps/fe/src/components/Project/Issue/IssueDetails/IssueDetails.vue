@@ -15,7 +15,7 @@ import { formatDateTimeConversational } from '@/utils/date'
 import { Button, Dialog, DialogContent } from '@repo/ui'
 import { useMutation, useQuery } from '@vue/apollo-composable'
 import { Clipboard, Expand, MessageCircle, Trash, X } from 'lucide-vue-next'
-import { computed, defineComponent, onUnmounted, ref } from 'vue'
+import { computed, onUnmounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import IssueAssigneesReporter from './AssigneesReporter.vue'
 import Comment from './Comment.vue'
@@ -33,20 +33,6 @@ const props = defineProps<{
   withCloseButton?: boolean
   withFullScreenButton?: boolean
 }>()
-
-// Component imports
-defineComponent({
-  components: {
-    IssueLoader,
-    Comment,
-    IssueDescription,
-    IssueTitle,
-    IssueType,
-    IssueStatus,
-    IssueAssigneesReporter,
-    IssuePriority
-  }
-})
 
 const store = useAppStore()
 
@@ -196,7 +182,7 @@ const handleUpdateOpen = (value: boolean) => {
 
 <template>
   <Dialog :open="true" @update:open="handleUpdateOpen">
-    <DialogContent class="w-[1040px] max-w-max" hide-close>
+    <DialogContent class="w-[1040px] max-w-none" hide-close>
       <IssueLoader v-if="!issueCopy" />
       <div class="w-full h-full" v-else>
         <div class="flex items-center text-foreground justify-between">

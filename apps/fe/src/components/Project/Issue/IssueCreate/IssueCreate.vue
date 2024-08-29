@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import IssueTypeIcon from '@/components/shared/IssueTypeIcon/IssueTypeIcon.vue'
+import TextEditor from '@/components/shared/TextEditor/TextEditor.vue'
 import { createIssue, getProjectIssues } from '@/graphql/queries/issue'
 import { successToast } from '@/plugins'
 import { useAppStore } from '@/stores'
@@ -33,18 +34,15 @@ import {
   SelectGroup,
   SelectItem,
   SelectTrigger,
-  SelectValue,
-  TagsInput,
-  TagsInputInput,
-  TagsInputItem,
-  TagsInputItemDelete,
-  TagsInputItemText
+  SelectValue
 } from '@repo/ui'
 import { toTypedSchema } from '@vee-validate/zod'
 import { useMutation, useQuery } from '@vue/apollo-composable'
 import { ArrowDown, ArrowUp, X } from 'lucide-vue-next'
+
 import { useForm } from 'vee-validate'
 import { computed, ref } from 'vue'
+import IssueAssignee from '../components/IssueAssignee/IssueAssignee.vue'
 
 const emit = defineEmits(['close'])
 
@@ -80,11 +78,12 @@ const { handleSubmit } = useForm({
 })
 
 const onSubmit = handleSubmit(async (values) => {
-  console.log('check value: ', values)
-
   loading.value = true
   const issue: IssueCreateDTO = {
-    ...values
+    ...values,
+    userIds: values.userIds
+      .map((name) => project.value.users.find((user) => user.name === name)?.id)
+      .filter((item): item is string => Boolean(item))
   }
   try {
     await mutate({ createIssueInput: issue } as any)
@@ -111,7 +110,7 @@ const handleUpdateOpen = (value: boolean) => {
 
 <template>
   <Dialog :open="true" @update:open="handleUpdateOpen">
-    <DialogContent class="w-[700px] max-w-max" hide-close>
+    <DialogContent class="w-[700px] max-w-none" hide-close>
       <div class="flex items-center text-foreground">
         <div class="text-xl">Create issue</div>
         <div class="flex-auto"></div>
@@ -152,8 +151,6 @@ const handleUpdateOpen = (value: boolean) => {
           </FormItem>
         </FormField>
 
-        <div class="sep"></div>
-
         <FormField v-slot="{ componentField }" name="title">
           <FormItem>
             <FormLabel>Short Summary</FormLabel>
@@ -167,11 +164,16 @@ const handleUpdateOpen = (value: boolean) => {
           </FormItem>
         </FormField>
 
-        <FormField v-slot="{ field }" name="description">
+        <FormField v-slot="{ value, handleChange }" name="description">
           <FormItem>
             <FormLabel>Description</FormLabel>
             <FormControl>
-              <j-text-editor :mode="`write`" v-bind="field" class="min-h-[110px]" />
+              <TextEditor
+                :mode="`write`"
+                :value="value"
+                @input="handleChange"
+                class="min-h-[110px]"
+              />
             </FormControl>
             <FormDescription>Describe the issue in as much detail as you'd like.</FormDescription>
             <FormMessage />
@@ -182,7 +184,7 @@ const handleUpdateOpen = (value: boolean) => {
           <FormItem>
             <FormLabel>Reporter</FormLabel>
 
-            <Select v-bind="componentField">
+            <Select v-bind="componentField" opm>
               <FormControl>
                 <SelectTrigger>
                   <SelectValue placeholder="Select a reporter" />
@@ -212,14 +214,7 @@ const handleUpdateOpen = (value: boolean) => {
           <FormItem>
             <FormLabel>Assignees</FormLabel>
             <FormControl>
-              <TagsInput :model-value="value">
-                <TagsInputItem v-for="item in value" :key="item" :value="item">
-                  <TagsInputItemText />
-                  <TagsInputItemDelete />
-                </TagsInputItem>
-
-                <TagsInputInput placeholder="Assignees..." />
-              </TagsInput>
+              <IssueAssignee :model-values="value" />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -262,7 +257,7 @@ const handleUpdateOpen = (value: boolean) => {
           </FormItem>
         </FormField>
 
-        <div class="flex items-center justify-end formField">
+        <div class="flex items-center justify-end mt-5">
           <Button type="submit" :disabled="isWorking" class="ml-3">Create</Button>
           <Button @click.prevent="$emit('close')" class="ml-3" variant="secondary">Cancel</Button>
         </div>
@@ -271,28 +266,4 @@ const handleUpdateOpen = (value: boolean) => {
   </Dialog>
 </template>
 
-<style lang="scss" scoped>
-.formField {
-  margin-top: 20px;
-}
-.sep {
-  margin-top: 20px;
-  background-color: rgb(244 245 247);
-}
-.formFieldLabel {
-  display: block;
-  padding-bottom: 5px;
-  color: rgb(94 108 132);
-  font-size: 13px;
-  font-weight: 500;
-}
-.formFieldTip {
-  padding-top: 6px;
-  color: rgb(94 108 132);
-  font-size: 13px;
-}
-
-.descriptionEditor .ql-editor {
-  min-height: 110px;
-}
-</style>
+<style lang="scss" scoped></style>

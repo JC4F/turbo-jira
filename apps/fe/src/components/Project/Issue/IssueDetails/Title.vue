@@ -28,7 +28,7 @@ const updateIssueDescription = async () => {
       class="title h-auto font-medium text-2xl text-foreground;"
       @input="(e: any) => (title = e)"
       @blur="updateIssueDescription"
-      :value="value"
+      :model-value="value"
       rows="1"
     />
   </div>
