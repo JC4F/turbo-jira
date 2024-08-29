@@ -1,18 +1,20 @@
 <script lang="ts" setup>
-import { computed } from 'vue'
-import { Button } from '@repo/ui'
-import { Github } from 'lucide-vue-next'
 import AppFilters from '@/components/Project/Filters.vue'
 import Lists from '@/components/Project/Lists/Lists.vue'
+import { useAppStore } from '@/stores'
 import type { Filters } from '@/types'
-import { mutations, getters } from '@/stores'
+import { Button } from '@repo/ui'
+import { Github } from 'lucide-vue-next'
+import { computed } from 'vue'
+
+const store = useAppStore()
 
 // Computed property for project
-const project = computed(getters.project)
+const project = computed(store.getProject)
 
 // Handle filters change
 const handleFiltersChange = (f: Filters) => {
-  mutations.setFilters(f)
+  store.setFilters(f)
 }
 </script>
 

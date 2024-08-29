@@ -1,11 +1,13 @@
 <script lang="ts" setup>
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
-import { useQuery } from '@vue/apollo-composable'
-import { mutations } from '@/stores'
-import { getProjectWithUsersAndIssues } from '@/graphql/queries/project'
-import Navigation from '@/components/Navigation/Navigation.vue'
-import PageLoader from '@/components/Loader.vue'
 import ErrorPage from '@/components/ErrorPage.vue'
+import PageLoader from '@/components/Loader.vue'
+import Navigation from '@/components/Navigation/Navigation.vue'
+import { getProjectWithUsersAndIssues } from '@/graphql/queries/project'
+import { useAppStore } from '@/stores'
+import { useQuery } from '@vue/apollo-composable'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+
+const store = useAppStore()
 
 // Reactive state
 const expanded = ref<boolean>(true)
@@ -47,7 +49,7 @@ const { loading, onResult, error } = useQuery(
 
 onResult((res) => {
   if (res && res.data) {
-    mutations.setProject(res.data.getProjectWithUsersAndIssues)
+    store.setProject(res.data.getProjectWithUsersAndIssues)
   }
 })
 </script>

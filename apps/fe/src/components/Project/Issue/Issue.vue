@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { Avatar, AvatarFallback, AvatarImage } from '@repo/ui'
-import { ArrowDown, ArrowUp } from 'lucide-vue-next'
-import { type Issue, IssuePriority } from '@/types/issue'
-import { getters } from '@/stores'
+import IssueTypeIcon from '@/components/shared/IssueTypeIcon/IssueTypeIcon.vue'
+import { useAppStore } from '@/stores'
+import { IssuePriority, type Issue } from '@/types/issue'
 import { issuePriorityColors } from '@/utils/colors'
 import { eventBus } from '@/utils/eventBus'
-import IssueTypeIcon from '@/components/shared/issue-type-icon/issue-type-icon.vue'
+import { Avatar, AvatarFallback, AvatarImage } from '@repo/ui'
+import { ArrowDown, ArrowUp } from 'lucide-vue-next'
+import { computed } from 'vue'
 
 // Props
 const props = defineProps<{
@@ -14,8 +14,10 @@ const props = defineProps<{
   index: number
 }>()
 
+const store = useAppStore()
+
 // Computed properties
-const project = computed(getters.project)
+const project = computed(store.getProject)
 const assignees = computed(() =>
   props.issue.userIds.map((userId) => project.value.users.find((user) => user.id === userId))
 )

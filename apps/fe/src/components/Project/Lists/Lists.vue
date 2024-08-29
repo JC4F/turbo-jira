@@ -1,20 +1,22 @@
 <script lang="ts" setup>
-import { ref, computed } from 'vue'
-import { useMutation } from '@vue/apollo-composable'
 import List from '@/components/Project/Lists/List.vue'
+import { updateIssueMutation } from '@/graphql/queries/issue'
+import { useAppStore } from '@/stores'
 import { IssueStatus } from '@/types'
-import { getters, mutations } from '@/stores'
 import {
-  type DropResult,
-  type Target,
   calculateIssueListPosition,
   isPositionChanged,
-  updateArrayItemById
+  updateArrayItemById,
+  type DropResult,
+  type Target
 } from '@/utils'
-import { updateIssueMutation } from '@/graphql/queries/issue'
+import { useMutation } from '@vue/apollo-composable'
+import { computed, ref } from 'vue'
+
+const store = useAppStore()
 
 // Reactive variables
-const project = computed(getters.project)
+const project = computed(store.getProject)
 const destination = ref<Target>()
 const source = ref<Target>()
 
@@ -31,9 +33,9 @@ const handleIssueDrop = (issueId: string, d: Target, s: Target) => {
 
   const issues = updateArrayItemById(project.value.issues, issueId, issueUpdateValues)
 
-  const oldProjectValues = getters.project()
+  const oldProjectValues = store.getProject()
   // Optimistic update
-  mutations.setProject({
+  store.setProject({
     ...project.value,
     issues
   })
@@ -43,7 +45,7 @@ const handleIssueDrop = (issueId: string, d: Target, s: Target) => {
     issue: issueUpdateValues
   } as any).catch((e) => {
     console.error(e)
-    mutations.setProject(oldProjectValues)
+    store.setProject(oldProjectValues)
   })
   destination.value = undefined
   source.value = undefined

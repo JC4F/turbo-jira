@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { useAppStore } from '@/stores'
+import { eventBus } from '@/utils'
 import { Avatar, AvatarFallback, AvatarImage } from '@repo/ui'
 import { Aperture, HelpCircle, Plus, Search } from 'lucide-vue-next'
-import { eventBus } from '@/utils'
-import { getters } from '@/stores'
+import { computed } from 'vue'
 
-const currentUser = computed(getters.currentUser)
+const store = useAppStore()
+
+const currentUser = computed(store.getCurrentUser)
 
 const items = [
   {

@@ -1,7 +1,7 @@
-import { createRouter, createWebHistory } from 'vue-router'
 import { authenticate } from '@/auth/authenticate'
 import { fetchMe } from '@/graphql/queries/auth'
-import { getters, mutations } from '@/stores'
+import { useAppStore } from '@/stores'
+import { createRouter, createWebHistory } from 'vue-router'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -38,14 +38,16 @@ const router = createRouter({
 })
 
 router.beforeEach(async (to, _, next) => {
+  const store = useAppStore()
+
   if (to.matched.some((routeRecord) => routeRecord.meta.requiresAuth)) {
-    if (!getters.isAuthenticated()) {
+    if (!store.getIsAuthenticated()) {
       await authenticate()
       next({ name: to.name || 'root' })
     } else {
       try {
         const currentUser = await fetchMe()
-        mutations.setCurrentUser(currentUser)
+        store.setCurrentUser(currentUser)
         next()
       } catch (error) {
         if (

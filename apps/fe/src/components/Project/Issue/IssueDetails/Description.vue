@@ -1,6 +1,7 @@
 <script lang="ts" setup>
+import TextEditor from '@/components/shared/TextEditor/TextEditor.vue'
 import { Button } from '@repo/ui'
-import { ref, computed } from 'vue'
+import { computed, ref } from 'vue'
 
 // Define props
 const props = defineProps<{
@@ -41,7 +42,7 @@ const updateIssueDescription = async () => {
 <template>
   <div>
     <div class="pt-5 pb-2 text-foreground">Description</div>
-    <j-text-editor
+    <TextEditor
       @changeMode="handleModeChange"
       :mode="mode"
       :value="initialValue"

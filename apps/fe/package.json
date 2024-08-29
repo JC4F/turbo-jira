@@ -30,6 +30,7 @@
     "mitt": "^3.0.1",
     "pinia": "^2.1.7",
     "quill": "^2.0.2",
+    "radix-vue": "^1.9.3",
     "throttle-debounce": "^5.0.2",
     "tippy.js": "^6.3.7",
     "toastify-js": "^1.12.0",

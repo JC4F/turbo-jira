@@ -1,8 +1,8 @@
-import { fetchMe, login } from '../graphql/queries/auth'
-import { apolloClient } from '../graphql/client'
-import { storeAuthToken } from '../utils/authToken'
-import { mutations } from '@/stores'
+import { useAppStore } from '@/stores'
 import type { Role } from '@/types'
+import { apolloClient } from '../graphql/client'
+import { fetchMe, login } from '../graphql/queries/auth'
+import { storeAuthToken } from '../utils/authToken'
 
 type LoginResponse = {
   login: {
@@ -13,6 +13,8 @@ type LoginResponse = {
 }
 
 export const authenticate = async () => {
+  const store = useAppStore()
+
   try {
     const result = await apolloClient.mutate<LoginResponse>({
       mutation: login,
@@ -26,9 +28,9 @@ export const authenticate = async () => {
       login: { access_token: authToken }
     } = result.data!
     storeAuthToken(authToken)
-    mutations.setIsAuthenticated(true)
+    store.setIsAuthenticated(true)
     const currentUser = await fetchMe()
-    mutations.setCurrentUser(currentUser)
+    store.setCurrentUser(currentUser)
   } catch (error) {
     // toast.error(error);
     console.error(error)

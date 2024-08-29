@@ -1,12 +1,12 @@
 <script lang="ts" setup>
-import dayjs from 'dayjs'
-import { computed, defineProps, defineEmits } from 'vue'
-import { Container, Draggable } from 'vue3-smooth-dnd'
-import { type DropResult, getSortedListIssues } from '@/utils'
 import IssueComponent from '@/components/Project/Issue/Issue.vue'
+import { useAppStore } from '@/stores'
+import { IssueStatus, IssueStatusCopy, type Issue } from '@/types'
 import type { Filters } from '@/types/filters'
-import { type Issue, IssueStatusCopy, IssueStatus } from '@/types'
-import { getters } from '@/stores'
+import { getSortedListIssues, type DropResult } from '@/utils'
+import dayjs from 'dayjs'
+import { computed, defineEmits, defineProps } from 'vue'
+import { Container, Draggable } from 'vue3-smooth-dnd'
 
 // Props
 const props = defineProps<{
@@ -18,10 +18,12 @@ const emit = defineEmits<{
   (e: 'drop', payload: DropResult): void
 }>()
 
+const store = useAppStore()
+
 // Computed properties
-const project = computed(getters.project)
-const filters = computed(getters.filters)
-const currentUserId = computed(() => getters.currentUser().id)
+const project = computed(store.getProject)
+const filters = computed(store.getFilters)
+const currentUserId = computed(() => store.getCurrentUser().id)
 
 const filterIssues = (projectIssues: Array<Issue>, filters: Filters, currentUserId: string) => {
   const { searchTerm, userIds, myOnly, recent } = filters

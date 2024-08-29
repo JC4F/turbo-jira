@@ -1,9 +1,9 @@
 <script lang="ts" setup>
-import { computed } from 'vue'
-import { FolderDot } from 'lucide-vue-next'
-import { navLinks } from './Sidebar'
+import { useAppStore } from '@/stores'
 import { ProjectCategoryCopy } from '@/types'
-import { getters } from '@/stores'
+import { FolderDot } from 'lucide-vue-next'
+import { computed } from 'vue'
+import { navLinks } from './Sidebar'
 
 const props = defineProps({
   expanded: {
@@ -12,7 +12,9 @@ const props = defineProps({
   }
 })
 
-const project = computed(getters.project)
+const store = useAppStore()
+
+const project = computed(store.getProject)
 const sidebarWidth = computed(() => (props.expanded ? 240 : 20))
 
 // You can now return or use the variables as needed directly

@@ -1,25 +1,48 @@
 <script lang="ts" setup>
 import { getProjectWithUsersAndIssues, updateProject } from '@/graphql/queries/project'
 import { errorToast, successToast } from '@/plugins/toast'
-import { getters, mutations } from '@/stores'
+import { useAppStore } from '@/stores'
 import {
   ProjectCategory,
   ProjectCategoryCopy,
   projectSettingSchema,
   type ProjectSettingDTO
 } from '@/types/project'
-import { Button, Textarea } from '@repo/ui'
+import {
+  Button,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+  Input,
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Textarea
+} from '@repo/ui'
 import { toTypedSchema } from '@vee-validate/zod'
 import { useMutation, useQuery } from '@vue/apollo-composable'
 import { useForm } from 'vee-validate'
 import { computed, ref } from 'vue'
 
+const store = useAppStore()
+
 const isWorking = ref<boolean>(false)
 const queryEnabled = ref<boolean>(false)
 
-const project = computed(getters.project)
+const project = computed(store.getProject)
 
-const defaultProjectSettingValues: Partial<ProjectSettingDTO> = {}
+const defaultProjectSettingValues: Partial<ProjectSettingDTO> = {
+  name: project.value.name,
+  url: project.value.url || undefined,
+  description: project.value.description || undefined,
+  category: project.value.category
+}
 
 const { handleSubmit } = useForm({
   validationSchema: toTypedSchema(projectSettingSchema),
@@ -37,10 +60,10 @@ const handleUpdateProject = handleSubmit(async (values) => {
   try {
     isWorking.value = true
     queryEnabled.value = true
-    await mutate({ project: values })
+    await mutate({ updateProjectInput: { ...values, id: project.value.id } })
     const res = await refetch()
     if (res?.data) {
-      mutations.setProject(res.data.getProjectWithUsersAndIssues)
+      store.setProject(res.data.getProjectWithUsersAndIssues)
     }
     successToast('Changes have been saved successfully.').showToast()
   } catch {
@@ -116,7 +139,7 @@ const handleUpdateProject = handleSubmit(async (values) => {
       </FormField>
 
       <div class="pt-7">
-        <Button :disabled="isWorking"> Save changes </Button>
+        <Button :disabled="isWorking" type="submit"> Save changes </Button>
       </div>
     </form>
   </div>
